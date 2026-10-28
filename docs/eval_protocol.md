@@ -1,4 +1,4 @@
-### Evaluation protocol and cost model (fixed rules)
+# Evaluation protocol and cost model (fixed rules)
 
 These rules are frozen on 9 Oct and copied into docs/eval_protocol.md; every model is judged by them, so results are comparable. Changing them later invalidates every earlier result.
 
