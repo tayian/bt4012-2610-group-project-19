@@ -10,8 +10,8 @@ The **Tunisian Company of Electricity and Gas (STEG)** incurs estimated annual l
 
 Because on-site inspection capacity is strictly finite, the operational objective is **not simply binary classification**, but **client-level risk ranking under a constrained monthly inspection budget** (top 1%, 5%, 10%), paired with an **auditable, grounded LLM "Inspector Brief"** to explain to field investigators why a customer was flagged, what physical signs to inspect on premise, and what remains uncertain.
 
-* **Primary Evaluation Metric:** PR-AUC (Average Precision) & Precision/Recall at top $k\%$ ($k \in \{1\%, 5\%, 10\%\}$).
-* **Business Evaluation Metric:** Expected Net Recovery Cost Curve: $\text{Net}(k) = V \times \text{TP}(k) - C \times k$ ($V/C \in \{5, 10, 20\}$).
+* **Primary Evaluation Metric:** PR-AUC (Average Precision) & Precision/Recall at top $k$ inspection budget ($k \in \{1, 5, 10\}$%).
+* **Business Evaluation Metric:** Expected Net Recovery Cost Curve: $\text{Net}(k) = V \times \text{TP}(k) - C \times k$ (evaluated at $V/C \in \{5, 10, 20\}$).
 * **Investigation Layer:** Deterministic RAG (BM25 + MiniLM + RRF + Cross-Encoder) and Multi-Agent workflow generating schema-enforced, citation-backed Inspector Briefs.
 
 There is a pipeline_RAG.md in the repo that explains the RAG pipeline so that it would be easier to understand and visualize the RAG pipeline.
@@ -77,14 +77,17 @@ BT4012Project/
 
 ## 3. Environment Setup & `requirements.txt`
 
-The repository relies on Python 3.10+ and a curated set of dependencies spanning tabular ML, deep learning, graph analytics, and hybrid RAG.
+The repository relies on **Python 3.11+** (the course tutorial notebook `L6_RAG_Hands_On.ipynb` was originally executed on Python 3.10.x, but explicitly recommends **Python 3.11+** for fresh environments; this project baseline is actively configured and verified on **Python 3.12.1**), along with a curated set of dependencies spanning tabular ML, deep learning, graph analytics, and hybrid RAG.
+
+> [!NOTE]
+> **Python Version Compatibility:** While the historical course lab ran on Python 3.10, all core ML/DL/NLP dependencies (`torch`, `lightgbm`, `sentence-transformers`, `scikit-learn`, `pydantic`) have modern pre-compiled wheels supporting Python 3.12 without deprecation or build errors.
 
 ### 3.1 Creating / Activating Your Conda Environment
 It is strongly recommended to run this project inside a dedicated Conda virtual environment (e.g. `BT4012`):
 
 ```bash
-# Create the environment with Python 3.10 (if not already created)
-conda create -n BT4012 python=3.10 -y
+# Create the environment with Python 3.12 (if not already created)
+conda create -n BT4012 python=3.12 -y
 
 # Activate the environment
 conda activate BT4012
