@@ -1,0 +1,20 @@
+PYTHON ?= python
+CLIENTS ?= data/raw/client_train.csv
+INVOICES ?= data/raw/invoice_train.csv
+SPLIT_DIR ?= data/splits
+FEATURES_V0 ?= data/processed/features_v0.parquet
+RESULTS_DIR ?= results
+LR_MAX_ITER ?= 15000
+
+.PHONY: data features baseline test-w1-baseline
+data:
+	$(PYTHON) -m src.data.prepare_baseline --clients "$(CLIENTS)" --invoices "$(INVOICES)" --split-dir "$(SPLIT_DIR)"
+
+features: data
+	$(PYTHON) -m src.features.aggregate --clients "$(CLIENTS)" --invoices "$(INVOICES)" --out "$(FEATURES_V0)"
+
+baseline: features
+	$(PYTHON) -m src.models.linear --features "$(FEATURES_V0)" --clients "$(CLIENTS)" --split-dir "$(SPLIT_DIR)" --results-dir "$(RESULTS_DIR)" --max-iter "$(LR_MAX_ITER)"
+
+test-w1-baseline:
+	$(PYTHON) -m unittest discover -s tests -p test_w1_baseline.py -v
