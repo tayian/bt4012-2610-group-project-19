@@ -1,0 +1,15 @@
+# Ignore jerryDevIgnore folder
+jerryDevIgnore/
+
+# Environment Variables & Secrets
+.env
+*.env
+
+# Python Cache & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+*.parquet
+results/oof/*.parquet
+results/agent_logs/*.json
