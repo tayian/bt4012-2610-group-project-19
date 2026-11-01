@@ -1,10 +1,14 @@
+# RAG pipeline
+
+How the corpus documents become retrieval chunks and how a query flows through hybrid retrieval to an Inspector Brief.
+
 Human-Authored Markdown Docs:
   ├── playbook.md         ──┐
   ├── codebook.md         ──┼──► [Parsing Script] ──┐
   ├── sop_v2023.md        ──┤                        │
   └── sop_v2025.md        ──┘                        │
                                                      ├──►  data/corpus/chunks.jsonl
-Python-Generated Cases:                             │     (~350 total chunks)
+Python-Generated Cases:                             │     (~420 total chunks)
   └── case_cards.py       ──────► [case_cards]   ────┘
       (From 300 training clients)
                                                                 │

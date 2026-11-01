@@ -1,8 +1,8 @@
 # LLM & RAG Technical Stack Specification (`docs/llm_stack.md`)
 
 **Project:** BT4012 Fraud Analytics — The Tunisian Company of Electricity and Gas (STEG)  
-**Owner:** Role D (LLM, RAG & Agent Lead)  
-**Status:** Frozen for V1 Pipeline  
+**Workstream:** LLM, RAG & agents  
+**Status:** Draft  
 **Last Updated:** October 2026  
 
 ---
@@ -11,16 +11,16 @@
 
 The LLM/RAG layer in this project does **not** predict fraud or assign labels on its own; risk ranking is strictly owned by the ML model suite (M1–M10: LightGBM, CatBoost, Autoencoder, 1D-CNN). The LLM's operational role is to generate an **audit-ready, grounded Inspector Brief** for human field inspectors explaining *why* a customer was flagged under a finite monthly inspection budget.
 
-To satisfy the grading and module requirements, this stack is selected to guarantee:
-1. **Zero Hallucination on Numbers & Precedents**: Enforced via metadata-filtered hybrid retrieval and exact chunk citation (`[TYP-xx]`, `[SOP-v2025-x.x]`, `[CASE-xxx]`, `[SNAPSHOT]`).
-2. **Determinism & Auditability**: Operating at `temperature = 0.0` (module guideline: *"Temperature 0 for anything auditable"*).
+The stack is chosen to support these goals:
+1. **Grounded numbers and precedents**: the model is asked to cite exact chunk IDs (`[TYP-xx]`, `[CODE-<field>-<value>]`, `[SOP-v2025-x.x]`, `[CASE-<client_id>]`, `[SNAPSHOT]`) from metadata-filtered hybrid retrieval. This reduces hallucination but does not rule it out; the faithfulness checks in §4 measure how often briefs stay grounded.
+2. **Repeatability & auditability**: `temperature = 0.0` (module guideline: *"Temperature 0 for anything auditable"*). This makes outputs much more repeatable but not guaranteed identical across runs or model versions.
 3. **Decoupled Execution**: Fast, local embedding and sparse search requiring no remote vector database infrastructure.
 4. **Prompt Security**: Structural isolation of untrusted meter-reader remarks and customer metadata against prompt injection.
 
 ```
 +-------------------------------------------------------------+
 |               ML Risk Scorer & SHAP Top-5                   |
-|           (Roles B & C: LightGBM / Fusion Model)            |
+|                 (LightGBM / Fusion Model)                   |
 +-------------------------------------------------------------+
                               |
                               v
@@ -53,12 +53,12 @@ To satisfy the grading and module requirements, this stack is selected to guaran
                               v
 +-------------------------------------------------------------+
 |        Brief Writer LLM (Prompt Sandwich + Pydantic)        |
-|          Primary: Gemini Pro | Alt: Claude / GPT-4o         |
-|               (Zero Temperature, Grounded)                  |
+|   Tested: gemini-2.5-flash | Alt: current Claude / GPT     |
+|            (Temperature 0, cites retrieved chunks)          |
 +-------------------------------------------------------------+
                               |
                               v
-                  [Verified Inspector Brief]
+                  [Inspector Brief + faithfulness checks]
 ```
 
 ---
@@ -67,15 +67,15 @@ To satisfy the grading and module requirements, this stack is selected to guaran
 
 | Layer | Component / Library | Implementation Specification | Technical Justification |
 | :--- | :--- | :--- | :--- |
-| **Primary LLM** | Google Gemini API (`google-genai` / `google-generativeai`) | `gemini-1.5-pro` / `gemini-2.0-flash` (via Google AI Studio / Gemini Pro subscription) | Native `response_schema` enforcement, high throughput/quota on Pro subscription, massive context window for multi-chunk historical dossiers. |
-| **Alternative LLMs** | Anthropic Claude API / OpenAI API | `claude-3-5-sonnet-20241022`, `gpt-4o-2024-08-06` | Maintained via provider abstraction interface for comparative benchmark runs. |
-| **Decoding Config** | Temperature: `0.0`<br>Max Tokens: `1200` | Strict determinism (`top_p = 1.0`, `seed = 4012`) | Required for compliance and reproducible fraud audits. |
-| **Dense Retrieval** | `sentence-transformers` | `sentence-transformers/all-MiniLM-L6-v2` (384 dims, normalized cosine/dot product) | Lightweight (<100MB), CPU-fast local inference (<1ms across ~360 chunks), strong semantic representation of conceptual fraud signatures. |
+| **Primary LLM** | Google Gemini API (`google-genai`) | `gemini-2.5-flash`, set once by `GEMINI_MODEL` in `.env` and checked by `tests/test_llm_api.py` (`python run.py test-llm`). Experiments use this one model ID throughout and record it with every brief. | Native `response_schema` support for Pydantic output; context window comfortably holds five evidence chunks plus the client snapshot. |
+| **Alternative LLMs** | Anthropic Claude API / OpenAI API | A current Claude or GPT model; pin and record the exact model ID when the comparison is run. | Kept behind a provider interface for comparison runs. |
+| **Decoding Config** | Temperature: `0.0`<br>Max Tokens: `1200` | `top_p = 1.0`, `seed = 4012` where the provider supports it | Makes runs as repeatable as the provider allows, for reproducible evaluation. |
+| **Dense Retrieval** | `sentence-transformers` | `sentence-transformers/all-MiniLM-L6-v2` (384 dims, normalized cosine/dot product) | Small (about 90 MB) and fast enough on CPU for a corpus of ~420 chunks (not benchmarked); good general-purpose semantic matching. |
 | **Sparse Retrieval** | `rank-bm25` | `BM25Okapi` with regex word/code tokenization | Captures exact alphanumeric codes (`counter_statue`, `reading_remarque`, `tarif_type`) where dense embeddings drift. |
 | **Hybrid Fusion** | Reciprocal Rank Fusion (RRF) | Custom fusion function ($k = 60$ constant), Top 20 dense + Top 20 sparse $\rightarrow$ Top 5 fused | Solves score calibration mismatch between BM25 unbounded scores and cosine similarities. |
 | **Cross Re-ranker** | `sentence-transformers` | `cross-encoder/ms-marco-MiniLM-L-6-v2` | Scores top 20 query-chunk pairs jointly via full cross-attention transformer, selecting top 5 highest-relevance chunks. |
 | **Structured Output** | `pydantic>=2.0` | `InspectorBrief` Pydantic `BaseModel` schema with regex validators | Enforces machine-actionable JSON structure for downstream queueing, preventing silent schema drift. |
-| **Evaluation / Judge** | Rule-based regex + LLM-as-a-judge | `src/llm/faithfulness.py` (built by Role C) | Verifies 100% citation existence, exact number accuracy against snapshot, and citation faithfulness. |
+| **Evaluation / Judge** | Rule-based regex + LLM-as-a-judge | `src/llm/faithfulness.py` (planned) | Checks citation existence, number accuracy against the snapshot, and citation faithfulness. |
 
 ---
 
@@ -99,7 +99,8 @@ To satisfy the grading and module requirements, this stack is selected to guaran
 - **Metadata Filters Applied Prior to Fusion**:
   * `jurisdiction == 'TN'`
   * `split == 'train'` (Strict anti-leakage rule: precedent case cards come only from the training set)
-  * `valid_from <= alert_date <= valid_to` (SOP temporal version matching)
+  * `valid_from <= alert_date < (valid_to or '9999-12-31')` (SOP version matching; half-open window `[valid_from, valid_to)`, so v2023 does not apply on 2025-01-01)
+  * `alert_date` is the date the risk list is scored and the brief is written, not an invoice date (invoices end in 2019). It is set explicitly for each experiment.
 
 ### 3.3 Output Schema Specification (`results/briefs/*.json`)
 Every brief generated by the model must validate against the following Pydantic schema structure:
@@ -123,7 +124,7 @@ Every brief generated by the model must validate against the following Pydantic 
       "action": "string"
     }
   ],
-  "similar_cases": ["CASE-train-0142"],
+  "similar_cases": ["CASE-train_Client_10023"],
   "uncertainty": "string"
 }
 ```
@@ -132,11 +133,11 @@ Every brief generated by the model must validate against the following Pydantic 
 
 ## 4. Grounding & Evaluation Harness (Faithfulness)
 
-Built in coordination with Role C (`src/llm/faithfulness.py`):
+Built with the evaluation workstream (`src/llm/faithfulness.py`, planned):
 1. **Citation Existence Check:** Every bracketed citation in the generated brief must match an ID present in the retrieved evidence set or `[SNAPSHOT]`. (Pass criteria: 100%).
 2. **Numerical Veracity Check:** Regex extraction of every number in the brief; every number must appear verbatim in the client's `SNAPSHOT` or a cited clause. (Pass criteria: 100%).
-3. **Temporal Validity Check:** The SOP version cited must match the alert date validity window (`valid_from` to `valid_to`).
-4. **Three-Run Benchmark:** The system will be evaluated across 3 experimental regimes (Week 6 lecture concept):
+3. **Temporal Validity Check:** Every SOP clause cited must satisfy `valid_from <= alert_date < valid_to` (half-open window).
+4. **Three-Run Benchmark:** The system will be evaluated across 3 experimental regimes (RAG lecture concept):
    * Run 1: No evidence (raw LLM baseline).
    * Run 2: Unfiltered hybrid RAG.
    * Run 3: Metadata-filtered hybrid RAG.

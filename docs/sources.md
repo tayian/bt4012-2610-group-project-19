@@ -1,152 +1,159 @@
 # Literature Sources & Grounding Bibliography (`docs/sources.md`)
 
 **Project:** BT4012 Fraud Analytics — The Tunisian Company of Electricity and Gas (STEG)  
-**Author / Owner:** Role D (LLM, RAG & Agent Lead)  
-**Status:** Approved & Frozen for Milestone 1  
-**Last Updated:** October 2026  
+**Workstream:** LLM, RAG & agents  
+**Status:** Draft; bibliographic details checked against Crossref / publisher pages (see notes under each entry)  
+**Last Updated:** November 2026  
 
 ---
 
 ## 1. Overview & Purpose
 
-This document compiles the **8 authoritative academic and industry references** underpinning Group 19's fraud analytics pipeline. In accordance with the project plan:
-1. Every section in the **NTL Typology Playbook** (`TYP-01` through `TYP-12`) must directly cite the physical tampering mechanisms and data signatures identified in these sources.
-2. The **Cost Model & Evaluation Protocol** (Roles B & D) cites empirical findings on field inspection costs and revenue recovery.
-3. The **Benford's Law Features** (Role A, Feature Group `F7`) and **1D-CNN Sequence Architecture** (Role C, Model `M7`) directly implement methodology from these peer-reviewed works.
-4. The **RAG Architecture** (Role D) implements the verified non-parametric grounding framework established in forensic AI literature.
+This document lists the **10 academic and industry references** behind the project's fraud analytics pipeline and RAG corpus:
+1. Every section of the **NTL Typology Playbook** (`TYP-01` to `TYP-12`) cites at least one of these sources. The sources support each typology in general terms; detailed mechanism descriptions and most numeric thresholds in the playbook are the team's own and are labelled "project heuristic" there.
+2. The **cost model and evaluation protocol** draw on the inspection-targeting literature.
+3. The **Benford's Law features** and the **sequence model** follow methods from these works.
+4. The **RAG architecture** follows the retrieval-augmented generation framework.
+
+What a source says and how this project uses it are kept apart below: "Core contribution" describes the paper; "Project mapping" describes our use of it.
 
 ---
 
 ## 2. Curated Sources Catalogue
 
-### [SRC-01] Deep Learning for Non-Technical Loss (1D-CNN Benchmark)
-* **Citation:** Zheng, Z., Yang, Y., Niu, X., Dai, H. N., & Zhou, Y. (2018). *Wide and Deep Convolutional Neural Networks for Electricity-Theft Detection to Secure Smart Grids.* **IEEE Transactions on Industrial Informatics**, 14(4), 1606–1615.
-* **DOI:** [10.1109/TII.2017.2785963](https://doi.org/10.1109/TII.2017.2785963)
+### [SRC-01] Deep Learning for Electricity-Theft Detection (Wide & Deep CNN)
+* **Citation:** Zheng, Z., Yang, Y., Niu, X., Dai, H.-N., & Zhou, Y. (2018). *Wide and Deep Convolutional Neural Networks for Electricity-Theft Detection to Secure Smart Grids.* **IEEE Transactions on Industrial Informatics**, 14(4), 1606–1615.
+* **DOI:** [10.1109/TII.2017.2785963](https://doi.org/10.1109/TII.2017.2785963) (checked on Crossref)
 * **Core Contribution:**
-  * Demonstrates that electricity theft is characterized by non-periodic anomalies overlaid on periodic seasonal baselines.
-  * Proposes a dual-input architecture combining a Deep CNN (extracting temporal features from 2D/1D consumption sequences) with a Wide component (memorizing global categorical and statistical features).
-* **Physical Tampering Insights:**
-  * Analyzes how physical tampering (bypasses, slowdowns) causes structural discontinuities in temporal load curves rather than simple random noise.
-* **Direct Project Mapping:**
-  * **Model M7:** Architecture design for the dual-input 1D-CNN on the 120-month `seq.npy` tensor.
-  * **Feature Group F4 (Trajectory):** Informs `yoy_drop_max` and `slope_last3y` trend features.
-  * **Playbook:** Cites temporal consumption drop signatures in `TYP-01` (Bypass) and `TYP-02` (Magnet).
+  * Observes that normal consumption is largely periodic while theft introduces non-periodic anomalies.
+  * Proposes a wide component (memorising global features) combined with a deep CNN over consumption data arranged by week.
+* **Project Mapping:**
+  * Design reference for the sequence model over the 120-month `seq.npy` tensor (built by the deep-learning workstream).
+  * Motivates trajectory features such as `yoy_drop_max` and `slope_last3y` (planned).
+  * Playbook: `TYP-01`, `TYP-09`.
 
 ---
 
-### [SRC-02] Comprehensive NTL Taxonomy & Machine Learning Survey
-* **Citation:** Glauner, P., Meira, J. A., Valtchev, P., State, R., & Bettinger, F. (2017). *The Challenge of Non-Technical Loss Detection Using Artificial Intelligence: A Survey.* **International Journal of Computational Intelligence Systems**, 10(1), 760–775. (Preprint: arXiv:1606.00626).
-* **DOI:** [10.2991/ijcis.10.1.51](https://doi.org/10.2991/ijcis.10.1.51)
+### [SRC-02] Survey of Non-Technical Loss Detection
+* **Citation:** Glauner, P., Meira, J. A., Valtchev, P., State, R., & Bettinger, F. (2017). *The Challenge of Non-Technical Loss Detection Using Artificial Intelligence: A Survey.* **International Journal of Computational Intelligence Systems**, 10(1), 760–775. (Preprint: arXiv:1606.00626.)
+* **DOI:** [10.2991/ijcis.2017.10.1.51](https://doi.org/10.2991/ijcis.2017.10.1.51) (checked on Crossref; pages from the Atlantis Press record)
 * **Core Contribution:**
-  * Establishes the formal definition and taxonomy of Non-Technical Losses (NTLs): distinguishing between **physical electricity theft**, **meter defects/breakdowns**, and **administrative/billing errors**.
-  * Documents that NTLs account for up to 40% of generated electricity in developing utilities, severely destabilizing grid financing.
-  * Surveys the shift from static boolean rule-based expert systems to automated machine learning (SVM, tree ensembles, neural nets).
-* **Key Challenges Highlighted:**
-  * Extreme class imbalance (typically <5% confirmed positive rates).
-  * Noisy negatives (uninspected clients are merely "unlabeled", not confirmed honest).
-* **Direct Project Mapping:**
-  * **Report Section 1 & Proposal:** Problem formulation and macro-economic loss context for STEG.
-  * **Model Escalation (M1–M10):** Justification for combining supervised models with unsupervised anomaly detectors (Autoencoder / Isolation Forest) to rescue unlabeled positives.
-  * **Playbook:** General grounding for `TYP-06` (Defective Meters) and `TYP-07` (Billing Discrepancies).
+  * Lists causes of non-technical loss (NTL): meter tampering, bypassing meters by rigging lines from the power source, false readings arranged by bribing meter readers, faulty or broken meters, unmetered supply, and errors in meter reading, data processing and billing.
+  * Reports estimates of NTL of up to 40% of electricity distributed in countries such as Brazil, India, Malaysia and Lebanon.
+  * Surveys expert-system and machine-learning detection methods and open challenges, including class imbalance and biased inspection labels.
+* **Project Mapping:**
+  * Problem framing and loss context.
+  * Playbook: `TYP-05`, `TYP-06`, `TYP-07`, `TYP-08`, `TYP-12`.
 
 ---
 
-### [SRC-03] Operational Inspection Budgeting & Cost-Sensitive Allocation
-* **Citation:** Guerrero, A. E., León, C., Monedero, Í., Biscarri, F., & Biscarri, J. (2014). *Non-Technical Losses Reduction by Improving the Inspections Accuracy in a Power Utility.* **IEEE Transactions on Power Systems**, 29(3), 1209–1218.
-* **DOI:** [10.1109/TPWRS.2013.2293140](https://doi.org/10.1109/TPWRS.2013.2293140)
+### [SRC-03] Improving Inspection Accuracy in a Power Utility
+* **Citation:** Guerrero, J. I., Monedero, I., Biscarri, F., Biscarri, J., Millán, R., & León, C. (2018). *Non-Technical Losses Reduction by Improving the Inspections Accuracy in a Power Utility.* **IEEE Transactions on Power Systems**, 33(2), 1209–1218.
+* **DOI:** [10.1109/TPWRS.2017.2721435](https://doi.org/10.1109/TPWRS.2017.2721435) (checked on Crossref)
 * **Core Contribution:**
-  * Proves that raw classification metrics (e.g. Accuracy or default 0.5-threshold F1-score) are operationally meaningless for utility management due to finite inspection capacity.
-  * Formulates inspection dispatching as an operational ranking optimization problem under a constrained monthly inspection budget $k$.
-  * Demonstrates that false positives directly consume labor and transportation overhead ($C$), while true positives yield recovered energy revenue and regulatory penalties ($V$).
-* **Direct Project Mapping:**
-  * **Evaluation Protocol (Section 5.4 & 5.5):** Foundation of our primary evaluation metrics (`PR-AUC`, `Precision@k%`, `Recall@k%` for $k \in \{1\%, 5\%, 10\%\}$).
-  * **Cost Curve:** Mathematical derivation of expected net recovery: $\text{Net}(k) = V \times \text{TP}(k) - C \times k$.
+  * Addresses the practical problem that utilities can only inspect a limited number of customers, and aims to raise the share of inspections that find an NTL.
+* **Project Mapping:**
+  * Motivates evaluating models by precision and recall within a fixed inspection budget (`Precision@k%`, `Recall@k%`, $k \in \{1\%, 5\%, 10\%\}$) as well as `PR-AUC`.
+  * The net-recovery formula used in the cost model, $\text{Net}(k) = V \times \text{TP}(k) - C \times k$, is this project's own simplification; it is not taken from this paper.
 
 ---
 
-### [SRC-04] World Bank Technical Guidelines on Physical Meter Tampering
-* **Citation:** World Bank / ESMAP. (2009). *Reducing Technical and Non-Technical Losses in the Power Sector: Best Practice and International Experience.* **Energy Sector Management Assistance Program (ESMAP) Technical Paper 040/09**, The World Bank Group, Washington, DC.
-* **Stable Link:** [World Bank Document Repository](https://documents.worldbank.org/en/publication/documents-reports/documentdetail/856321468163777590/)
+### [SRC-04] World Bank Background Paper on Power-Sector Losses
+* **Citation:** Antmann, P. (2009). *Reducing Technical and Non-Technical Losses in the Power Sector.* Background paper for the World Bank Group Energy Sector Strategy. The World Bank, Washington, DC.
+* **Stable Link:** [World Bank Open Knowledge Repository](https://openknowledge.worldbank.org/entities/publication/70bb9d7e-1249-58aa-bc54-ee9f2cfb66cf/full) ([PDF](https://documents1.worldbank.org/curated/en/829751468326689826/pdf/926390WP0Box3800in0the0power0sector.pdf))
 * **Core Contribution:**
-  * Authoritative engineering audit manual detailing mechanical, magnetic, and electrical tampering mechanisms across induction (electromechanical) and solid-state meters.
-  * Categorizes primary on-site attack vectors:
-    1. **Direct Bridging / Shunts:** Low-resistance copper jumper bypassing current coils.
-    2. **Magnetic Tampering:** Applying external neodymium magnets to induce eddy-current drag or saturate current transformers (CTs).
-    3. **Neutral Disconnection / Inversion:** Reversing phase/neutral terminal wiring to halt current measurement.
-    4. **Register / Gear Rollback:** Physical alteration of internal number drums.
-    5. **Meter-Reader Collusion:** Systematic manual under-reporting in exchange for bribes.
-* **Direct Project Mapping:**
-  * **NTL Typology Playbook:** Primary technical reference for `TYP-01` (Bypass), `TYP-02` (Magnet), `TYP-03` (Index Rollback), `TYP-04` (Collusion), and `TYP-05` (Illegal Reconnection).
-  * **Inspector Brief On-Site Checklists:** Supplies the exact physical inspection procedures (e.g., terminal block seal check, clamp ammeter line comparison, magnet discoloration inspection).
+  * A policy and strategy paper, not an engineering or meter-audit manual. It defines technical and non-technical losses, reviews regional experience (Latin America, East and South Asia, former Soviet Union, Sub-Saharan Africa) and case studies (India, El Salvador, Chile), and sets out a strategy for loss reduction.
+  * Names illegal connections to the grid and tampering with or bypassing meters as classic forms of theft; notes that theft by large consumers usually involves collusion with meter readers and that corruption is likely in disconnection operations; discusses automated meter reading and AMI as remedies.
+* **Project Mapping:**
+  * Playbook: general grounding for `TYP-01`, `TYP-04`, `TYP-05`, `TYP-12`. The paper does not describe magnet, neutral, register-rollback or CT/PT tampering techniques, so it is not cited for those.
 
 ---
 
-### [SRC-05] Forensic Benford's Law for Smart Grid Anomaly Screening
-* **Citation:** Wei, L., Sundararajan, A., Sarwat, A. I., Biswas, S., & Ibrahim, E. (2018). *A Distributed Intelligent Framework for Electricity Theft Detection Using Benford’s Law and Stackelberg Game.* **Proceedings of IEEE Resilience Week (RWS)**, Denver, CO, pp. 177–183.
-* **DOI:** [10.1109/RWS.2018.8473489](https://doi.org/10.1109/RWS.2018.8473489)
+### [SRC-05] Benford's Law for Electricity-Theft Detection
+* **Citation:** Wei, L., Sundararajan, A., Sarwat, A. I., Biswas, S., & Ibrahim, E. (2017). *A Distributed Intelligent Framework for Electricity Theft Detection Using Benford's Law and Stackelberg Game.* **2017 Resilience Week (RWS)**, Wilmington, DE, USA, pp. 5–11.
+* **DOI:** [10.1109/RWEEK.2017.8088640](https://doi.org/10.1109/RWEEK.2017.8088640) (checked on Crossref)
 * **Core Contribution:**
-  * Establishes that unmanipulated electricity consumption data across customer populations naturally obeys Benford's Law (logarithmic distribution of leading digits, with $P(d=1) \approx 30.1\%$).
-  * Proves that fraudulent consumers manipulating readings or corrupt meter-readers fabricating estimates inject unnatural uniformity or clustering, creating statistically significant deviations from Benford's distribution.
-  * Demonstrates that goodness-of-fit screening (MAD, Chi-square) operates with extremely low computational complexity, making it an ideal first-stage anomaly screen.
-* **Direct Project Mapping:**
-  * **Feature Group F7:** Theoretical justification for computing client-level `benford_mad`.
-  * **Agent Tool (`benford_check`):** Informs the forensic check tool in the multi-agent investigation workflow.
-  * **Playbook:** Supplies diagnostic evidence for `TYP-04` (Collusion) and `TYP-08` (Estimated Reading Abuse).
+  * Uses conformity of consumption data with Benford's Law (leading digits, $P(d=1) \approx 30.1\%$) to flag likely theft, combined with a game-theoretic model of utility and thief behaviour.
+* **Project Mapping:**
+  * Justifies the planned `benford_mad` feature and the `benford_check` agent tool.
+  * Playbook: `TYP-04`, `TYP-08`.
 
 ---
 
-### [SRC-06] Multi-Sensor Physical Meter Tampering & Data Validity
-* **Citation:** McLaughlin, S., Holbert, B., Fawaz, A., Berthier, R., & Zonouz, S. (2013). *A Multi-Sensor Energy Theft Detection Framework for Advanced Metering Infrastructure.* **IEEE Journal on Selected Areas in Communications**, 31(7), 1319–1330.
-* **DOI:** [10.1109/JSAC.2013.130718](https://doi.org/10.1109/JSAC.2013.130718)
+### [SRC-06] Multi-Sensor Energy-Theft Detection in AMI
+* **Citation:** McLaughlin, S., Holbert, B., Fawaz, A., Berthier, R., & Zonouz, S. (2013). *A Multi-Sensor Energy Theft Detection Framework for Advanced Metering Infrastructures.* **IEEE Journal on Selected Areas in Communications**, 31(7), 1319–1330.
+* **DOI:** [10.1109/JSAC.2013.130714](https://doi.org/10.1109/JSAC.2013.130714) (checked on Crossref)
 * **Core Contribution:**
-  * Analyzes data anomalies resulting from physical attacks on electronic meters, focusing on register-inversion, index deltas, and multi-sensor reconciliation gaps.
-  * Formulates data validity invariants: in an honest meter, $\text{new\_index} - \text{old\_index}$ must equal declared cumulative consumption, and negative deltas ($\text{new\_index} < \text{old\_index}$) represent physically impossible events caused by rollback or hardware resets.
-* **Direct Project Mapping:**
-  * **Feature Group F6 (Data Validity):** Direct foundation for `n_index_backwards` ($\text{new} < \text{old}$), `n_recon_mismatch`, and `recon_gap_mean`.
-  * **Playbook:** Grounding for `TYP-03` (Index Rollback & Impossible Readings).
+  * Proposes a theft detector for advanced metering infrastructure that combines several information sources (including physical tamper evidence and consumption data) instead of relying on one.
+* **Project Mapping:**
+  * Supports combining data-quality evidence with consumption patterns.
+  * The index-validity rules used in the pipeline (`new_index - old_index` times `counter_coefficient` should equal billed consumption; `flag_index_backwards`, `flag_index_rollover`, `flag_recon_mismatch`, `recon_gap` in `src/data/clean.py`) are **this project's own logic**, not taken from the paper.
+  * Playbook: `TYP-02`, `TYP-03`, `TYP-10`, `TYP-11` (supporting role only; the paper does not analyse those physical mechanisms).
 
 ---
 
-### [SRC-07] Forensic Accounting & Auditing Methodology (Benford MAD)
-* **Citation:** Nigrini, M. J. (2012). *Benford's Law: Applications for Forensic Accounting, Auditing, and Fraud Detection.* **John Wiley & Sons**, Hoboken, NJ. ISBN: 978-1-118-15285-0.
+### [SRC-07] Benford's Law in Forensic Accounting (MAD Test)
+* **Citation:** Nigrini, M. J. (2012). *Benford's Law: Applications for Forensic Accounting, Auditing, and Fraud Detection.* **John Wiley & Sons**, Hoboken, NJ. ISBN 978-1-118-15285-0. DOI [10.1002/9781119203094](https://doi.org/10.1002/9781119203094).
 * **Core Contribution:**
-  * The definitive treatise on statistical forensic auditing.
-  * Formalizes the **Mean Absolute Deviation (MAD)** metric for digit analysis, establishing standard conformity thresholds:
-    * $\text{MAD} \le 0.006$: Close conformity
-    * $0.006 < \text{MAD} \le 0.012$: Acceptable conformity
-    * $0.012 < \text{MAD} \le 0.015$: Marginally acceptable
-    * $\text{MAD} > 0.015$: Nonconformity (indicative of manual manipulation or estimation)
-  * Analyzes digit rounding heuristics: fraudsters fabricating bills disproportionately choose numbers ending in $0$ or $5$.
-* **Direct Project Mapping:**
-  * **Feature Group F7:** Supplies the mathematical formula and threshold scale for `benford_mad` and `round_reading_share` (honest $\approx 0.20$).
-  * **Playbook:** Analytical foundation for auditing suspicious flat-rate or rounded usage in `TYP-08`.
+  * Defines the mean absolute deviation (MAD) test for digit analysis, with conformity bands for the **first-digit** test:
+    * $\text{MAD} \le 0.006$: close conformity
+    * $0.006 < \text{MAD} \le 0.012$: acceptable conformity
+    * $0.012 < \text{MAD} \le 0.015$: marginally acceptable conformity
+    * $\text{MAD} > 0.015$: nonconformity
+  * The bands are intended for reasonably large data sets; small samples give noisy MAD values.
+* **Project Mapping:**
+  * The project uses **`benford_mad > 0.015`** (first-digit nonconformity) as its single threshold, in the playbook and in SOP v2025 §5.1.
+  * `round_reading_share > 0.40` is a **project heuristic**, not from this book: if last digits were uniform, about 0.20 of readings would end in 0 or 5, and the threshold is twice that.
+  * Playbook: `TYP-04`, `TYP-08`.
 
 ---
 
-### [SRC-08] Retrieval-Augmented Generation for Verifiable Grounding
-* **Citation:** Lewis, P., Perez, E., Piktus, A., Petroni, F., Karpukhin, V., Goyal, N., Küttler, H., Lewis, M., Yih, W. T., Rocktäschel, T., Riedel, S., & Kiela, D. (2020). *Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks.* **Advances in Neural Information Processing Systems (NeurIPS 2020)**, 33, 9459–9474.
+### [SRC-08] Retrieval-Augmented Generation
+* **Citation:** Lewis, P., Perez, E., Piktus, A., Petroni, F., Karpukhin, V., Goyal, N., Küttler, H., Lewis, M., Yih, W.-t., Rocktäschel, T., Riedel, S., & Kiela, D. (2020). *Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks.* **Advances in Neural Information Processing Systems 33 (NeurIPS 2020)**, 9459–9474.
 * **Stable Link:** [NeurIPS Proceedings](https://proceedings.neurips.cc/paper/2020/hash/6b493230205f780e1bc26945df7481e5-Abstract.html)
 * **Core Contribution:**
-  * Proposes the seminal RAG framework combining pre-trained parametric memory (LLM) with non-parametric retrieval memory (dense vector index).
-  * Demonstrates that grounding generation on explicitly retrieved evidence documents dramatically cuts factual hallucinations, provides source provenance, and allows real-time updates to domain knowledge without retraining.
-* **Direct Project Mapping:**
-  * **Subsystem Architecture (`docs/llm_stack.md`):** Theoretical foundation of our RAG pipeline.
-  * **Investigation Layer:** Direct justification for generating Inspector Briefs using retrieved policy chunks and precedent case cards rather than raw LLM generation.
-  * **Faithfulness Evaluation:** Framework for measuring citation existence and number accuracy against retrieved non-parametric contexts.
+  * Combines a pre-trained generator (parametric memory) with a retrieved document index (non-parametric memory), improving factuality on knowledge-intensive tasks and allowing knowledge to be updated without retraining.
+* **Project Mapping:**
+  * Basis for the RAG design in `docs/llm_stack.md`: Inspector Briefs are generated from retrieved chunks rather than from the LLM alone.
+  * Not cited in the playbook.
+
+---
+
+### [SRC-09] Consumption-Pattern-Based Theft Detection in AMI
+* **Citation:** Jokar, P., Arianpoo, N., & Leung, V. C. M. (2016). *Electricity Theft Detection in AMI Using Customers' Consumption Patterns.* **IEEE Transactions on Smart Grid**, 7(1), 216–226.
+* **DOI:** [10.1109/TSG.2015.2425222](https://doi.org/10.1109/TSG.2015.2425222) (checked on Crossref)
+* **Core Contribution:**
+  * Detects theft from abnormal changes in customers' consumption patterns, using distribution-transformer meters to narrow the search area; trains on simulated malicious patterns (for example readings scaled down, or set to zero for some periods).
+* **Project Mapping:**
+  * Playbook: `TYP-02`, `TYP-03`, `TYP-09`.
+
+---
+
+### [SRC-10] Overview of Electricity Theft
+* **Citation:** Depuru, S. S. S. R., Wang, L., & Devabhaktuni, V. (2011). *Electricity theft: Overview, issues, prevention and a smart meter based approach to control theft.* **Energy Policy**, 39(2), 1007–1015.
+* **DOI:** [10.1016/j.enpol.2010.11.037](https://doi.org/10.1016/j.enpol.2010.11.037) (checked on Crossref)
+* **Core Contribution:**
+  * Reviews electricity theft as a major problem in developing countries, its causes and impact, and proposes a smart-meter-based architecture to control it, with a cost-benefit analysis for India.
+* **Project Mapping:**
+  * Playbook: general background for `TYP-02`, `TYP-07`, `TYP-10`, `TYP-11`. The full text has not been checked page by page, so the playbook cites it only for a general overview.
 
 ---
 
 ## 3. Typology Cross-Reference Matrix
 
-The table below indicates which sources are cited in each section of the upcoming **NTL Typology Playbook**:
+Generated from the citations in `data/corpus/source_docs/playbook.md`. Keep the two in sync.
 
-| Typology ID | Mechanism Description | Primary Sources | Key Invariants / Features |
+| Typology ID | Mechanism | Sources cited in the playbook | Key features (planned features marked) |
 | :--- | :--- | :--- | :--- |
-| **`TYP-01`** | Meter Bypass / Shunt Bridging | `[SRC-01]`, `[SRC-04]` | Sudden permanent consumption drop; zero-run bills (`zero_run_max`); clamp-ammeter differential. |
-| **`TYP-02`** | Magnet Slowdown / CT Saturation | `[SRC-01]`, `[SRC-04]`, `[SRC-06]` | Uniform percentage drop (40–70%); seasonal pattern preserved but scaled down; missing zero runs. |
-| **`TYP-03`** | Index Rollback & Gear Inversion | `[SRC-04]`, `[SRC-06]` | Impossible negative deltas (`n_index_backwards`); reconciliation gap between index delta and billed units. |
-| **`TYP-04`** | Meter Reader Collusion / Falsification | `[SRC-04]`, `[SRC-05]`, `[SRC-07]` | Benford nonconformity (`benford_mad > 0.015`); rounded readings (`round_reading_share`); catch-up spikes. |
-| **`TYP-05`** | Illegal Reconnection after Cutoff | `[SRC-04]` | Usage while account status is suspended/cut; bypassed utility security seals; zero billed units. |
-| **`TYP-06`** | Defective / Jammed Meter | `[SRC-02]`, `[SRC-06]` | Mechanical stop; consumption flatlines to absolute zero across consecutive quarters; status code transitions. |
-| **`TYP-07`** | Tariff Misclassification | `[SRC-02]`, `[SRC-04]` | Discrepancy between declared category (`client_catg`) and usage magnitude; tariff rate exploitation. |
-| **`TYP-08`** | Estimated Reading Abuse | `[SRC-05]`, `[SRC-07]` | Repetitive remark codes (`reading_remarque`); low variance in consecutive bills; high Benford MAD. |
+| **`TYP-01`** | Meter Bypass / Shunt | `[SRC-01]`, `[SRC-04]` | `cons_pm_mean` collapse; `yoy_drop_max`, `zero_run_max` (planned); `share_level_2_plus` |
+| **`TYP-02`** | Magnet Slowdown | `[SRC-06]`, `[SRC-09]`, `[SRC-10]` | Lower `cons_pm_median` without zeros; low `cons_pm_std`; `robust_z_max` (planned) |
+| **`TYP-03`** | Index Rollback | `[SRC-06]`, `[SRC-09]` | `flag_index_backwards` without `flag_index_rollover`; `flag_recon_mismatch`, `recon_gap` |
+| **`TYP-04`** | Meter-Reader Collusion | `[SRC-04]`, `[SRC-05]`, `[SRC-07]` | `benford_mad > 0.015`, `round_reading_share > 0.40` (both planned) |
+| **`TYP-05`** | Illegal Reconnection | `[SRC-02]`, `[SRC-04]` | Consumption under `counter_statue 1` (assumed cut-off); `n_statue_changes` (planned) |
+| **`TYP-06`** | Jammed / Defective Meter | `[SRC-02]` | `cons == 0` runs; `counter_statue` 3/4 (assumed); `flag_bad_months_number`, `has_missing_months` |
+| **`TYP-07`** | Tariff Misclassification | `[SRC-02]`, `[SRC-10]` | High `cons_pm_mean` within `client_catg 11`; `peer_resid_mean` (planned) |
+| **`TYP-08`** | Estimated Reading Abuse | `[SRC-02]`, `[SRC-05]`, `[SRC-07]` | Runs of `reading_remarque 8` (assumed estimated); low `cons_pm_std`; `benford_mad` (planned) |
+| **`TYP-09`** | Catch-Up Billing | `[SRC-01]`, `[SRC-09]` | `sudden_spike_share` (planned); `cons_pm_max / (cons_pm_min + 1)`; `recon_gap` |
+| **`TYP-10`** | Neutral Disconnection / Inversion | `[SRC-06]`, `[SRC-10]` | ELEC zeros while `cons_pm_mean_gaz` continues; non-rollover backwards readings |
+| **`TYP-11`** | CT/PT Tampering | `[SRC-06]`, `[SRC-10]` | `counter_coefficient > 1` accounts; step drop in `cons_pm_mean` |
+| **`TYP-12`** | Service Drop Tapping | `[SRC-02]`, `[SRC-04]` | Near-zero `cons_pm_mean`, long `tenure_years`; `nbr_fraud_rate_k10` (planned) |
