@@ -11,5 +11,21 @@ __pycache__/
 *$py.class
 .ipynb_checkpoints/
 *.parquet
+# The fake stub tables are tracked (python run.py stubs).
+!/data/stubs/**/*.parquet
 results/oof/*.parquet
 results/agent_logs/*.json
+# Fold models and checkpoints from the neural models (python run.py cnn) and the robustness study.
+results/models/
+
+# Data is never committed (plan 4.6): download it from the shared drive (see data/README.md).
+# Only data/splits/, data/corpus/ and data/stubs/ are tracked.
+/data/raw/
+/data/interim/
+/data/processed/
+# Feature caches of attacked clients written by src/eval/adversarial.py.
+data/processed/attacked_*
+/data/*.csv
+
+# macOS
+.DS_Store
