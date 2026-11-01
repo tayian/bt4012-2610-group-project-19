@@ -1,0 +1,15 @@
+issue,count,pct_of_rows,action
+exact duplicate invoice rows,0,0.0,dropped
+"rows sharing client, date, counter and type (not exact duplicates)",28645,0.6399,kept: different tariff lines or index readings
+"counter_statue outside {0, 1, 2, 3, 4, 5} (269375, 420, 46, 618, 769, A)",47,0.001,mapped to 'other'
+"reading_remarque outside {6, 7, 8, 9} (203, 207, 413, 5)",34,0.0008,mapped to 'other'
+months_number <= 0 or > 12,24043,0.5371,"kept, flag_bad_months_number"
+months_number <= 0 or > 120 (impossible period),1413,0.0316,"kept, cons_pm set to NaN"
+zero total consumption,467553,10.444,kept (a bypassed meter reads zero)
+new_index < old_index,2264,0.0506,"kept, flag_index_backwards"
+  of which an exact meter rollover,2252,0.0503,"kept, flag_index_rollover; reconciled with the wrapped difference"
+index difference x counter_coefficient != total consumption,15241,0.3404,"kept, flag_recon_mismatch and recon_gap"
+counter_coefficient == 0,46,0.001,kept (always a reconciliation mismatch)
+counter_number == '0' (placeholder),26,0.0006,kept
+invoices in final year 2019 (incomplete: month 12 has 26% of 2018 median volume),255363,5.7042,"kept, flag_partial_year (exclude from year-on-year features)"
+invoice dated before client creation_date,13768,0.3075,kept (max lag 322 days: likely data-entry lag)
