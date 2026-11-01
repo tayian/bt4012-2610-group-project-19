@@ -1,0 +1,13 @@
+statistic,value
+clients,135493
+fraud clients,7566
+fraud rate (%),5.58
+invoices (after cleaning),4476749
+invoices per client: median,30.0
+invoices per client: Q1,10.0
+invoices per client: Q3,50.0
+invoices per client: IQR,40.0
+clients with ELEC only (%),54.2
+clients with GAZ only (%),0.5
+clients with both ELEC and GAZ (%),45.3
+invoice date range,1977-06-09 to 2019-12-07
