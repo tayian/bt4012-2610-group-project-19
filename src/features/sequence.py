@@ -1,36 +1,40 @@
-"""W1-C1 Sequence tensor (section 6): (n_clients, 120, 3) float32.
+# Sequence tensor (section 6): (n_clients, 120, 3) float32.
+#
+# Channels
+#   0  ELEC  log1p(monthly consumption, kWh) summed over all ELEC counters
+#   1  GAZ   log1p(monthly consumption) summed over all GAZ counters
+#   2  MASK  1.0 if no invoice of any type covers that month, else 0.0
+#
+# Method
+#   * An invoice dated in month t with months_number m covers months t-m+1 .. t; its
+#     consumption is spread evenly (cons / m per month). m is clipped to [1, 24] for
+#     spreading (m=0 or absurd values such as 636,624 exist).
+#   * Each client is right-aligned on the month of its own last invoice, so the window is the
+#     client's last 120 calendar months (most clients end in 2019, but ~15% stop earlier; a
+#     global window would leave them blank).
+#   * Months before a client's first invoice are masked (MASK=1, values 0).
+#
+# Works on any invoice dataframe with the raw columns; by default it reads the clean parquet:
+#   python3 -m src.features.sequence --invoices data/interim/invoice_clean.parquet
 
-Channels
-  0  ELEC  log1p(monthly consumption, kWh) summed over all ELEC counters
-  1  GAZ   log1p(monthly consumption) summed over all GAZ counters
-  2  MASK  1.0 if no invoice of any type covers that month, else 0.0
-
-Method
-  * An invoice dated in month t with months_number m covers months t-m+1 .. t;
-    its consumption is spread evenly (cons / m per month). m is clipped to
-    [1, 24] for spreading (m=0 or absurd values such as 636,624 exist).
-  * Each client is right-aligned on the month of its own last invoice, so the
-    window is the client's last 120 calendar months (most clients end in
-    2019, but ~15% stop earlier; a global window would leave them blank).
-  * Months before a client's first invoice are masked (MASK=1, values 0).
-
-Works on any invoice dataframe with the raw columns, so it re-runs on A's
-clean parquet with one argument change:
-    python -m src.features.sequence --invoices data/interim/invoice_clean.parquet
-"""
 import argparse
 import time
+
 import numpy as np
 import pandas as pd
 
-LEVELS = ["consommation_level_1", "consommation_level_2",
-          "consommation_level_3", "consommation_level_4"]
+LEVELS = [
+    "consommation_level_1",
+    "consommation_level_2",
+    "consommation_level_3",
+    "consommation_level_4",
+]
 T = 120
 MAX_SPREAD = 24
 
 
 def build_sequence(inv: pd.DataFrame, client_ids=None, T=T):
-    """Return (seq float32 (n, T, 3), ids np.array[str])."""
+    # Return (seq float32 (n, T, 3), ids np.array[str]).
     inv = inv[["client_id", "invoice_date", "counter_type", "months_number"] + LEVELS]
     if client_ids is None:
         client_ids = np.sort(inv["client_id"].astype(str).unique())

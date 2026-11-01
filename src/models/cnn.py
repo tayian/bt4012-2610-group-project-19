@@ -1,31 +1,36 @@
-"""M7 dual-input 1D-CNN (Deep Learning II), section 7:
-  sequence branch  Conv1D(32,k=3) -> Conv1D(64,k=3) -> Conv1D(64,k=12) -> global max pool
-  static branch    Dense(64)
-  head             concat -> Dense(64) -> dropout 0.3 -> sigmoid, weighted BCE
+# M7 dual-input 1D-CNN (Deep Learning II):
+#   sequence branch  Conv1D(32, k=3) -> Conv1D(64, k=3) -> Conv1D(64, k=12) -> global max pool
+#   static branch    Dense(64)
+#   head             concat -> Dense(64) -> dropout 0.3 -> sigmoid, weighted BCE
+#
+#   python3 -m src.models.cnn --features v0
+#   python3 -m src.models.cnn --features v1 --save    # saves fold models for the attacks
 
-    python -m src.models.cnn --features v0           # W2-C4
-    python -m src.models.cnn --features v1 --save    # W3-C1 (saves fold models for attacks)
-"""
 import argparse
 import os
 import pickle
+
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
-from src.models.common import load_train, TabularPrep, write_oof, oof_metrics_row
-from src.models.dl import train_model, predict
 
-SEQ_SCALE = 8.0   # log1p kWh/month rarely exceeds ~12; keeps inputs near [0, 1.5]
+from src.models.common import TabularPrep, load_train, oof_metrics_row, write_oof
+from src.models.dl import predict, train_model
+
+SEQ_SCALE = 8.0  # log1p kWh/month rarely exceeds ~12; keeps inputs near [0, 1.5]
 
 
 class DualCNN(nn.Module):
     def __init__(self, d_static, c_in=3):
         super().__init__()
         self.conv = nn.Sequential(
-            nn.Conv1d(c_in, 32, 3, padding=1), nn.ReLU(),
-            nn.Conv1d(32, 64, 3, padding=1), nn.ReLU(),
-            nn.Conv1d(64, 64, 12, padding=6), nn.ReLU(),   # yearly seasonality
+            nn.Conv1d(c_in, 32, 3, padding=1),
+            nn.ReLU(),
+            nn.Conv1d(32, 64, 3, padding=1),
+            nn.ReLU(),
+            nn.Conv1d(64, 64, 12, padding=6),
+            nn.ReLU(),  # yearly seasonality
         )
         self.static = nn.Sequential(nn.Linear(d_static, 64), nn.ReLU())
         self.head = nn.Sequential(nn.Linear(128, 64), nn.ReLU(), nn.Dropout(0.3), nn.Linear(64, 1))
@@ -44,7 +49,7 @@ def load_seq(ids):
 
 
 def to_model_seq(s):
-    """(n, 120, 3) stored tensor -> (n, 3, 120) scaled model input."""
+    # (n, 120, 3) stored tensor -> (n, 3, 120) scaled model input.
     s = s.copy()
     s[:, :, :2] /= SEQ_SCALE
     return np.ascontiguousarray(s.transpose(0, 2, 1))
@@ -60,8 +65,15 @@ def run(fv, save=False, folds_to_run=range(5), max_epochs=15):
         prep = TabularPrep().fit(X[tr])
         Xtr, Xva = prep.transform(X[tr]), prep.transform(X[va])
         print(f"  M7 {fv} fold {k}", flush=True)
-        m, best = train_model(lambda: DualCNN(Xtr.shape[1]), [S[tr], Xtr], y[tr],
-                              loss="bce", bs=512, max_epochs=max_epochs, patience=3)
+        m, best = train_model(
+            lambda: DualCNN(Xtr.shape[1]),
+            [S[tr], Xtr],
+            y[tr],
+            loss="bce",
+            bs=512,
+            max_epochs=max_epochs,
+            patience=3,
+        )
         oof[va] = predict(m, [S[va], Xva])
         if save:
             torch.save(m.state_dict(), f"results/models/M7_{fv}_fold{k}.pt")

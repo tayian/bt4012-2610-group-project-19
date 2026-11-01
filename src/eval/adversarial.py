@@ -1,40 +1,60 @@
-"""W3-C3 / W4-C2 / W4-C3 adversarial robustness study (Deep Learning II).
-Threat model: docs/threat_model.md.
+# Adversarial robustness study (Deep Learning II). Threat model: docs/threat_model.md.
+#
+# Every number is recall@5% on the held-out CV fold (training clients only, test set
+# untouched), averaged over the 5 folds. Non-fraud clients keep their clean inputs; every
+# fraud client in the held-out fold is attacked.
+#
+#   python3 -m src.eval.adversarial trees  # M3 x {clean, uniform, smooth, index-consistent} x feature groups
+#   python3 -m src.eval.adversarial cnn    # M7 x {clean, uniform, smooth, PGD}, before/after adversarial training
+#
+# Not runnable yet: it needs a v1 feature builder for attacked invoices and the tree model
+# (M3), neither of which is in the repo. See the comments at _feature_builder and tree_study.
 
-Every number is recall@5% on the held-out CV fold (training clients only,
-test set untouched), averaged over the 5 folds. Non-fraud clients keep their
-clean inputs; every fraud client in the held-out fold is attacked.
-
-    python -m src.eval.adversarial trees     # M3 x {clean, uniform, smooth, index-consistent} x feature groups
-    python -m src.eval.adversarial cnn       # M7 x {clean, uniform, smooth, PGD}, before/after adversarial training
-"""
+import pickle
 import sys
 import time
-import pickle
+
 import numpy as np
 import pandas as pd
 import torch
-# >>> STAND-IN DEPENDENCY (A's feature builder) ---------------------------------
-# build_v1 / LEAKY_PREFIX come from the stand-in src/features/aggregate.py.
-# Before merging: change this import to A's real v1 builder (src/features/aggregate.py
-# + behavioural.py from W2-A1) so attacked clients are re-featurised exactly like
-# everyone else. Function needed: build_v1(invoices_df, clients_df) -> one row per client.
-from src.features.aggregate import build_v1, LEAKY_PREFIX
-# <<< ------------------------------------------------------------------------------
+
 from src.features.sequence import build_sequence
-from src.models.common import load_train, TabularPrep, SEED
+from src.models.common import SEED, load_train
 
 BUDGET = 0.30
 TOP = 0.05
-LEVELS = ["consommation_level_1", "consommation_level_2",
-          "consommation_level_3", "consommation_level_4"]
+LEVELS = [
+    "consommation_level_1",
+    "consommation_level_2",
+    "consommation_level_3",
+    "consommation_level_4",
+]
 
 
-# --------------------------------------------------------------- invoice attacks
+def _feature_builder():
+    # MISSING DEPENDENCY: no module in the repo defines these two names yet. They were expected
+    # in src.features.aggregate and are imported only when the study runs, so the rest of this
+    # module stays importable.
+    #   build_v1(invoices, clients) -> DataFrame with one row per client, keyed by client_id
+    #       (index or column; reset_index() is applied before caching), with the same columns
+    #       as features_v1_with_inspection.parquet. invoices are clean invoice rows of the
+    #       training fraud clients after an attack has rewritten the level columns, cons and
+    #       cons_pm (and new_index for index_consistent), so reconciliation features must be
+    #       recomputed from them; clients are their rows of data/interim/client.parquet.
+    #       Attacked clients must be featurised exactly like everyone else.
+    #   LEAKY_PREFIX: tuple of column-name prefixes of the features built from the
+    #       inspector-written columns (counter_statue, reading_remarque), the "F9 meter status"
+    #       group.
+    from src.features.aggregate import LEAKY_PREFIX, build_v1
+
+    return build_v1, LEAKY_PREFIX
+
+
+# Invoice attacks
 def _scale_levels(inv, factor):
     out = inv.copy()
-    for l in LEVELS:
-        out[l] = np.ceil(out[l].to_numpy() * factor).astype(np.int64)
+    for level in LEVELS:
+        out[level] = np.ceil(out[level].to_numpy() * factor).astype(np.int64)
     out["cons"] = out[LEVELS].sum(axis=1)
     out["cons_pm"] = out["cons"] / out["months_number"].clip(lower=1)
     return out
@@ -45,13 +65,13 @@ def attack_uniform(inv):
 
 
 def _smooth_factor(cons, budget=BUDGET):
-    """Linear ramp 1 -> f_end over the client's invoices (date order) such that
-    sum(cons * factor) = (1 - budget) * sum(cons). Falls back to uniform if a
-    ramp alone cannot reach the budget."""
+    # Linear ramp 1 -> f_end over the client's invoices (date order) such that sum(cons *
+    # factor) = (1 - budget) * sum(cons). Falls back to uniform if a ramp alone cannot reach
+    # the budget.
     n = len(cons)
     if n == 1 or cons.sum() == 0:
         return np.full(n, 1 - budget)
-    w = np.arange(n) / (n - 1)                       # 0..1
+    w = np.arange(n) / (n - 1)  # 0..1
     # factor = 1 - a*w  ->  a = budget * sum(c) / sum(c*w)
     a = budget * cons.sum() / max((cons * w).sum(), 1e-9)
     if a > 1:
@@ -68,16 +88,19 @@ def attack_smooth(inv):
 
 
 def attack_index_consistent(inv):
-    """Smooth mimicry + readings rewritten so new_index - old_index matches the
-    lowered consumption (attacker also controls the meter reading)."""
+    # Smooth mimicry + readings rewritten so new_index - old_index matches the lowered
+    # consumption (attacker also controls the meter reading).
     a = attack_smooth(inv)
     coef = a["counter_coefficient"].clip(lower=1)
     a["new_index"] = a["old_index"] + np.round(a["cons"] / coef).astype(np.int64)
     return a
 
 
-ATTACKS = {"uniform": attack_uniform, "smooth": attack_smooth,
-           "index_consistent": attack_index_consistent}
+ATTACKS = {
+    "uniform": attack_uniform,
+    "smooth": attack_smooth,
+    "index_consistent": attack_index_consistent,
+}
 
 
 def load_fraud_invoices():
@@ -93,11 +116,13 @@ def load_fraud_invoices():
 
 
 def attacked_features(cache="data/processed/attacked_v1_{}.parquet"):
-    """v1_full features for every training fraud client under each attack (cached)."""
+    # v1_with_inspection features for every training fraud client under each attack (cached).
     import os
+
     out = {}
     need = [a for a in ATTACKS if not os.path.exists(cache.format(a))]
     if need:
+        build_v1, _ = _feature_builder()
         inv, cli = load_fraud_invoices()
         for a in need:
             t = time.time()
@@ -119,28 +144,38 @@ def recall_at(y, s, top=TOP):
     return y[np.argsort(-s)][:k].sum() / y.sum()
 
 
-# --------------------------------------------------------------- trees (M3, mimicry)
-GROUPS = {
-    "F6 data validity": ("n_index_backwards", "n_recon_mismatch", "recon_gap_mean", "n_bad_months_number"),
-    "F9 meter status": LEAKY_PREFIX,
-}
+# Trees (M3, mimicry)
+F6_DATA_VALIDITY = (
+    "n_index_backwards",
+    "n_recon_mismatch",
+    "recon_gap_mean",
+    "n_bad_months_number",
+)
+
+
+def feature_groups():
+    # Column-name prefixes of the feature groups the tree study leaves out in turn.
+    return {"F6 data validity": F6_DATA_VALIDITY, "F9 meter status": _feature_builder()[1]}
 
 
 def tree_study():
-    # >>> STAND-IN DEPENDENCY: swap for B's src/models/trees.py (tuned M3) before merging
+    # MISSING DEPENDENCY: the tuned tree model (M3) is not in the repo yet; it is expected to
+    # replace this placeholder module. fit_m3(X, y) must return a fitted classifier with
+    # predict_proba (LightGBM with the tuned parameters).
     from src.models.trees_standin import fit_m3
-    ids, X, y, folds = load_train("v1_full")
+
+    ids, X, y, folds = load_train("v1_with_inspection")
     att = attacked_features()
+    groups = feature_groups()
     variants = {
-        "M3 v1_full (all groups)": [],
-        "M3 without F9 (= v1_noleak)": ["F9 meter status"],
+        "M3 v1_with_inspection (all groups)": [],
+        "M3 without F9 (= v1)": ["F9 meter status"],
         "M3 without F6": ["F6 data validity"],
         "M3 without F6 and F9": ["F6 data validity", "F9 meter status"],
     }
     rows = []
     for vname, drop in variants.items():
-        cols = [c for c in X.columns
-                if not any(c.startswith(GROUPS[g]) for g in drop)]
+        cols = [c for c in X.columns if not any(c.startswith(groups[g]) for g in drop)]
         for k in range(5):
             tr, va = folds != k, folds == k
             m = fit_m3(X.loc[tr, cols], y[tr])
@@ -156,27 +191,35 @@ def tree_study():
                 r[a] = recall_at(yv, m.predict_proba(Xa)[:, 1])
             rows.append(r)
             pd.DataFrame(rows).to_csv("results/tables/robustness_trees_by_fold.csv", index=False)
-            print(f"  {vname} fold {k}: " + "  ".join(f"{c}={float(v):.3f}" for c, v in r.items()
-                                                       if c not in ("model", "fold")), flush=True)
+            print(
+                f"  {vname} fold {k}: "
+                + "  ".join(
+                    f"{c}={float(v):.3f}" for c, v in r.items() if c not in ("model", "fold")
+                ),
+                flush=True,
+            )
     d = pd.DataFrame(rows)
     d.to_csv("results/tables/robustness_trees_by_fold.csv", index=False)
     return d
 
 
 def tree_defence():
-    """Two cheap defences for M3 (W4-C3, tree side):
-    * monotone: LightGBM monotone_constraints = +1 on F6 data-validity features,
-      so more reconciliation failures can never lower the risk score
-    * augment: adversarial data augmentation, each training-fold fraud gets one
-      attacked copy (uniform or smooth at random, 1:1), label 1. Only frauds of
-      the training fold are used, so the held-out fold stays unseen."""
+    # Two cheap defences for M3 (tree side):
+    #   * monotone: LightGBM monotone_constraints = +1 on F6 data-validity features, so more
+    #     reconciliation failures can never lower the risk score
+    #   * augment: adversarial data augmentation, each training-fold fraud gets one attacked
+    #     copy (uniform or smooth at random, 1:1), label 1. Only frauds of the training fold
+    #     are used, so the held-out fold stays unseen.
     import lightgbm as lgb
-    # >>> STAND-IN DEPENDENCY: swap for B's tuned M3 params from src/models/trees.py
+
+    # MISSING DEPENDENCY: PARAMS is the dict of tuned LightGBM keyword arguments for M3
+    # (without scale_pos_weight and monotone_constraints, which are set here); see tree_study.
     from src.models.trees_standin import PARAMS
-    ids, X, y, folds = load_train("v1_full")
+
+    ids, X, y, folds = load_train("v1_with_inspection")
     att = attacked_features()
     cols = list(X.columns)
-    mono = [1 if c.startswith(GROUPS["F6 data validity"]) else 0 for c in cols]
+    mono = [1 if c.startswith(F6_DATA_VALIDITY) else 0 for c in cols]
     rng = np.random.default_rng(SEED)
     rows = []
     for vname in ["M3 + monotone F6", "M3 + adv. augmentation", "M3 + both"]:
@@ -186,11 +229,16 @@ def tree_defence():
             if "augment" in vname or "both" in vname:
                 fr = ids[tr][ytr == 1]
                 pick = rng.integers(0, 2, len(fr))
-                aug = np.where(pick[:, None] == 0, att["uniform"].loc[fr, cols].to_numpy(),
-                               att["smooth"].loc[fr, cols].to_numpy())
+                aug = np.where(
+                    pick[:, None] == 0,
+                    att["uniform"].loc[fr, cols].to_numpy(),
+                    att["smooth"].loc[fr, cols].to_numpy(),
+                )
                 Xtr = pd.concat([Xtr, pd.DataFrame(aug, columns=cols)], ignore_index=True)
                 ytr = np.concatenate([ytr, np.ones(len(fr), np.float32)])
-            extra = {"monotone_constraints": mono} if ("monotone" in vname or "both" in vname) else {}
+            extra = (
+                {"monotone_constraints": mono} if ("monotone" in vname or "both" in vname) else {}
+            )
             spw = (ytr == 0).sum() / (ytr == 1).sum()
             m = lgb.LGBMClassifier(scale_pos_weight=spw, **PARAMS, **extra).fit(Xtr, ytr)
             Xva, yv = X.loc[va, cols], y[va]
@@ -202,18 +250,23 @@ def tree_defence():
                 r[a] = recall_at(yv, m.predict_proba(Xa)[:, 1])
             rows.append(r)
             pd.DataFrame(rows).to_csv("results/tables/robustness_treedef_by_fold.csv", index=False)
-            print(f"  {vname} fold {k}: " + "  ".join(f"{c}={float(v):.3f}" for c, v in r.items()
-                                                       if c not in ("model", "fold")), flush=True)
+            print(
+                f"  {vname} fold {k}: "
+                + "  ".join(
+                    f"{c}={float(v):.3f}" for c, v in r.items() if c not in ("model", "fold")
+                ),
+                flush=True,
+            )
     return pd.DataFrame(rows)
 
 
-# --------------------------------------------------------------- CNN (M7, PGD)
-from src.models.cnn import DualCNN, load_seq, to_model_seq, SEQ_SCALE  # noqa: E402
+# CNN (M7, PGD)
+from src.models.cnn import SEQ_SCALE, DualCNN, load_seq, to_model_seq  # noqa: E402
 
 
 def project_budget(x_adv, x0, mask):
-    """Keep x_adv <= x0, >= 0, unchanged on masked months, and total raw
-    declared consumption >= (1 - BUDGET) * original (per client)."""
+    # Keep x_adv <= x0, >= 0, unchanged on masked months, and total raw declared consumption
+    # >= (1 - BUDGET) * original (per client).
     x_adv = torch.minimum(torch.clamp(x_adv, min=0.0), x0)
     x_adv = torch.where(mask, x0, x_adv)
     raw0 = torch.expm1(x0 * SEQ_SCALE)
@@ -226,8 +279,8 @@ def project_budget(x_adv, x0, mask):
 
 
 def pgd_seq(model, S, Xs, steps=10, alpha=0.05):
-    """White-box PGD on the consumption channels of the sequence (channels 0, 1).
-    S: (n, 3, 120) model input. Returns attacked S."""
+    # White-box PGD on the consumption channels of the sequence (channels 0, 1).
+    # S: (n, 3, 120) model input. Returns attacked S.
     model.eval()
     S = torch.as_tensor(S)
     Xs = torch.as_tensor(Xs)
@@ -237,7 +290,7 @@ def pgd_seq(model, S, Xs, steps=10, alpha=0.05):
     for _ in range(steps):
         x.requires_grad_(True)
         logit = model(torch.cat([x, S[:, 2:]], 1), Xs)
-        g, = torch.autograd.grad(logit.sum(), x)
+        (g,) = torch.autograd.grad(logit.sum(), x)
         with torch.no_grad():
             x = project_budget(x - alpha * g.sign(), x0, mask)
     return torch.cat([x.detach(), S[:, 2:]], 1).numpy()
@@ -248,14 +301,17 @@ def predict_batched(model, S, Xs, bs=4096):
     out = []
     with torch.no_grad():
         for i in range(0, len(S), bs):
-            out.append(torch.sigmoid(model(torch.as_tensor(S[i:i + bs]),
-                                           torch.as_tensor(Xs[i:i + bs]))).numpy())
+            out.append(
+                torch.sigmoid(
+                    model(torch.as_tensor(S[i : i + bs]), torch.as_tensor(Xs[i : i + bs]))
+                ).numpy()
+            )
     return np.concatenate(out)
 
 
 def pgd_augment(steps=5, alpha=0.05):
-    """Adversarial training hook for dl.train_model: PGD copies of the fraud
-    examples in each batch, appended 1:1 with label 1."""
+    # Adversarial training hook for dl.train_model: PGD copies of the fraud examples in each
+    # batch, appended 1:1 with label 1.
     def aug(xb, yb, model):
         pos = yb > 0.5
         if pos.sum() == 0:
@@ -263,11 +319,13 @@ def pgd_augment(steps=5, alpha=0.05):
         S, Xs = xb[0][pos], xb[1][pos]
         Sa = torch.as_tensor(pgd_seq(model, S.numpy(), Xs.numpy(), steps, alpha))
         return [Sa, Xs], torch.ones(len(Sa))
+
     return aug
 
 
 def cnn_study(fv="v1", defend=True, folds_to_run=range(5)):
     from src.models.dl import train_model
+
     ids, X, y, folds = load_train(fv)
     S = load_seq(ids)
     att = attacked_features()
@@ -291,9 +349,16 @@ def cnn_study(fv="v1", defend=True, folds_to_run=range(5)):
         if defend:
             Xtr = prep.transform(X[tr])
             print(f"  adversarial training M7 fold {k}", flush=True)
-            md, _ = train_model(lambda: DualCNN(Xtr.shape[1]), [S[tr], Xtr], y[tr],
-                                loss="bce", bs=512, max_epochs=12, patience=3,
-                                augment=pgd_augment())
+            md, _ = train_model(
+                lambda: DualCNN(Xtr.shape[1]),
+                [S[tr], Xtr],
+                y[tr],
+                loss="bce",
+                bs=512,
+                max_epochs=12,
+                patience=3,
+                augment=pgd_augment(),
+            )
             torch.save(md.state_dict(), f"results/models/M7adv_{fv}_fold{k}.pt")
             models["M7 + adv. training"] = md
         for name, mdl in models.items():
@@ -310,18 +375,24 @@ def cnn_study(fv="v1", defend=True, folds_to_run=range(5)):
             r["pgd"] = recall_at(yv, predict_batched(mdl, Sa, Xva))
             rows.append(r)
             pd.DataFrame(rows).to_csv("results/tables/robustness_cnn_by_fold.csv", index=False)
-            print(f"  {name} fold {k}: " + "  ".join(f"{c}={float(v):.3f}" for c, v in r.items()
-                                                    if c not in ("model", "fold")), flush=True)
+            print(
+                f"  {name} fold {k}: "
+                + "  ".join(
+                    f"{c}={float(v):.3f}" for c, v in r.items() if c not in ("model", "fold")
+                ),
+                flush=True,
+            )
     d = pd.DataFrame(rows)
     d.to_csv("results/tables/robustness_cnn_by_fold.csv", index=False)
     return d
 
 
 def cnn_mimicry_defence(fv="v1", folds_to_run=range(5)):
-    """M7 trained with one mimicry-attacked copy (uniform or smooth, random) of
-    each training-fold fraud, label 1, sequence and static inputs both rebuilt
-    from the attacked invoices. Evaluated like cnn_study()."""
+    # M7 trained with one mimicry-attacked copy (uniform or smooth, random) of each
+    # training-fold fraud, label 1, sequence and static inputs both rebuilt from the attacked
+    # invoices. Evaluated like cnn_study().
     from src.models.dl import train_model
+
     ids, X, y, folds = load_train(fv)
     S = load_seq(ids)
     att = attacked_features()
@@ -337,20 +408,42 @@ def cnn_mimicry_defence(fv="v1", folds_to_run=range(5)):
         prep = pickle.load(open(f"results/models/prep_{fv}_fold{k}.pkl", "rb"))
         fr = ids[tr][y[tr] == 1]
         pick = rng.integers(0, 2, len(fr))
-        Sa_tr = np.stack([att_seq["uniform" if p == 0 else "smooth"][1][
-            att_seq["uniform" if p == 0 else "smooth"][0][c]] for c, p in zip(fr, pick)])
-        Xa_tr = pd.DataFrame(np.where(pick[:, None] == 0, att["uniform"].loc[fr, X.columns].to_numpy(),
-                                      att["smooth"].loc[fr, X.columns].to_numpy()), columns=X.columns)
+        Sa_tr = np.stack(
+            [
+                att_seq["uniform" if p == 0 else "smooth"][1][
+                    att_seq["uniform" if p == 0 else "smooth"][0][c]
+                ]
+                for c, p in zip(fr, pick)
+            ]
+        )
+        Xa_tr = pd.DataFrame(
+            np.where(
+                pick[:, None] == 0,
+                att["uniform"].loc[fr, X.columns].to_numpy(),
+                att["smooth"].loc[fr, X.columns].to_numpy(),
+            ),
+            columns=X.columns,
+        )
         S_tr = np.concatenate([S[tr], Sa_tr])
         X_tr = prep.transform(pd.concat([X[tr], Xa_tr], ignore_index=True))
         y_tr = np.concatenate([y[tr], np.ones(len(fr), np.float32)])
         print(f"  mimicry-augmented M7 fold {k}", flush=True)
-        m, _ = train_model(lambda: DualCNN(X_tr.shape[1]), [S_tr, X_tr], y_tr,
-                           loss="bce", bs=512, max_epochs=12, patience=3)
+        m, _ = train_model(
+            lambda: DualCNN(X_tr.shape[1]),
+            [S_tr, X_tr],
+            y_tr,
+            loss="bce",
+            bs=512,
+            max_epochs=12,
+            patience=3,
+        )
         Xva, Sva, yv = prep.transform(X[va]), S[va], y[va]
         fr_pos, fr_ids = np.where(yv == 1)[0], ids[va][yv == 1]
-        r = {"model": "M7 + mimicry augmentation", "fold": k,
-             "clean": recall_at(yv, predict_batched(m, Sva, Xva))}
+        r = {
+            "model": "M7 + mimicry augmentation",
+            "fold": k,
+            "clean": recall_at(yv, predict_batched(m, Sva, Xva)),
+        }
         for a in ("uniform", "smooth"):
             pos_map, sq = att_seq[a]
             Sa, Xa = Sva.copy(), X[va].copy()
@@ -362,14 +455,22 @@ def cnn_mimicry_defence(fv="v1", folds_to_run=range(5)):
         r["pgd"] = recall_at(yv, predict_batched(m, Sa, Xva))
         rows.append(r)
         pd.DataFrame(rows).to_csv("results/tables/robustness_cnndef_by_fold.csv", index=False)
-        print("  " + "  ".join(f"{c}={float(v):.3f}" for c, v in r.items() if c not in ("model", "fold")), flush=True)
+        print(
+            "  "
+            + "  ".join(f"{c}={float(v):.3f}" for c, v in r.items() if c not in ("model", "fold")),
+            flush=True,
+        )
     return pd.DataFrame(rows)
 
 
 def summarise():
     import os
-    parts = [pd.read_csv(f"results/tables/robustness_{p}_by_fold.csv")
-             for p in ("trees", "treedef", "cnn", "cnndef") if os.path.exists(f"results/tables/robustness_{p}_by_fold.csv")]
+
+    parts = [
+        pd.read_csv(f"results/tables/robustness_{p}_by_fold.csv")
+        for p in ("trees", "treedef", "cnn", "cnndef")
+        if os.path.exists(f"results/tables/robustness_{p}_by_fold.csv")
+    ]
     d = pd.concat(parts)
     long = d.melt(id_vars=["model", "fold"], var_name="attack", value_name="recall@5%").dropna()
     t = long.groupby(["model", "attack"])["recall@5%"].agg(["mean", "std"]).reset_index()
@@ -392,6 +493,7 @@ if __name__ == "__main__":
         cnn_mimicry_defence()
     if what in ("cnn", "all"):
         import os
+
         fl = [int(f) for f in os.environ.get("CNN_FOLDS", "0,1,2,3,4").split(",")]
         cnn_study(folds_to_run=fl)
     summarise()

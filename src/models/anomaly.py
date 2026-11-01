@@ -1,25 +1,39 @@
-"""Unsupervised anomaly scorers, out-of-fold (W2-C3 on v0, W3-C1 on v1).
+# Unsupervised anomaly scorers, out-of-fold (run on v0 and v1).
+#
+# M5 Isolation forest: features (target never used), 300 trees, contamination 'auto', fitted
+#    on the training fold, scored on the held-out fold.
+# M6 Autoencoder: 120-month total cons_pm sequence (log1p) flattened + F2-F4 features;
+#    Dense in-64-16-64-in; trained on NON-FRAUD training-fold clients only; score =
+#    reconstruction MSE on the held-out fold.
+#
+#   python3 -m src.models.anomaly --features v1
 
-M5 Isolation forest: features (target never used), 300 trees,
-   contamination 'auto', fitted on the training fold, scored on held-out fold.
-M6 Autoencoder: 120-month total cons_pm sequence (log1p) flattened + F2-F4
-   features; Dense in-64-16-64-in; trained on NON-FRAUD training-fold clients
-   only; score = reconstruction MSE on the held-out fold.
-
-    python -m src.models.anomaly --features v1
-"""
 import argparse
+
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
 from sklearn.ensemble import IsolationForest
-from src.models.common import load_train, TabularPrep, write_oof, oof_metrics_row, SEED
+
+from src.models.common import SEED, TabularPrep, load_train, oof_metrics_row, write_oof
 from src.models.dl import set_seed
 
-F2_F4_PREFIX = ("cons_pm_", "share_level", "level", "n_invoices", "invoices_per_year",
-                "days_since", "gap_days", "has_missing", "months_number",
-                "yoy_drop", "slope_last3y", "sudden_spike", "zero_")
+F2_F4_PREFIX = (
+    "cons_pm_",
+    "share_level",
+    "level",
+    "n_invoices",
+    "invoices_per_year",
+    "days_since",
+    "gap_days",
+    "has_missing",
+    "months_number",
+    "yoy_drop",
+    "slope_last3y",
+    "sudden_spike",
+    "zero_",
+)
 
 
 def m5_iforest(X, folds):
@@ -29,7 +43,7 @@ def m5_iforest(X, folds):
         prep = TabularPrep().fit(X[tr])
         f = IsolationForest(n_estimators=300, contamination="auto", random_state=SEED, n_jobs=2)
         f.fit(prep.transform(X[tr]))
-        s[va] = -f.score_samples(prep.transform(X[va]))   # higher = more anomalous
+        s[va] = -f.score_samples(prep.transform(X[va]))  # higher = more anomalous
     return s
 
 
@@ -74,14 +88,18 @@ def m6_autoencoder(ids, X, y, folds, epochs=25):
             model.train()
             for b in np.array_split(rng.permutation(fit_i), max(1, len(fit_i) // 512)):
                 opt.zero_grad()
-                l = ((model(Zt[b]) - Zt[b]) ** 2).mean()
-                l.backward()
+                loss = ((model(Zt[b]) - Zt[b]) ** 2).mean()
+                loss.backward()
                 opt.step()
             model.eval()
             with torch.no_grad():
                 vl = ((model(Zt[val_i]) - Zt[val_i]) ** 2).mean().item()
             if vl < best - 1e-5:
-                best, best_state, bad = vl, {k_: v.clone() for k_, v in model.state_dict().items()}, 0
+                best, best_state, bad = (
+                    vl,
+                    {k_: v.clone() for k_, v in model.state_dict().items()},
+                    0,
+                )
             else:
                 bad += 1
                 if bad >= 3:
@@ -107,4 +125,6 @@ if __name__ == "__main__":
     rows.append(oof_metrics_row(y, s6, folds, "M6", a.features))
     d = pd.DataFrame(rows)
     d.to_csv(f"results/tables/anomaly_{a.features}.csv", index=False)
-    print(d[["model", "pr_auc", "pr_auc_std", "roc_auc", "recall@5%"]].round(4).to_string(index=False))
+    print(
+        d[["model", "pr_auc", "pr_auc_std", "roc_auc", "recall@5%"]].round(4).to_string(index=False)
+    )

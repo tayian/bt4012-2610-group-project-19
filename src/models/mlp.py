@@ -1,16 +1,18 @@
-"""M4 MLP (Deep Learning I): 3 layers (256, 128, 64), ReLU, dropout 0.3, batch
-norm; focal loss (gamma 2) vs weighted BCE; Adam lr 1e-3; early stop on
-validation PR-AUC.  W2-C2 (v0, both losses) and W3-C1 (v1, chosen loss).
+# M4 MLP (Deep Learning I): 3 layers (256, 128, 64), ReLU, dropout 0.3, batch norm; focal loss
+# (gamma 2) vs weighted BCE; Adam lr 1e-3; early stop on validation PR-AUC. Run on v0 with
+# both losses, and on v1 with the chosen loss.
+#
+#   python3 -m src.models.mlp --features v0 --loss both
+#   python3 -m src.models.mlp --features v1 --loss bce
 
-    python -m src.models.mlp --features v0 --loss both
-    python -m src.models.mlp --features v1 --loss bce
-"""
 import argparse
+
 import numpy as np
 import pandas as pd
 import torch.nn as nn
-from src.models.common import load_train, TabularPrep, write_oof, oof_metrics_row
-from src.models.dl import train_model, predict
+
+from src.models.common import TabularPrep, load_train, oof_metrics_row, write_oof
+from src.models.dl import predict, train_model
 
 
 class MLP(nn.Module):
@@ -35,8 +37,16 @@ def run(fv, loss):
         prep = TabularPrep().fit(X[tr])
         Xtr, Xva = prep.transform(X[tr]), prep.transform(X[va])
         print(f"  M4 {fv} {loss} fold {k}  d_in={Xtr.shape[1]}", flush=True)
-        m, _ = train_model(lambda: MLP(Xtr.shape[1]), [Xtr], y[tr], loss=loss,
-                           bs=512, max_epochs=40, patience=5, verbose=False)
+        m, _ = train_model(
+            lambda: MLP(Xtr.shape[1]),
+            [Xtr],
+            y[tr],
+            loss=loss,
+            bs=512,
+            max_epochs=40,
+            patience=5,
+            verbose=False,
+        )
         oof[va] = predict(m, [Xva])
     return ids, y, folds, oof
 
@@ -54,5 +64,7 @@ if __name__ == "__main__":
         write_oof(ids, folds, oof, name, a.features)
         r = oof_metrics_row(y, oof, folds, f"M4 ({loss})", a.features)
         rows.append(r)
-        print(f"M4 {a.features} {loss}: PR-AUC {r['pr_auc']:.4f} ± {r['pr_auc_std']:.4f}", flush=True)
+        print(
+            f"M4 {a.features} {loss}: PR-AUC {r['pr_auc']:.4f} ± {r['pr_auc_std']:.4f}", flush=True
+        )
     pd.DataFrame(rows).to_csv(f"results/tables/m4_loss_compare_{a.features}.csv", index=False)

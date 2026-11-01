@@ -1,12 +1,18 @@
-"""Smoke tests for the W4-C4 harness on the 5 hand-written sample briefs.
-Run: python -m pytest tests/test_faithfulness.py -q"""
+# Smoke tests for the brief evaluation harness on the 5 hand-written sample briefs.
+# Run: python3 -m pytest tests/test_faithfulness.py -q
+
 import json
 import os
 import tempfile
 
-from src.llm.faithfulness import (score_brief, retrieval_metrics, auditor_feedback,
-                                  number_supported, score_run)
 from src.llm.agent_eval import RunLogger, load_logs
+from src.llm.faithfulness import (
+    auditor_feedback,
+    number_supported,
+    retrieval_metrics,
+    score_brief,
+    score_run,
+)
 
 FX = json.load(open(os.path.join(os.path.dirname(__file__), "fixtures/sample_briefs.json")))
 SNAP = {s["client_id"]: s for s in FX["snapshots"]}
@@ -57,8 +63,9 @@ def test_number_rounding_and_percent():
 
 
 def test_retrieval_metrics():
-    m = retrieval_metrics({"q1": ["a", "b", "c"], "q2": ["x", "y", "z", "w", "g"]},
-                          {"q1": {"b"}, "q2": {"g"}})
+    m = retrieval_metrics(
+        {"q1": ["a", "b", "c"], "q2": ["x", "y", "z", "w", "g"]}, {"q1": {"b"}, "q2": {"g"}}
+    )
     assert m["recall@3"] == 0.5 and m["recall@5"] == 1.0
     assert abs(m["mrr"] - (0.5 + 0.2) / 2) < 1e-9
 

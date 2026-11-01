@@ -1,12 +1,13 @@
-"""W1-C3 shared PyTorch training loop for M4 (MLP) and M7 (1D-CNN).
+# Shared PyTorch training loop for M4 (MLP) and M7 (1D-CNN).
+#
+#   * weighted BCE (pos_weight = negatives / positives) or focal loss (gamma 2)
+#   * early stopping on validation PR-AUC (10% stratified inner split of the training fold;
+#     the held-out CV fold is never seen during training)
+#   * returns held-out fold scores for the OOF file
 
-* weighted BCE (pos_weight = negatives / positives) or focal loss (gamma 2)
-* early stopping on validation PR-AUC (10% stratified inner split of the
-  training fold; the held-out CV fold is never seen during training)
-* returns held-out fold scores for the OOF file (4.4 contract)
-"""
 import copy
 import time
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -24,7 +25,7 @@ def set_seed(s=SEED):
 
 
 class FocalLoss(nn.Module):
-    """Binary focal loss (Lin et al. 2017) with alpha balancing."""
+    # Binary focal loss (Lin et al. 2017) with alpha balancing.
 
     def __init__(self, gamma=2.0, alpha=0.75):
         super().__init__()
@@ -48,7 +49,7 @@ def make_loss(name, y):
 def _batches(n, bs, shuffle, rng):
     idx = rng.permutation(n) if shuffle else np.arange(n)
     for i in range(0, n, bs):
-        yield idx[i:i + bs]
+        yield idx[i : i + bs]
 
 
 @torch.no_grad()
@@ -61,10 +62,21 @@ def predict(model, inputs, bs=4096):
     return np.concatenate(out)
 
 
-def train_model(make_model, inputs, y, loss="bce", lr=1e-3, bs=512, max_epochs=30,
-                patience=4, seed=SEED, verbose=True, augment=None):
-    """inputs: list of np arrays (same first dim). augment(batch_inputs, y_batch, model)
-    may return extra (inputs, y) to append to each batch (used for adversarial training)."""
+def train_model(
+    make_model,
+    inputs,
+    y,
+    loss="bce",
+    lr=1e-3,
+    bs=512,
+    max_epochs=30,
+    patience=4,
+    seed=SEED,
+    verbose=True,
+    augment=None,
+):
+    # inputs: list of np arrays (same first dim). augment(batch_inputs, y_batch, model) may
+    # return extra (inputs, y) to append to each batch (used for adversarial training).
     set_seed(seed)
     rng = np.random.default_rng(seed)
     tr, va = train_test_split(np.arange(len(y)), test_size=0.1, stratify=y, random_state=seed)
@@ -87,8 +99,8 @@ def train_model(make_model, inputs, y, loss="bce", lr=1e-3, bs=512, max_epochs=3
                     xb = [torch.cat([a, e]) for a, e in zip(xb, ex)]
                     yb = torch.cat([yb, ey])
             opt.zero_grad()
-            l = crit(model(*xb), yb)
-            l.backward()
+            batch_loss = crit(model(*xb), yb)
+            batch_loss.backward()
             opt.step()
         ap = average_precision_score(y[va], predict(model, [x[va] for x in inputs]))
         if verbose:

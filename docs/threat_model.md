@@ -1,4 +1,4 @@
-# Threat model (W4-C1, report section 4.4)
+# Threat model (report section 4.4)
 
 1. **Attacker:** a fraudulent client who already sits in the model's top-5% risk list.
 2. **Capability:** can lower the *declared* consumption on their own invoices (`consommation_level_1..4`), in any month and on ELEC or GAZ.

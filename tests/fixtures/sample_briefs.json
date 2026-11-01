@@ -1,5 +1,5 @@
 {
-  "_note": "SYNTHETIC fixtures for testing src/llm/faithfulness.py (W4-C4). Snapshot values and corpus chunks are invented in the shape of D's W3-D4 snapshot and 14.2 corpus; they are not real client data or real STEG policy. Brief 1 is correct; briefs 2-5 each contain planted errors listed in 'expected'.",
+  "_note": "SYNTHETIC fixtures for testing src/llm/faithfulness.py. Snapshot values and corpus chunks are invented in the shape of the client snapshot and the 14.2 corpus; they are not real client data or real STEG policy. Brief 1 is correct; briefs 2-5 each contain planted errors listed in 'expected'.",
   "snapshots": [
     {
       "client_id": "train_Client_101",
