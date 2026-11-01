@@ -1,0 +1,39 @@
+{
+  "client_id": "train_Client_88364",
+  "risk_score": 0.9699373906258179,
+  "risk_rank_pct": 0.955,
+  "risk_tier": "high",
+  "evidence": [
+    {
+      "point": "Synthetic model score: 0.9699373906258179.",
+      "citations": [
+        "SNAPSHOT"
+      ]
+    },
+    {
+      "point": "Synthetic example of a consumption pattern.",
+      "citations": [
+        "TYP-01"
+      ]
+    },
+    {
+      "point": "Synthetic inspection clause for interface testing.",
+      "citations": [
+        "SOP-v2025-2.1"
+      ]
+    }
+  ],
+  "onsite_checks": [
+    "Synthetic example: verify the meter serial number."
+  ],
+  "applicable_rules": [
+    {
+      "rule_id": "SOP-v2025-2.1",
+      "action": "Synthetic example: check the meter."
+    }
+  ],
+  "similar_cases": [
+    "CASE-train_Client_108530"
+  ],
+  "uncertainty": "STUB: all values and evidence are synthetic; no fraud conclusion is supported."
+}
