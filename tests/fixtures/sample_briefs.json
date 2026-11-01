@@ -1,0 +1,152 @@
+{
+  "_note": "SYNTHETIC fixtures for testing src/llm/faithfulness.py (W4-C4). Snapshot values and corpus chunks are invented in the shape of D's W3-D4 snapshot and 14.2 corpus; they are not real client data or real STEG policy. Brief 1 is correct; briefs 2-5 each contain planted errors listed in 'expected'.",
+  "snapshots": [
+    {
+      "client_id": "train_Client_101",
+      "alert_date": "2026-10-30",
+      "risk_score": 0.8734,
+      "risk_rank_pct": 99.2,
+      "model_version": "M10@model-freeze",
+      "profile": {"client_catg": 11, "region": 101, "district": 60, "tenure_years": 14.2, "n_counters": 2, "n_invoices": 41},
+      "key_features": {
+        "yoy_drop_max": {"value": 0.62, "train_pct": 97.1},
+        "zero_run_max": {"value": 3, "train_pct": 95.4},
+        "n_recon_mismatch": {"value": 4, "train_pct": 98.8},
+        "statue_share_5": {"value": 0.12, "train_pct": 99.0}
+      },
+      "shap_top5": [
+        {"feature": "yoy_drop_max", "value": 0.62, "shap_value": 0.41},
+        {"feature": "n_recon_mismatch", "value": 4, "shap_value": 0.33},
+        {"feature": "statue_share_5", "value": 0.12, "shap_value": 0.21},
+        {"feature": "zero_run_max", "value": 3, "shap_value": 0.12},
+        {"feature": "tenure_years", "value": 14.2, "shap_value": 0.05}
+      ],
+      "benford_mad": 0.031,
+      "round_reading_share": 0.38,
+      "n_index_backwards": 1
+    },
+    {
+      "client_id": "train_Client_202",
+      "alert_date": "2026-10-30",
+      "risk_score": 0.7120,
+      "risk_rank_pct": 97.5,
+      "model_version": "M10@model-freeze",
+      "profile": {"client_catg": 11, "region": 304, "district": 62, "tenure_years": 6.5, "n_counters": 1, "n_invoices": 22},
+      "key_features": {
+        "yoy_drop_max": {"value": 0.38, "train_pct": 88.0},
+        "slope_last3y": {"value": -21.5, "train_pct": 6.2},
+        "sudden_spike_share": {"value": 0.18, "train_pct": 93.5}
+      },
+      "shap_top5": [
+        {"feature": "slope_last3y", "value": -21.5, "shap_value": 0.29},
+        {"feature": "sudden_spike_share", "value": 0.18, "shap_value": 0.22},
+        {"feature": "yoy_drop_max", "value": 0.38, "shap_value": 0.19},
+        {"feature": "region", "value": 304, "shap_value": 0.08},
+        {"feature": "n_invoices", "value": 22, "shap_value": 0.04}
+      ],
+      "benford_mad": 0.012,
+      "round_reading_share": 0.21,
+      "n_index_backwards": 0
+    }
+  ],
+  "evidence": [
+    {"id": "SOP-v2025-2.1", "doc": "sop", "version": "v2025", "valid_from": "2025-01-01", "valid_to": null, "counter_type": "ELEC",
+     "text": "2.1 ELEC consumption fall above 60% year on year for 2 or more periods: priority visit within 30 days."},
+    {"id": "SOP-v2023-2.1", "doc": "sop", "version": "v2023", "valid_from": "2023-01-01", "valid_to": "2024-12-31", "counter_type": "ELEC",
+     "text": "2.1 ELEC consumption fall above 50% year on year: visit within 60 days."},
+    {"id": "SOP-v2025-3.4", "doc": "sop", "version": "v2025", "valid_from": "2025-01-01", "valid_to": null, "counter_type": "both",
+     "text": "3.4 Where the index difference does not reconcile with billed consumption on 3 or more invoices, the inspector photographs the register and checks seals."},
+    {"id": "CODE-counter_statue-5", "doc": "codebook", "field": "counter_statue",
+     "text": "counter_statue 5: meter recorded as faulty or blocked at reading time."},
+    {"id": "TYP-03", "doc": "playbook", "counter_type": "ELEC",
+     "text": "Index rollback: the register is wound back, so new_index can fall below old_index and billed consumption drops sharply; a later catch-up bill often follows."},
+    {"id": "TYP-07", "doc": "playbook", "counter_type": "both",
+     "text": "Gradual slowdown (magnet or shunt): consumption declines steadily over several years rather than in one step; the yearly slope is negative and spikes appear when the device is removed."},
+    {"id": "CASE-train_Client_5521", "doc": "case", "split": "train",
+     "text": "Category 11, region 101, tenure 12 years; yearly consumption fell 58% then a zero run of 4 invoices; confirmed fraud (meter bypass)."}
+  ],
+  "briefs": [
+    {
+      "client_id": "train_Client_101",
+      "risk_score": 0.8734,
+      "risk_rank_pct": 99.2,
+      "risk_tier": "high",
+      "evidence": [
+        {"point": "Largest year-on-year consumption fall is 62% (97.1th training percentile), above the 60% priority threshold.", "citations": ["SNAPSHOT", "SOP-v2025-2.1"]},
+        {"point": "Index difference fails to reconcile with billed consumption on 4 invoices; one reading has new_index below old_index, consistent with index rollback.", "citations": ["SNAPSHOT", "TYP-03"]},
+        {"point": "12% of invoices recorded counter_statue 5 (meter faulty or blocked).", "citations": ["SNAPSHOT", "CODE-counter_statue-5"]},
+        {"point": "A similar category 11 client in region 101 with a 58% fall and a zero run was a confirmed bypass; this is precedent, not proof.", "citations": ["CASE-train_Client_5521"]}
+      ],
+      "onsite_checks": ["Photograph the register and check seals [SOP-v2025-3.4].", "Look for signs of the register being wound back [TYP-03]."],
+      "applicable_rules": [{"rule_id": "SOP-v2025-2.1", "action": "Priority visit within 30 days."}],
+      "similar_cases": ["CASE-train_Client_5521"],
+      "uncertainty": "Meter status codes are recorded by inspectors and may reflect earlier visits. Benford MAD of 0.031 is within normal range, so digit patterns give no extra signal."
+    },
+    {
+      "client_id": "train_Client_101",
+      "risk_score": 0.8734,
+      "risk_rank_pct": 99.2,
+      "risk_tier": "high",
+      "evidence": [
+        {"point": "Largest year-on-year fall is 62%, above the 60% threshold.", "citations": ["SNAPSHOT", "SOP-v2025-2.1"]},
+        {"point": "Billing pattern matches a known tariff misclassification scheme.", "citations": ["TYP-11"]},
+        {"point": "Repeated meter faults (counter_statue 5) on 12% of invoices.", "citations": ["CODE-counter_statue-5"]}
+      ],
+      "onsite_checks": ["Verify tariff class against the premises [SOP-v2025-9.9]."],
+      "applicable_rules": [{"rule_id": "SOP-v2025-2.1", "action": "Priority visit within 30 days."}],
+      "similar_cases": ["CASE-train_Client_5521"],
+      "uncertainty": "Tariff evidence is indirect."
+    },
+    {
+      "client_id": "train_Client_202",
+      "risk_score": 0.75,
+      "risk_rank_pct": 97.5,
+      "risk_tier": "high",
+      "evidence": [
+        {"point": "Consumption fell 45% year on year.", "citations": ["SNAPSHOT"]},
+        {"point": "The last-3-year slope is -21.5 per year (6.2th percentile), a steady decline typical of a slowdown device.", "citations": ["SNAPSHOT", "TYP-07"]},
+        {"point": "18% of invoices are spikes above twice the client's median, consistent with catch-up bills.", "citations": ["SNAPSHOT", "TYP-07"]}
+      ],
+      "onsite_checks": ["Inspect for magnets or shunts near the meter [TYP-07]."],
+      "applicable_rules": [],
+      "similar_cases": [],
+      "uncertainty": "No meter status or reconciliation evidence; the signal is trajectory only."
+    },
+    {
+      "client_id": "train_Client_202",
+      "risk_score": 0.712,
+      "risk_rank_pct": 97.5,
+      "risk_tier": "medium",
+      "evidence": [
+        {"point": "Largest year-on-year fall is 38%.", "citations": ["SNAPSHOT"]},
+        {"point": "The last-3-year slope is -21.5 per year, a steady decline.", "citations": ["SNAPSHOT", "TYP-07"]},
+        {"point": "A fall above 50% would trigger a visit within 60 days under the SOP.", "citations": ["SOP-v2023-2.1"]}
+      ],
+      "onsite_checks": ["Inspect for magnets or shunts near the meter [TYP-07]."],
+      "applicable_rules": [{"rule_id": "SOP-v2023-2.1", "action": "Visit within 60 days."}],
+      "similar_cases": [],
+      "uncertainty": "The fall is below the threshold; trajectory evidence only."
+    },
+    {
+      "client_id": "train_Client_202",
+      "risk_score": 0.712,
+      "risk_rank_pct": 97.5,
+      "risk_tier": "high",
+      "evidence": [
+        {"point": "Neighbours report an illegal reconnection cable running from the street pole.", "citations": ["TYP-07"]},
+        {"point": "The slope over the last 3 years is -21.5.", "citations": ["SNAPSHOT"]}
+      ],
+      "onsite_checks": ["Check the street pole connection."],
+      "applicable_rules": [],
+      "similar_cases": [],
+      "uncertainty": "None."
+    }
+  ],
+  "expected": [
+    {"brief": 0, "all_pass": true},
+    {"brief": 1, "all_pass": false, "planted": ["TYP-11 not retrieved", "SOP-v2025-9.9 not retrieved"]},
+    {"brief": 2, "all_pass": false, "planted": ["45% not in snapshot (true 38%)", "risk_score 0.75 != 0.712"]},
+    {"brief": 3, "all_pass": false, "planted": ["SOP-v2023-2.1 expired 2024-12-31 before alert 2026-10-30"]},
+    {"brief": 4, "all_pass": false, "planted": ["only 2 evidence points", "point 0 unsupported by TYP-07 (low faithfulness)"]}
+  ]
+}
