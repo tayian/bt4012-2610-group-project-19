@@ -7,8 +7,7 @@
 #   python3 -m src.eval.adversarial trees  # M3 x {clean, uniform, smooth, index-consistent} x feature groups
 #   python3 -m src.eval.adversarial cnn    # M7 x {clean, uniform, smooth, PGD}, before/after adversarial training
 #
-# Not runnable yet: it needs a v1 feature builder for attacked invoices and the tree model
-# (M3), neither of which is in the repo. See the comments at _feature_builder and tree_study.
+# The attacked-invoice v1 feature builder is still needed; see _feature_builder.
 
 import pickle
 import sys
@@ -159,10 +158,9 @@ def feature_groups():
 
 
 def tree_study():
-    # MISSING DEPENDENCY: the tuned tree model (M3) is not in the repo yet; it is expected to
-    # replace this placeholder module. fit_m3(X, y) must return a fitted classifier with
-    # predict_proba (LightGBM with the tuned parameters).
-    from src.models.trees_standin import fit_m3
+    # The shared fitter handles categories and fold-specific class weights. PARAMS currently
+    # describes the default model; tuning can update it when the reference model is selected.
+    from src.models.trees import fit_m3
 
     ids, X, y, folds = load_train("v1_with_inspection")
     att = attacked_features()
@@ -210,11 +208,9 @@ def tree_defence():
     #   * augment: adversarial data augmentation, each training-fold fraud gets one attacked
     #     copy (uniform or smooth at random, 1:1), label 1. Only frauds of the training fold
     #     are used, so the held-out fold stays unseen.
-    import lightgbm as lgb
-
-    # MISSING DEPENDENCY: PARAMS is the dict of tuned LightGBM keyword arguments for M3
-    # (without scale_pos_weight and monotone_constraints, which are set here); see tree_study.
-    from src.models.trees_standin import PARAMS
+    # Use the same categorical handling as tree_study; fitting a raw classifier here would
+    # bypass it. The fitter recomputes the weight after any training-fold augmentation.
+    from src.models.trees import fit_m3
 
     ids, X, y, folds = load_train("v1_with_inspection")
     att = attacked_features()
@@ -234,13 +230,15 @@ def tree_defence():
                     att["uniform"].loc[fr, cols].to_numpy(),
                     att["smooth"].loc[fr, cols].to_numpy(),
                 )
-                Xtr = pd.concat([Xtr, pd.DataFrame(aug, columns=cols)], ignore_index=True)
+                # A mixed string/numeric numpy array has object dtype. Restore the feature
+                # dtypes so numeric validity features stay numeric after augmentation.
+                augmented = pd.DataFrame(aug, columns=cols).astype(Xtr.dtypes.to_dict())
+                Xtr = pd.concat([Xtr, augmented], ignore_index=True)
                 ytr = np.concatenate([ytr, np.ones(len(fr), np.float32)])
             extra = (
                 {"monotone_constraints": mono} if ("monotone" in vname or "both" in vname) else {}
             )
-            spw = (ytr == 0).sum() / (ytr == 1).sum()
-            m = lgb.LGBMClassifier(scale_pos_weight=spw, **PARAMS, **extra).fit(Xtr, ytr)
+            m = fit_m3(Xtr, ytr, **extra)
             Xva, yv = X.loc[va, cols], y[va]
             r = {"model": vname, "fold": k, "clean": recall_at(yv, m.predict_proba(Xva)[:, 1])}
             fr_ids, fr_pos = ids[va][yv == 1], np.where(yv == 1)[0]
