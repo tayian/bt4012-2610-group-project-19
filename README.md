@@ -62,6 +62,7 @@ python run.py test-llm
 | Test fixtures | `python run.py stubs` | `data/stubs/` |
 | Exploratory analysis | `python run.py eda` | `notebooks/01_eda.ipynb`, `results/tables/basics.csv`, `descriptive.csv`, EDA figures |
 | Baseline model | `python run.py baseline` | `results/tables/main_results.csv`, `results/oof/M1_v0.parquet` |
+| LightGBM model | `python run.py lightgbm` | `results/tables/main_results.csv`, `results/oof/M3_v0.parquet` |
 | Tests | `python run.py test` | Runs every test |
 
 Each command also runs the steps it depends on, so you can run any one on its own. `python run.py --list` shows every step.
@@ -97,7 +98,7 @@ results/        tables/, figures/, oof/ (out-of-fold model scores), models/ (fol
 src/
   data/         loading, cleaning, raw-data check, split, stubs
   features/     baseline, consumption/billing and monthly sequence features
-  models/       logistic regression baseline, MLP, 1D-CNN, anomaly models, shared preprocessing
+  models/       logistic regression, LightGBM, MLP, 1D-CNN, anomaly models, shared preprocessing
   eval/         metrics, out-of-fold files, robustness study, rescue analysis
   llm/          RAG corpus tools and the Inspector Brief evaluation harness
   viz/          shared figure style and plots
