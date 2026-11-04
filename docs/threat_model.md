@@ -6,11 +6,16 @@
 4. **Budget:** total declared consumption over the client's history falls by at most 30%.
 5. **Goal:** drop below the top-5% inspection cut-off, i.e. reduce recall@5% for fraud clients.
 
-Attacks implemented in `src/eval/adversarial.py`:
+Attacks implemented in `src/eval/adversarial.py` (`python run.py robustness`):
 
 | Attack | Target | Knowledge | How |
 |---|---|---|---|
 | Uniform cut | M3, M7 | none | every invoice × 0.70 |
-| Smooth-decline mimicry | M3, M7 | black-box | multiplier ramps linearly from 1 to f_end across the client's invoices (honest-looking slow decline), f_end chosen so the total falls exactly 30%; features and sequence rebuilt from the edited invoices |
+| Smooth-decline mimicry | M3, M7 | black-box | multiplier ramps linearly from 1 to f_end across the client's invoices (honest-looking slow decline), f_end chosen so the total falls exactly 30% |
 | PGD | M7 | white-box | 10 steps on the sequence input, perturbation ≤ 0 per month, projected back onto the 30% budget; static branch held fixed |
-| Index-consistent mimicry (stronger, outside the model) | M3 | black-box | smooth mimicry **plus** `new_index` rewritten to match: shows what happens if the attacker also controls readings (e.g. reader collusion) |
+
+After the uniform and smooth attacks, `cons` and `cons_pm` are recomputed as `src/data/clean.py` does, and the features and sequence are rebuilt with the same pipeline code as everyone else (`aggregate.py` for v0, `behavioural.py` for v1, `sequence.py`).
+
+Because the attacker cannot change the index readings, lowering declared consumption makes `idx_diff × counter_coefficient` stop matching `cons`. The current feature sets (v0, v1) have no reconciliation features, so the models cannot see this; once a reconciliation feature (`flag_recon_mismatch`, `recon_gap`) is added, rerun the study. An earlier run on stand-in features showed that a tree model can rank clients with many mismatches as *low* risk, because almost no training client has that many; a monotone constraint on such features would prevent it. An index-consistent attack (the attacker also rewrites `new_index`, e.g. by colluding with the meter reader) only differs from the smooth attack once those features exist.
+
+Defences: adversarial augmentation for M3 (one attacked copy of each training-fold fraud), PGD adversarial training and mimicry augmentation for M7. Results: `results/tables/robustness.csv`.

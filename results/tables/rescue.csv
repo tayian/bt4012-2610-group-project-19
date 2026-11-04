@@ -1,0 +1,8 @@
+group,n,share_of_all_frauds,share_of_missed,random_baseline,m3_version,anomaly_version
+frauds missed by M3 top 10%,3373,0.5572443416487692,,,v0,v0
+rescued by M5 top 10%,226,,0.06700266824785057,0.1,v0,v0
+rescued by M6 top 10%,509,,0.15090423954936258,0.1,v0,v0
+rescued by M7 top 10%,731,,0.21672101986362288,0.1,v0,v0
+rescued by M4 top 10%,566,,0.167803142603024,0.1,v0,v0
+rescued by M5 or M6,673,,0.1995256448265639,0.18999999999999995,v0,v0
+non-frauds outside M3 top 10% flagged by M5 or M6,16900,,0.1794321873739197,0.18999999999999995,v0,v0

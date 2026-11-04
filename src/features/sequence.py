@@ -6,15 +6,17 @@
 #   2  MASK  1.0 if no invoice of any type covers that month, else 0.0
 #
 # Method
-#   * An invoice dated in month t with months_number m covers months t-m+1 .. t; its
-#     consumption is spread evenly (cons / m per month). m is clipped to [1, 24] for
-#     spreading (m=0 or absurd values such as 636,624 exist).
+#   * An invoice dated in month t with months_valid m covers months t-m+1 .. t; its
+#     consumption is spread evenly (cons / m per month). months_valid comes from
+#     src/data/clean.py, so the months rule lives only there: invoices whose billing period is
+#     impossible (months_valid missing) are left out, exactly as their cons_pm is missing.
 #   * Each client is right-aligned on the month of its own last invoice, so the window is the
-#     client's last 120 calendar months (most clients end in 2019, but ~15% stop earlier; a
-#     global window would leave them blank).
+#     client's last 120 calendar months (most clients end in 2019, but ~15% stop earlier, and
+#     ~10% have no bills at all in 2010-2019; a fixed calendar window would turn them into
+#     empty rows that a model could read as "no data means safe").
 #   * Months before a client's first invoice are masked (MASK=1, values 0).
 #
-# Works on any invoice dataframe with the raw columns; by default it reads the clean parquet:
+# Works on any invoice dataframe with the clean columns; by default it reads the clean parquet:
 #   python3 -m src.features.sequence --invoices data/interim/invoice_clean.parquet
 
 import argparse
@@ -30,12 +32,27 @@ LEVELS = [
     "consommation_level_4",
 ]
 T = 120
-MAX_SPREAD = 24
+COLUMNS = ["client_id", "invoice_date", "counter_type", "months_valid", *LEVELS]
+
+
+def _usable(inv):
+    # Rows with a valid billing period, as in cons_pm.
+    inv = inv[COLUMNS]
+    return inv[inv["months_valid"].notna()]
+
+
+def last_invoice_month(inv, client_ids):
+    # Calendar month (0 = January .. 11 = December) of each client's last usable invoice, the
+    # month every sequence is right-aligned on; -1 for clients without one.
+    inv = _usable(inv)
+    last = pd.to_datetime(inv["invoice_date"]).groupby(inv["client_id"].astype(str)).max()
+    month = last.dt.month.reindex(np.asarray(client_ids).astype(str)) - 1
+    return month.fillna(-1).to_numpy(np.int64)
 
 
 def build_sequence(inv: pd.DataFrame, client_ids=None, T=T):
     # Return (seq float32 (n, T, 3), ids np.array[str]).
-    inv = inv[["client_id", "invoice_date", "counter_type", "months_number"] + LEVELS]
+    inv = _usable(inv)
     if client_ids is None:
         client_ids = np.sort(inv["client_id"].astype(str).unique())
     client_ids = np.asarray(client_ids).astype(str)
@@ -48,7 +65,7 @@ def build_sequence(inv: pd.DataFrame, client_ids=None, T=T):
 
     d = pd.to_datetime(inv["invoice_date"])
     ym = (d.dt.year * 12 + d.dt.month - 1).to_numpy(np.int64)
-    m = np.clip(inv["months_number"].to_numpy(np.int64), 1, MAX_SPREAD)
+    m = inv["months_valid"].to_numpy(np.int64)
     cons = inv[LEVELS].sum(axis=1).to_numpy(np.float64)
     is_gaz = (inv["counter_type"].astype(str).to_numpy() == "GAZ").astype(np.int64)
 
@@ -84,7 +101,7 @@ def main():
     p.add_argument("--out", default="data/processed/")
     a = p.parse_args()
     t = time.time()
-    inv = pd.read_parquet(a.invoices)
+    inv = pd.read_parquet(a.invoices, columns=COLUMNS)
     ids = pd.read_parquet(a.clients)["client_id"].astype(str).values
     seq, ids = build_sequence(inv, ids)
     np.save(a.out + "seq.npy", seq)

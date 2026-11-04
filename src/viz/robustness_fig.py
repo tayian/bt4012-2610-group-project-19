@@ -1,4 +1,9 @@
-# Report figure F6: recall@5% clean vs attacked, before and after defence.
+# Robustness figure: recall@5% clean vs attacked, before and after defence, for one feature
+# version of results/tables/robustness.csv (python run.py robustness).
+#
+#   python3 -m src.viz.robustness_fig --features v0   -> results/figures/robustness_v0.png
+
+import argparse
 
 import matplotlib
 import pandas as pd
@@ -6,58 +11,60 @@ import pandas as pd
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+from src.viz import style
+
 ORDER = [
-    "M3 v1_with_inspection (all groups)",
-    "M3 + monotone F6",
+    "M3",
+    "M3 without consumption features",
     "M3 + adv. augmentation",
-    "M3 without F6",
     "M7",
-    "M7 + adv. training",
+    "M7 + PGD adv. training",
     "M7 + mimicry augmentation",
 ]
-LABEL = {
-    "M3 v1_with_inspection (all groups)": "M3",
-    "M3 + monotone F6": "M3 + monotone F6",
-    "M3 + adv. augmentation": "M3 + adv. augment.",
-    "M3 without F6": "M3 without F6",
-    "M7": "M7 1D-CNN",
-    "M7 + adv. training": "M7 + PGD adv. train",
-    "M7 + mimicry augmentation": "M7 + mimicry augment.",
+SHORT = {
+    "M3 without consumption features": "M3\nno consumption",
+    "M3 + adv. augmentation": "M3\n+ augmentation",
+    "M7 + PGD adv. training": "M7\n+ PGD training",
+    "M7 + mimicry augmentation": "M7\n+ mimicry aug.",
 }
-ATT = [
-    ("clean", "Clean", "#4C4C4C"),
-    ("uniform", "Uniform −30%", "#DD8452"),
-    ("smooth", "Smooth-decline mimicry", "#C44E52"),
-    ("pgd", "PGD (white-box)", "#8172B3"),
+# Clean in neutral grey, then one hue per attack (lighter to darker as knowledge grows).
+ATTACKS = [
+    ("clean", "Clean", "#8a8984"),
+    ("uniform", "Uniform -30%", "#86b6ef"),
+    ("smooth", "Smooth-decline mimicry", style.SINGLE),
+    ("pgd", "PGD (white-box)", style.FRAUD),
 ]
 
 
 def main():
+    p = argparse.ArgumentParser(description="Plot recall@5% clean vs attacked.")
+    p.add_argument("--features", default="v0", choices=["v0", "v1"])
+    a = p.parse_args()
+    style.apply()
     t = pd.read_csv("results/tables/robustness.csv")
-    w = t.pivot(index="model", columns="attack", values="mean")
-    sd = t.pivot(index="model", columns="attack", values="std")
-    models = [m for m in ORDER if m in w.index]
-    fig, ax = plt.subplots(figsize=(12, 4.6))
-    bw = 0.2
-    for j, (a, lab, col) in enumerate(ATT):
-        if a not in w:
+    t = t[t["feature_version"] == a.features]
+    mean = t.pivot(index="model", columns="attack", values="mean")
+    std = t.pivot(index="model", columns="attack", values="std")
+    models = [m for m in ORDER if m in mean.index]
+    fig, ax = plt.subplots(figsize=(11, 4.2))
+    width = 0.2
+    for j, (attack, label, color) in enumerate(ATTACKS):
+        if attack not in mean:
             continue
         xs, ys, es = [], [], []
         for i, m in enumerate(models):
-            if pd.notna(w.loc[m, a]):
-                xs.append(i + (j - 1.5) * bw)
-                ys.append(w.loc[m, a])
-                es.append(sd.loc[m, a])
-        ax.bar(xs, ys, bw, yerr=es, color=col, label=lab, capsize=2)
+            if pd.notna(mean.loc[m, attack]):
+                xs.append(i + (j - 1.5) * width)
+                ys.append(mean.loc[m, attack])
+                es.append(std.loc[m, attack])
+        ax.bar(xs, ys, width, yerr=es, color=color, label=label, capsize=2)
     ax.set_xticks(range(len(models)))
-    ax.set_xticklabels([LABEL[m].replace(" + ", "\n+ ") for m in models], fontsize=9)
-    ax.set_ylabel("Recall@5% (mean of 5 folds)")
-    ax.set_title("Fraudster lowers declared consumption by ≤30%: recall in the top-5% list")
-    ax.legend(fontsize=8, ncol=4, loc="upper left")
-    ax.set_ylim(0, 1)
-    ax.spines[["top", "right"]].set_visible(False)
-    fig.tight_layout()
-    fig.savefig("results/figures/F6_robustness.png", dpi=300)
+    ax.set_xticklabels([SHORT.get(m, m) for m in models])
+    ax.set_ylabel(f"Recall@5% (mean of 5 folds, features {a.features})")
+    ax.set_title("A fraudster lowers declared consumption by up to 30%: frauds kept in the top 5%")
+    ax.legend(ncol=4, loc="upper left", frameon=False)
+    ax.set_ylim(0, max(0.5, float(t["mean"].max()) * 1.25))
+    fig.savefig(f"results/figures/robustness_{a.features}.png")
 
 
 if __name__ == "__main__":

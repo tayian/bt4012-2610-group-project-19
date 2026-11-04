@@ -1,12 +1,14 @@
 # Shared helpers for the neural and anomaly models: data loading on the saved splits,
-# label-free preprocessing fitted on the training fold only, and the OOF writer.
+# label-free preprocessing fitted on the training fold only, and the writer for OOF scores and
+# main_results rows.
+
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from sklearn.metrics import average_precision_score, roc_auc_score
 
 from src.data.split import read_splits
-from src.eval.oof import write_frames
+from src.eval.oof import oof_frame, write_frames
 
 SEED = 4012
 # v1 is the default for every model. The leakage comparison scores v1 against
@@ -77,54 +79,50 @@ class TabularPrep:
         return np.clip(np.hstack(parts), -10, 10).astype(np.float32)
 
 
-def write_oof(ids, folds, scores, model, feature_version, path=None):
-    # The columns of src.eval.oof.OOF_COLUMNS, written with its safe writer. The frame is built
-    # here rather than with oof_frame, which would store client_id as a pandas string column
-    # instead of the plain object column these files have always used.
-    out = pd.DataFrame(
+def save_run(ids, folds, y, scores, model, feature_version, run_id, oof_name=None, **meta):
+    # Write one model's OOF scores and its row of results/tables/main_results.csv together.
+    #
+    # Metrics come from the shared src.eval.metrics.budget_metrics (tie-aware, with Brier and
+    # net recovery), per saved fold, as mean and sample std, so the rows line up with M1 and
+    # M3. A rerun replaces the row with the same run_id and keeps every other row. oof_name sets
+    # the OOF file name when one model has variants (M4focal_v0 next to M4_v0).
+    from src.eval.metrics import budget_metrics
+
+    y = np.asarray(y)
+    scores = np.asarray(scores, dtype=np.float64)
+    folds = np.asarray(folds)
+    if not np.isfinite(scores).all():
+        raise ValueError(f"{run_id}: every training client needs a finite OOF score.")
+    table = pd.DataFrame([budget_metrics(y[folds == k], scores[folds == k]) for k in range(5)])
+    row = {
+        "model": model,
+        "feature_version": feature_version,
+        "n_clients": len(y),
+        "n_folds": 5,
+    }
+    for metric in table.columns:
+        row[f"{metric}_mean"] = float(table[metric].mean())
+        row[f"{metric}_std"] = float(table[metric].std(ddof=1))
+    row.update(
         {
-            "client_id": ids,
-            "fold": folds,
-            "score": scores,
-            "model": model,
-            "feature_version": feature_version,
+            "run_id": run_id,
+            "feature_set": f"features_{feature_version}",
+            "evaluation_split": "train_cv",
+            "seed": SEED,
+            **meta,
         }
     )
-    path = path or f"results/oof/{model}_{feature_version}.parquet"
-    write_frames({path: out})
-    return out
-
-
-def fold_report(y, s, folds):
-    ap = [average_precision_score(y[folds == k], s[folds == k]) for k in np.unique(folds)]
-    return float(np.mean(ap)), float(np.std(ap))
-
-
-def budget_metrics(y_true, scores, budgets=(0.01, 0.05, 0.10)):
-    # Precision and recall in the top 1%, 5% and 10% plus PR-AUC and ROC-AUC. Deliberately not
-    # src.eval.metrics.budget_metrics: this one counts the positives among the first k clients
-    # after a sort, while the shared one takes the expected count over scores tied at the cut-off
-    # (and adds Brier and net-recovery columns), so the numbers can differ.
-    y_true = np.asarray(y_true)
-    y_sorted = y_true[np.argsort(-np.asarray(scores))]
-    out = {
-        "pr_auc": average_precision_score(y_true, scores),
-        "roc_auc": roc_auc_score(y_true, scores),
-    }
-    for b in budgets:
-        k = max(1, int(len(y_sorted) * b))
-        tp = y_sorted[:k].sum()
-        out[f"precision@{int(b * 100)}%"] = tp / k
-        out[f"recall@{int(b * 100)}%"] = tp / y_true.sum()
-    return out
-
-
-def oof_metrics_row(y, s, folds, model, fv):
-    # Per-fold mean of budget metrics (as in eval protocol 5.4).
-    rows = [budget_metrics(y[folds == k], s[folds == k]) for k in np.unique(folds)]
-    d = pd.DataFrame(rows)
-    r = {"model": model, "feature_version": fv}
-    for c in d.columns:
-        r[c] = d[c].mean()
-        r[c + "_std"] = d[c].std()
-    return r
+    table_path = Path("results/tables/main_results.csv")
+    previous = pd.read_csv(table_path) if table_path.exists() else pd.DataFrame()
+    if "run_id" in previous:
+        previous = previous.loc[previous["run_id"].ne(run_id)]
+    results = pd.concat([previous, pd.DataFrame([row])], ignore_index=True)
+    oof = oof_frame(ids, folds, scores, model, feature_version)
+    oof_path = Path(f"results/oof/{oof_name or model}_{feature_version}.parquet")
+    write_frames({oof_path: oof, table_path: results})
+    print(
+        f"{run_id}: PR-AUC {row['pr_auc_mean']:.4f} +/- {row['pr_auc_std']:.4f}, "
+        f"recall@5% {row['recall@5%_mean']:.4f}  -> {oof_path}",
+        flush=True,
+    )
+    return row

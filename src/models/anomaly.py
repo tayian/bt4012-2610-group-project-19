@@ -2,8 +2,8 @@
 #
 # M5 Isolation forest: features (target never used), 300 trees, contamination 'auto', fitted
 #    on the training fold, scored on the held-out fold.
-# M6 Autoencoder: 120-month total cons_pm sequence (log1p) flattened + F2-F4 features;
-#    Dense in-64-16-64-in; trained on NON-FRAUD training-fold clients only; score =
+# M6 Autoencoder: 120-month total cons_pm sequence (log1p) flattened + consumption and billing
+#    features; Dense in-64-16-64-in; trained on NON-FRAUD training-fold clients only; score =
 #    reconstruction MSE on the held-out fold.
 #
 #   python3 -m src.models.anomaly --features v1
@@ -16,10 +16,10 @@ import torch
 import torch.nn as nn
 from sklearn.ensemble import IsolationForest
 
-from src.models.common import SEED, TabularPrep, load_train, oof_metrics_row, write_oof
+from src.models.common import SEED, TabularPrep, load_train, save_run
 from src.models.dl import set_seed
 
-F2_F4_PREFIX = (
+CONSUMPTION_BILLING_PREFIX = (
     "cons_pm_",
     "share_level",
     "level",
@@ -67,7 +67,7 @@ def total_seq(ids):
 
 
 def m6_autoencoder(ids, X, y, folds, epochs=25):
-    cols = [c for c in X.columns if c.startswith(F2_F4_PREFIX)]
+    cols = [c for c in X.columns if c.startswith(CONSUMPTION_BILLING_PREFIX)]
     seq = total_seq(ids)
     s = np.zeros(len(y))
     for k in range(5):
@@ -111,20 +111,34 @@ def m6_autoencoder(ids, X, y, folds, epochs=25):
     return s
 
 
-if __name__ == "__main__":
-    p = argparse.ArgumentParser()
-    p.add_argument("--features", default="v1")
+def main():
+    p = argparse.ArgumentParser(description="Score the isolation forest (M5) and autoencoder (M6).")
+    p.add_argument("--features", default="v1", choices=["v0", "v1"])
     a = p.parse_args()
     ids, X, y, folds = load_train(a.features)
-    rows = []
-    s5 = m5_iforest(X, folds)
-    write_oof(ids, folds, s5, "M5", a.features)
-    rows.append(oof_metrics_row(y, s5, folds, "M5", a.features))
-    s6 = m6_autoencoder(ids, X, y, folds)
-    write_oof(ids, folds, s6, "M6", a.features)
-    rows.append(oof_metrics_row(y, s6, folds, "M6", a.features))
-    d = pd.DataFrame(rows)
-    d.to_csv(f"results/tables/anomaly_{a.features}.csv", index=False)
-    print(
-        d[["model", "pr_auc", "pr_auc_std", "roc_auc", "recall@5%"]].round(4).to_string(index=False)
+    # Anomaly scores are not probabilities, so their Brier score is left empty.
+    save_run(
+        ids,
+        folds,
+        y,
+        m5_iforest(X, folds),
+        "M5",
+        a.features,
+        run_id=f"M5_features_{a.features}_iforest300_train_cv",
+        n_estimators=300,
+        preprocessing="fold_fitted_log1p_impute_standardise_unsupervised",
     )
+    save_run(
+        ids,
+        folds,
+        y,
+        m6_autoencoder(ids, X, y, folds),
+        "M6",
+        a.features,
+        run_id=f"M6_features_{a.features}_autoencoder_nonfraud_train_cv",
+        preprocessing="seq120_plus_F2_F3_trained_on_nonfraud_training_clients",
+    )
+
+
+if __name__ == "__main__":
+    main()

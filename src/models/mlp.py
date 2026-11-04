@@ -8,10 +8,9 @@
 import argparse
 
 import numpy as np
-import pandas as pd
 import torch.nn as nn
 
-from src.models.common import TabularPrep, load_train, oof_metrics_row, write_oof
+from src.models.common import TabularPrep, load_train, save_run
 from src.models.dl import predict, train_model
 
 
@@ -51,20 +50,27 @@ def run(fv, loss):
     return ids, y, folds, oof
 
 
-if __name__ == "__main__":
-    p = argparse.ArgumentParser()
-    p.add_argument("--features", default="v1")
+def main():
+    p = argparse.ArgumentParser(description="Train the MLP (M4) on the saved folds.")
+    p.add_argument("--features", default="v1", choices=["v0", "v1"])
     p.add_argument("--loss", default="bce", choices=["bce", "focal", "both"])
     a = p.parse_args()
-    rows = []
-    losses = ["bce", "focal"] if a.loss == "both" else [a.loss]
-    for loss in losses:
+    for loss in ["bce", "focal"] if a.loss == "both" else [a.loss]:
         ids, y, folds, oof = run(a.features, loss)
-        name = "M4" if len(losses) == 1 or loss == "bce" else "M4focal"
-        write_oof(ids, folds, oof, name, a.features)
-        r = oof_metrics_row(y, oof, folds, f"M4 ({loss})", a.features)
-        rows.append(r)
-        print(
-            f"M4 {a.features} {loss}: PR-AUC {r['pr_auc']:.4f} ± {r['pr_auc_std']:.4f}", flush=True
+        # Weighted BCE keeps the plain M4 file name; focal loss gets its own file.
+        save_run(
+            ids,
+            folds,
+            y,
+            oof,
+            "M4",
+            a.features,
+            run_id=f"M4_features_{a.features}_{loss}_train_cv",
+            oof_name="M4" if loss == "bce" else "M4focal",
+            loss=loss,
+            preprocessing="fold_fitted_log1p_impute_standardise",
         )
-    pd.DataFrame(rows).to_csv(f"results/tables/m4_loss_compare_{a.features}.csv", index=False)
+
+
+if __name__ == "__main__":
+    main()
