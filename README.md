@@ -63,9 +63,17 @@ python run.py test-llm
 | Exploratory analysis | `python run.py eda` | `notebooks/01_eda.ipynb`, `results/tables/basics.csv`, `descriptive.csv`, EDA figures |
 | Baseline model | `python run.py baseline` | `results/tables/main_results.csv`, `results/oof/M1_v0.parquet` |
 | LightGBM model | `python run.py lightgbm` | `results/tables/main_results.csv`, `results/oof/M3_v0.parquet` |
+| Baseline explanations | `python run.py shap` | `results/shap_top5_v0.parquet`, five OOF drivers per training client |
 | Tests | `python run.py test` | Runs every test |
 
 Each command also runs the steps it depends on, so you can run any one on its own. `python run.py --list` shows every step.
+
+The heavier model experiments run explicitly with `python run.py model-experiments`:
+the LR regularisation grid, random-forest grid, isotonic calibration and imbalance
+comparison, plus SHAP. Completed candidates are checkpointed locally and reused on a
+matching rerun. The routine `all` command runs the core pipeline, SHAP and tests.
+See [docs/model_experiments.md](docs/model_experiments.md) for the commands, output names
+and evaluation rules.
 
 ## Other commands
 
