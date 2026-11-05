@@ -1,6 +1,9 @@
 # Ignore jerryDevIgnore folder
 jerryDevIgnore/
 
+# Ignore venv
+BT4012ProjectEnv/
+
 # Environment Variables & Secrets
 .env
 *.env
