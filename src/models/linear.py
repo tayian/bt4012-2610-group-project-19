@@ -22,7 +22,7 @@ from src.models.preprocess import as_object, categorical_columns, numeric_column
 SEED = 4012
 
 
-def model_fn(max_iter=5000):
+def model_fn(max_iter=5000, penalty="l2", C=1.0, l1_ratio=None):
     # Return a fresh pipeline; all learned preprocessing is fitted per fold.
     numeric = Pipeline(
         [
@@ -32,7 +32,10 @@ def model_fn(max_iter=5000):
     )
     categorical = Pipeline(
         [
-            ("normalize_missing", FunctionTransformer(as_object, validate=False)),
+            (
+                "normalize_missing",
+                FunctionTransformer(as_object, validate=False, feature_names_out="one-to-one"),
+            ),
             (
                 "impute",
                 SimpleImputer(
@@ -54,8 +57,9 @@ def model_fn(max_iter=5000):
             (
                 "classifier",
                 LogisticRegression(
-                    penalty="l2",
-                    C=1.0,
+                    penalty=penalty,
+                    C=C,
+                    l1_ratio=l1_ratio,
                     solver="saga",
                     class_weight="balanced",
                     random_state=SEED,

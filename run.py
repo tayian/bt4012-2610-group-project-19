@@ -20,6 +20,16 @@ def commands(s):
     # Each step: (steps it needs first, commands to run, one-line description).
     raw_check = [] if s.skip_raw_check else ["check-raw"]
     dl_step = "features" if s.dl_features == "v0" else "features-v1"
+    experiment_args = [
+        "--features",
+        s.features_v0,
+        "--clients",
+        s.clients,
+        "--split-dir",
+        s.split_dir,
+        "--results-dir",
+        s.results_dir,
+    ]
     return {
         "all": (
             [
@@ -32,10 +42,61 @@ def commands(s):
                 "eda",
                 "baseline",
                 "lightgbm",
+                "shap",
                 "test",
             ],
             [],
-            "Rebuild every committed output from the two raw files, then run the tests",
+            "Rebuild the core pipeline, baseline SHAP and tests (heavy searches: model-experiments)",
+        ),
+        "lr-grid": (
+            ["features"],
+            [
+                [
+                    PY,
+                    "-m",
+                    "src.models.lr_search",
+                    *experiment_args,
+                    "--max-iter",
+                    str(s.lr_max_iter),
+                ]
+            ],
+            "Search L1/L2/elastic-net LR on v0; save selected OOF and coefficients",
+        ),
+        "random-forest": (
+            ["features"],
+            [[PY, "-m", "src.models.forest", *experiment_args, "--n-jobs", str(s.tree_jobs)]],
+            "Search the 500-tree random forest on v0; save M2 OOF",
+        ),
+        "shap": (
+            ["lightgbm"],
+            [[PY, "-m", "src.eval.explain", *experiment_args, "--n-jobs", str(s.tree_jobs)]],
+            "Export five out-of-fold M3 SHAP drivers per training client",
+        ),
+        "calibrate": (
+            ["features"],
+            [
+                [
+                    PY,
+                    "-m",
+                    "src.eval.calibration",
+                    *experiment_args,
+                    "--max-iter",
+                    str(s.lr_max_iter),
+                    "--n-jobs",
+                    str(s.tree_jobs),
+                ]
+            ],
+            "Nested isotonic calibration of LR and LightGBM; reliability plot",
+        ),
+        "imbalance": (
+            ["features"],
+            [[PY, "-m", "src.models.imbalance", *experiment_args, "--n-jobs", str(s.tree_jobs)]],
+            "Compare none/weight/undersample/SMOTE on saved LightGBM folds",
+        ),
+        "model-experiments": (
+            ["shap", "imbalance", "random-forest", "lr-grid", "calibrate"],
+            [],
+            "Run the model handoff experiments; completed candidates resume",
         ),
         "check-raw": (
             [],

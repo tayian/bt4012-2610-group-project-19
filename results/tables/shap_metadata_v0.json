@@ -1,0 +1,18 @@
+{
+  "model": "M3",
+  "feature_set": "features_v0",
+  "data_fingerprint": "91fad1b53ff6003efe7d",
+  "scope": "training clients, out-of-fold explanations",
+  "units": "raw log-odds",
+  "rank": "descending absolute SHAP, signs preserved",
+  "value": "raw numeric value or numeric category code; NaN for missing",
+  "columns": [
+    "client_id",
+    "rank",
+    "feature",
+    "value",
+    "shap_value"
+  ],
+  "n_clients": 108394,
+  "n_rows": 541970
+}
