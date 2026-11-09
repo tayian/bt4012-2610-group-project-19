@@ -38,6 +38,8 @@ def commands(s):
                 "features",
                 "features-v1",
                 "codebook",
+                "corpus",
+                "retrieval-eval",
                 "stubs",
                 "eda",
                 "baseline",
@@ -205,6 +207,34 @@ def commands(s):
             ],
             "Rebuild the RAG code book from the data",
         ),
+        "corpus": (
+            ["interim", "splits", "features", "features-v1", "codebook"],
+            [
+                [
+                    PY,
+                    "-m",
+                    "src.llm.corpus.build_chunks",
+                    "--clients",
+                    s.clients,
+                    "--splits",
+                    s.split_dir,
+                    "--interim",
+                    s.interim,
+                    "--rebuild-cases",
+                ]
+            ],
+            "Build the 300 precedent case cards and consolidated RAG chunks.jsonl",
+        ),
+        "retrieval-eval": (
+            ["corpus"],
+            [[PY, "-m", "src.llm.retrieval_eval"]],
+            "Evaluate dense, bm25, hybrid, and hybrid + rerank on the 25-query benchmark",
+        ),
+        "query-rewriter": (
+            ["corpus"],
+            [[PY, "-m", "src.llm.query_rewriter"]],
+            "Test the query rewriter (snapshot -> 3 search queries) on 5 clients",
+        ),
         "baseline": (
             ["features"],
             [
@@ -265,8 +295,20 @@ def commands(s):
         "test": ([], [[PY, "-m", "pytest", "-q", "tests"]], "Run every test"),
         "test-rag": (
             [],
-            [[PY, "-m", "pytest", "-q", "tests/test_rag_environment.py"]],
-            "Check the retrieval libraries (downloads a ~90 MB model once)",
+            [
+                [
+                    PY,
+                    "-m",
+                    "pytest",
+                    "-q",
+                    "tests/test_rag_environment.py",
+                    "tests/test_corpus_chunks.py",
+                    "tests/test_retrieval.py",
+                    "tests/test_snapshot.py",
+                    "tests/test_query_rewriter.py",
+                ]
+            ],
+            "Check the RAG corpus, retrieval methods, and environment (check the retrieval libraries (downloads a ~90 MB model once))",
         ),
         "test-faithfulness": (
             [],
