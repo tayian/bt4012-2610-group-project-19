@@ -1,6 +1,9 @@
 # Ignore jerryDevIgnore folder
 jerryDevIgnore/
 
+# Ignore venv
+BT4012ProjectEnv/
+
 # Environment Variables & Secrets
 .env
 *.env
@@ -17,6 +20,8 @@ results/oof/*.parquet
 results/agent_logs/*.json
 # Fold models and checkpoints from the neural models (python run.py cnn) and the robustness study.
 results/models/
+# Completed experiment checkpoints are local caches; published OOF and tables are separate.
+/results/runs/
 
 # Data is never committed (plan 4.6): download it from the shared drive (see data/README.md).
 # Only data/splits/, data/corpus/ and data/stubs/ are tracked.

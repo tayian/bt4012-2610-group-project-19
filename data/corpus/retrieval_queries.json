@@ -1,0 +1,178 @@
+[
+  {
+    "id": "Q01",
+    "category": "concept",
+    "query": "shunting power around the electricity counter with a parallel conductor so most load current goes unrecorded",
+    "filters": {"valid_on": "2025-06-01"},
+    "gold_ids": ["TYP-01"]
+  },
+  {
+    "id": "Q02",
+    "category": "concept",
+    "query": "applying an external magnetic field to the outside of an induction meter to decelerate the spinning rotor without stopping it completely",
+    "filters": {"valid_on": "2025-06-01"},
+    "gold_ids": ["TYP-02"]
+  },
+  {
+    "id": "Q03",
+    "category": "concept",
+    "query": "physically winding the mechanical odometer dials backward to reduce the cumulative reading prior to billing",
+    "filters": {"valid_on": "2025-06-01"},
+    "gold_ids": ["TYP-03"]
+  },
+  {
+    "id": "Q04",
+    "category": "concept",
+    "query": "corrupt field agent entering falsified low consumption figures in exchange for kickbacks from the customer",
+    "filters": {"valid_on": "2025-06-01"},
+    "gold_ids": ["TYP-04"]
+  },
+  {
+    "id": "Q05",
+    "category": "concept",
+    "query": "defaulting household illegally restoring their own utility supply after service was terminated for non-payment",
+    "filters": {"valid_on": "2025-06-01"},
+    "gold_ids": ["TYP-05"]
+  },
+  {
+    "id": "Q06",
+    "category": "concept",
+    "query": "wedging a foreign object inside the meter housing to mechanically block the moving parts while the building remains in use",
+    "filters": {"valid_on": "2025-06-01"},
+    "gold_ids": ["TYP-06"]
+  },
+  {
+    "id": "Q07",
+    "category": "concept",
+    "query": "small business or workshop running heavy commercial machinery while billed on a cheaper domestic household rate",
+    "filters": {"valid_on": "2025-06-01", "counter_type": "ELEC"},
+    "gold_ids": ["TYP-07"]
+  },
+  {
+    "id": "Q08",
+    "category": "concept",
+    "query": "periodic energy theft toggled off just before scheduled visits, producing alternating months of very low usage and sudden billing surges",
+    "filters": {"valid_on": "2025-06-01"},
+    "gold_ids": ["TYP-09"]
+  },
+  {
+    "id": "Q09",
+    "category": "concept",
+    "query": "lifting the return wire at the meter box and using a local earth rod so the voltage reference drops to zero while appliances still run",
+    "filters": {"valid_on": "2025-06-01", "counter_type": "ELEC"},
+    "gold_ids": ["TYP-10"]
+  },
+  {
+    "id": "Q10",
+    "category": "concept",
+    "query": "illegal wire tap clipped directly onto the street distribution line ahead of the customer meter to draw unmeasured power",
+    "filters": {"valid_on": "2025-06-01", "counter_type": "ELEC"},
+    "gold_ids": ["TYP-12"]
+  },
+  {
+    "id": "Q11",
+    "category": "exact_code",
+    "query": "CODE-counter_statue-46 counter_statue = 46",
+    "filters": {"valid_on": "2025-06-01"},
+    "gold_ids": ["CODE-counter_statue-46"]
+  },
+  {
+    "id": "Q12",
+    "category": "exact_code",
+    "query": "CODE-counter_statue-A counter_statue = A",
+    "filters": {"valid_on": "2025-06-01"},
+    "gold_ids": ["CODE-counter_statue-A"]
+  },
+  {
+    "id": "Q13",
+    "category": "exact_code",
+    "query": "CODE-reading_remarque-7 reading_remarque = 7",
+    "filters": {"valid_on": "2025-06-01"},
+    "gold_ids": ["CODE-reading_remarque-7"]
+  },
+  {
+    "id": "Q14",
+    "category": "exact_code",
+    "query": "CODE-reading_remarque-203 reading_remarque = 203",
+    "filters": {"valid_on": "2025-06-01"},
+    "gold_ids": ["CODE-reading_remarque-203"]
+  },
+  {
+    "id": "Q15",
+    "category": "exact_code",
+    "query": "CODE-tarif_type-14 tarif_type = 14",
+    "filters": {"valid_on": "2025-06-01"},
+    "gold_ids": ["CODE-tarif_type-14"]
+  },
+  {
+    "id": "Q16",
+    "category": "exact_code",
+    "query": "CODE-tarif_type-45 tarif_type = 45",
+    "filters": {"valid_on": "2025-06-01"},
+    "gold_ids": ["CODE-tarif_type-45"]
+  },
+  {
+    "id": "Q17",
+    "category": "exact_code",
+    "query": "CODE-counter_code-204 counter_code = 204",
+    "filters": {"valid_on": "2025-06-01"},
+    "gold_ids": ["CODE-counter_code-204"]
+  },
+  {
+    "id": "Q18",
+    "category": "exact_code",
+    "query": "CODE-counter_code-407 counter_code = 407",
+    "filters": {"valid_on": "2025-06-01"},
+    "gold_ids": ["CODE-counter_code-407"]
+  },
+  {
+    "id": "Q19",
+    "category": "exact_code",
+    "query": "CODE-client_catg-51 client_catg = 51",
+    "filters": {"valid_on": "2025-06-01"},
+    "gold_ids": ["CODE-client_catg-51"]
+  },
+  {
+    "id": "Q20",
+    "category": "exact_code",
+    "query": "SOP-v2025-2.3 recon_gap > 50 kWh",
+    "filters": {"valid_on": "2025-06-01"},
+    "gold_ids": ["SOP-v2025-2.3"]
+  },
+  {
+    "id": "Q21",
+    "category": "mixed",
+    "query": "acute year-on-year consumption drop exceeding 50% across two consecutive billing periods yoy_drop_max >= 0.50 urgent forensic site inspection within 14 days",
+    "filters": {"valid_on": "2025-06-01"},
+    "gold_ids": ["SOP-v2025-2.1"]
+  },
+  {
+    "id": "Q22",
+    "category": "mixed",
+    "query": "historical 2023 inspection rule for year-on-year drop in cons_pm exceeding 70% across three consecutive billing periods dispatch within 30 days",
+    "filters": {"valid_on": "2024-06-01"},
+    "gold_ids": ["SOP-v2023-2.1"]
+  },
+  {
+    "id": "Q23",
+    "category": "mixed",
+    "query": "negative counter index progression new_index < old_index flag_index_backwards without flag_index_rollover immediate emergency meter seizure and laboratory autopsy",
+    "filters": {"valid_on": "2025-06-01"},
+    "gold_ids": ["SOP-v2025-3.1"]
+  },
+  {
+    "id": "Q24",
+    "category": "mixed",
+    "query": "Benford's Law first-digit deviation benford_mad > 0.015 with round_reading_share > 0.40 internal supervisory audit of assigned meter reader route",
+    "filters": {"valid_on": "2025-06-01"},
+    "gold_ids": ["SOP-v2025-5.1"]
+  },
+  {
+    "id": "Q25",
+    "category": "mixed",
+    "query": "large electricity accounts metered through current and voltage transformers CT PT with counter_coefficient > 1 and shorted secondary terminals",
+    "filters": {"valid_on": "2025-06-01", "counter_type": "ELEC"},
+    "gold_ids": ["TYP-11"]
+  }
+]
+

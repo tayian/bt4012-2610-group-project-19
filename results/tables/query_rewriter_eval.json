@@ -1,0 +1,294 @@
+[
+  {
+    "client_id": "train_Client_104543",
+    "model": "gemini-3.8-flash",
+    "risk_score": 0.9519,
+    "risk_rank_pct": 100.0,
+    "codes_seen": {
+      "counter_statue": [
+        "0",
+        "5"
+      ],
+      "reading_remarque": [
+        "6",
+        "8",
+        "9"
+      ],
+      "tarif_type": [
+        "11"
+      ]
+    },
+    "shap_top5_features": [
+      "has_gaz",
+      "n_invoices",
+      "client_catg",
+      "cons_pm_max",
+      "n_counters"
+    ],
+    "queries": [
+      "counter statue 5 reading remarque 9 meter replacement",
+      "extended invoice delay missing billing months unbilled",
+      "client category 51 extreme electricity consumption level 2"
+    ],
+    "retrieval_preview": [
+      {
+        "query": "counter statue 5 reading remarque 9 meter replacement",
+        "top3_chunk_ids": [
+          "CASE-train_Client_51105",
+          "CASE-train_Client_41676",
+          "CASE-train_Client_76294"
+        ]
+      },
+      {
+        "query": "extended invoice delay missing billing months unbilled",
+        "top3_chunk_ids": [
+          "TYP-09",
+          "TYP-08",
+          "TYP-04"
+        ]
+      },
+      {
+        "query": "client category 51 extreme electricity consumption level 2",
+        "top3_chunk_ids": [
+          "TYP-07",
+          "SOP-v2025-5.2",
+          "CODE-client_catg-51"
+        ]
+      }
+    ]
+  },
+  {
+    "client_id": "train_Client_66289",
+    "model": "gemini-3.8-flash",
+    "risk_score": 0.9379,
+    "risk_rank_pct": 100.0,
+    "codes_seen": {
+      "counter_statue": [
+        "0",
+        "5"
+      ],
+      "reading_remarque": [
+        "6",
+        "8",
+        "9"
+      ],
+      "tarif_type": [
+        "11",
+        "15",
+        "40"
+      ]
+    },
+    "shap_top5_features": [
+      "n_counters",
+      "n_invoices",
+      "region",
+      "invoices_per_year",
+      "cons_pm_mean"
+    ],
+    "queries": [
+      "counter_statue 5 abnormal meter status investigation",
+      "multiple meters excessive meter count single customer",
+      "near zero gas consumption dual fuel active electricity"
+    ],
+    "retrieval_preview": [
+      {
+        "query": "counter_statue 5 abnormal meter status investigation",
+        "top3_chunk_ids": [
+          "SOP-v2025-3.2",
+          "CODE-counter_statue-5",
+          "CODE-counter_statue-4"
+        ]
+      },
+      {
+        "query": "multiple meters excessive meter count single customer",
+        "top3_chunk_ids": [
+          "TYP-04",
+          "TYP-06",
+          "TYP-08"
+        ]
+      },
+      {
+        "query": "near zero gas consumption dual fuel active electricity",
+        "top3_chunk_ids": [
+          "TYP-10",
+          "CODE-tarif_type-12",
+          "SOP-v2025-1.2"
+        ]
+      }
+    ]
+  },
+  {
+    "client_id": "train_Client_5167",
+    "model": "gemini-3.8-flash",
+    "risk_score": 0.9362,
+    "risk_rank_pct": 100.0,
+    "codes_seen": {
+      "counter_statue": [
+        "0"
+      ],
+      "reading_remarque": [
+        "6",
+        "8",
+        "9"
+      ],
+      "tarif_type": [
+        "11"
+      ]
+    },
+    "shap_top5_features": [
+      "has_gaz",
+      "n_invoices",
+      "n_counters",
+      "region",
+      "invoices_per_year"
+    ],
+    "queries": [
+      "meter reading remarque code 6 8 9 anomaly",
+      "missing billing months extended invoice gap audit",
+      "multiple electricity meters abnormally low consumption"
+    ],
+    "retrieval_preview": [
+      {
+        "query": "meter reading remarque code 6 8 9 anomaly",
+        "top3_chunk_ids": [
+          "CODE-reading_remarque-9",
+          "CODE-reading_remarque-6",
+          "CASE-train_Client_22486"
+        ]
+      },
+      {
+        "query": "missing billing months extended invoice gap audit",
+        "top3_chunk_ids": [
+          "TYP-09",
+          "SOP-v2025-2.1",
+          "TYP-08"
+        ]
+      },
+      {
+        "query": "multiple electricity meters abnormally low consumption",
+        "top3_chunk_ids": [
+          "TYP-11",
+          "TYP-10",
+          "TYP-02"
+        ]
+      }
+    ]
+  },
+  {
+    "client_id": "train_Client_3447",
+    "model": "gemini-3.8-flash",
+    "risk_score": 0.9357,
+    "risk_rank_pct": 100.0,
+    "codes_seen": {
+      "counter_statue": [
+        "0"
+      ],
+      "reading_remarque": [
+        "6",
+        "8",
+        "9"
+      ],
+      "tarif_type": [
+        "11"
+      ]
+    },
+    "shap_top5_features": [
+      "n_invoices",
+      "cons_pm_max",
+      "region",
+      "client_catg",
+      "has_gaz"
+    ],
+    "queries": [
+      "meter reading remarque code 6 8 9 investigation",
+      "excessive electricity consumption tier 2 commercial category 51",
+      "extended billing interval missing months audit"
+    ],
+    "retrieval_preview": [
+      {
+        "query": "meter reading remarque code 6 8 9 investigation",
+        "top3_chunk_ids": [
+          "CODE-reading_remarque-9",
+          "CODE-reading_remarque-6",
+          "CODE-reading_remarque-8"
+        ]
+      },
+      {
+        "query": "excessive electricity consumption tier 2 commercial category 51",
+        "top3_chunk_ids": [
+          "TYP-07",
+          "SOP-v2025-5.2",
+          "CODE-tarif_type-15"
+        ]
+      },
+      {
+        "query": "extended billing interval missing months audit",
+        "top3_chunk_ids": [
+          "SOP-v2025-2.1",
+          "TYP-09",
+          "SOP-v2025-4.1"
+        ]
+      }
+    ]
+  },
+  {
+    "client_id": "train_Client_134838",
+    "model": "gemini-3.8-flash",
+    "risk_score": 0.9348,
+    "risk_rank_pct": 100.0,
+    "codes_seen": {
+      "counter_statue": [
+        "0",
+        "1",
+        "5"
+      ],
+      "reading_remarque": [
+        "6",
+        "8",
+        "9"
+      ],
+      "tarif_type": [
+        "11",
+        "40"
+      ]
+    },
+    "shap_top5_features": [
+      "n_counters",
+      "n_invoices",
+      "cons_pm_max",
+      "region",
+      "invoices_per_year"
+    ],
+    "queries": [
+      "multiple active meters anomaly investigation procedure",
+      "meter counter statue 5 audit and inspection protocol",
+      "unusually high invoice frequency with missing billing cycles"
+    ],
+    "retrieval_preview": [
+      {
+        "query": "multiple active meters anomaly investigation procedure",
+        "top3_chunk_ids": [
+          "SOP-v2025-3.2",
+          "CODE-counter_statue-5",
+          "SOP-v2025-1.2"
+        ]
+      },
+      {
+        "query": "meter counter statue 5 audit and inspection protocol",
+        "top3_chunk_ids": [
+          "SOP-v2025-3.2",
+          "SOP-v2025-1.2",
+          "CODE-counter_statue-5"
+        ]
+      },
+      {
+        "query": "unusually high invoice frequency with missing billing cycles",
+        "top3_chunk_ids": [
+          "TYP-09",
+          "SOP-v2025-2.2",
+          "TYP-08"
+        ]
+      }
+    ]
+  }
+]

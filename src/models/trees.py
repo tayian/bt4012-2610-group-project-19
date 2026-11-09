@@ -35,8 +35,9 @@ class M3Classifier(ClassifierMixin, BaseEstimator):
     # Category levels are learned from observed training-fold values only, even if the
     # input pandas Categorical carries a larger vocabulary in its dtype.
 
-    def __init__(self, params=None):
+    def __init__(self, params=None, imbalance="scale_pos_weight"):
         self.params = params
+        self.imbalance = imbalance
 
     def _frame(self, X):
         if not isinstance(X, pd.DataFrame) or X.empty or not X.columns.is_unique:
@@ -79,9 +80,24 @@ class M3Classifier(ClassifierMixin, BaseEstimator):
             column: sorted(X[column].dropna().astype("string").unique().tolist())
             for column in categorical_columns(X)
         }
-        self.scale_pos_weight_ = float(np.count_nonzero(y == 0) / np.count_nonzero(y == 1))
+        from src.models.sampling import STRATEGIES, balance_training
+
+        if self.imbalance not in STRATEGIES:
+            raise ValueError(f"Unknown imbalance strategy: {self.imbalance}")
+        self.scale_pos_weight_ = (
+            float(np.count_nonzero(y == 0) / np.count_nonzero(y == 1))
+            if self.imbalance == "scale_pos_weight"
+            else 1.0
+        )
+        prepared, sampled_y = balance_training(self._prepare(X), y, self.imbalance, SEED)
+        self.sampling_counts_ = {
+            "original_negative": int((y == 0).sum()),
+            "original_positive": int((y == 1).sum()),
+            "fitted_negative": int((sampled_y == 0).sum()),
+            "fitted_positive": int((sampled_y == 1).sum()),
+        }
         self.estimator_ = LGBMClassifier(**params, scale_pos_weight=self.scale_pos_weight_).fit(
-            self._prepare(X), y
+            prepared, sampled_y
         )
         self.classes_ = self.estimator_.classes_
         return self
@@ -95,9 +111,9 @@ class M3Classifier(ClassifierMixin, BaseEstimator):
         return self.estimator_.predict(self._prepare(X), validate_features=True)
 
 
-def model_fn(**params):
+def model_fn(imbalance="scale_pos_weight", **params):
     # cv_evaluate calls this factory once for each saved fold.
-    return M3Classifier(params=params)
+    return M3Classifier(params=params, imbalance=imbalance)
 
 
 def fit_m3(X, y, **params):

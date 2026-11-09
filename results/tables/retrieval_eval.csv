@@ -1,0 +1,5 @@
+method,n_queries,recall@3,recall@5,mrr,concept_recall@3,concept_recall@5,concept_mrr,exact_code_recall@3,exact_code_recall@5,exact_code_mrr,mixed_recall@3,mixed_recall@5,mixed_mrr
+dense,25,0.76,0.84,0.7133,0.7,0.8,0.675,0.7,0.8,0.6083,1.0,1.0,1.0
+bm25,25,0.92,0.96,0.908,0.8,0.9,0.77,1.0,1.0,1.0,1.0,1.0,1.0
+hybrid,25,0.88,0.96,0.8493,0.8,0.9,0.7533,0.9,1.0,0.87,1.0,1.0,1.0
+hybrid + rerank,25,1.0,1.0,0.9467,1.0,1.0,0.8667,1.0,1.0,1.0,1.0,1.0,1.0
