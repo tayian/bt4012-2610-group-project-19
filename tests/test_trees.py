@@ -161,13 +161,13 @@ class TreeTests(unittest.TestCase):
         )
         pd.testing.assert_frame_equal(first_oof, pd.read_parquet(self.oof))
 
-    def test_adversarial_defence_uses_fitter_and_preserves_augmented_dtypes(self):
+    def test_adversarial_study_uses_fitter_and_preserves_augmented_dtypes(self):
         # Only tree code runs here; isolate it from unrelated optional PyTorch/CNN imports.
         cnn = types.ModuleType("src.models.cnn")
         for name in ("SEQ_SCALE", "DualCNN", "load_seq", "to_model_seq"):
             setattr(cnn, name, None)
         path = Path(__file__).resolve().parents[1] / "src/eval/adversarial.py"
-        spec = importlib.util.spec_from_file_location("tree_defence_fixture", path)
+        spec = importlib.util.spec_from_file_location("tree_study_fixture", path)
         study = importlib.util.module_from_spec(spec)
         with patch.dict(sys.modules, {"torch": types.ModuleType("torch"), "src.models.cnn": cnn}):
             spec.loader.exec_module(study)
@@ -191,17 +191,18 @@ class TreeTests(unittest.TestCase):
             records.append(model.scale_pos_weight_)
             return model
 
+        inputs = {"uniform": (attacked, None, None), "smooth": (attacked, None, None)}
         with (
             patch.object(study, "load_train", return_value=(ids, X, y, folds)),
-            patch.object(
-                study, "attacked_features", return_value={"uniform": attacked, "smooth": attacked}
-            ),
+            patch.object(study, "attacked_inputs", return_value=inputs),
             patch("src.models.trees.fit_m3", side_effect=record_fit),
-            patch.object(pd.DataFrame, "to_csv"),
+            patch.object(study, "_log"),
         ):
-            result = study.tree_defence()
+            result = study.tree_study("v0")
+        # Three variants x five folds; the augmented fits see twice the frauds, so the
+        # recomputed scale_pos_weight halves.
         self.assertEqual(len(result), 15)
-        np.testing.assert_allclose(records, [3.0] * 5 + [1.5] * 10)
+        np.testing.assert_allclose(records, [3.0] * 10 + [1.5] * 5)
 
     def test_heldout_changes_do_not_affect_training_predictions(self):
         self.train()

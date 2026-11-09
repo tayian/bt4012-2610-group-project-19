@@ -6,14 +6,18 @@
 # produced them). A random scorer would "rescue" ~10% per model and ~19% for "M5 or M6", so
 # lift is reported against that baseline.
 #
-#   python3 -m src.eval.rescue --m3 v0 --anomaly v0
+#   python3 -m src.eval.rescue --m3 v0 --anomaly v0     (python run.py rescue)
 #
-# Needs results/oof/M3_<version>.parquet from the tree model (M3), which is not in the repo
-# yet, and the M5/M6 files from python run.py anomaly; M7 and M4 are added when present.
+# Reads results/oof/M3_<version>.parquet (python run.py lightgbm) and the M5/M6 files
+# (python run.py anomaly); M7 and M4 are added when present. Writes results/tables/rescue.csv,
+# one block of rows per (M3 version, anomaly version); a rerun replaces only its own block.
 
 import argparse
+from pathlib import Path
 
 import pandas as pd
+
+from src.eval.oof import write_frames
 
 TOP = 0.10
 
@@ -83,13 +87,23 @@ def rescue(m3_v, an_v, extra=("M7", "M4")):
     return out, corr
 
 
-if __name__ == "__main__":
-    p = argparse.ArgumentParser()
+def main():
+    p = argparse.ArgumentParser(description="Share of M3's missed frauds that M5/M6 rank highly.")
     p.add_argument("--m3", default="v0")
     p.add_argument("--anomaly", default="v0")
     a = p.parse_args()
     out, corr = rescue(a.m3, a.anomaly)
-    out.to_csv(f"results/tables/rescue_M3{a.m3}_anom{a.anomaly}.csv", index=False)
-    corr.to_csv(f"results/tables/oof_spearman_{a.anomaly}.csv")
-    print(out.round(3).to_string(index=False))
-    print("\nSpearman correlation of OOF scores\n", corr.round(2).to_string())
+    path = Path("results/tables/rescue.csv")
+    if path.exists():
+        old = pd.read_csv(path)
+        keep = ~((old["m3_version"] == a.m3) & (old["anomaly_version"] == a.anomaly))
+        out = pd.concat([old[keep], out], ignore_index=True)
+    write_frames({path: out})
+    print(out[(out.m3_version == a.m3) & (out.anomaly_version == a.anomaly)].round(3).to_string())
+    print(
+        "\nSpearman correlation of OOF scores (diversity for fusion)\n", corr.round(2).to_string()
+    )
+
+
+if __name__ == "__main__":
+    main()

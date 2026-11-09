@@ -1,61 +1,80 @@
 # Adversarial robustness study (Deep Learning II). Threat model: docs/threat_model.md.
 #
-# Every number is recall@5% on the held-out CV fold (training clients only, test set
-# untouched), averaged over the 5 folds. Non-fraud clients keep their clean inputs; every
+# A fraudulent client lowers the consumption declared on their own invoices by at most 30% in
+# total and tries to drop out of the top-5% inspection list. Every number is recall@5% on the
+# held-out CV fold (training clients only, test set untouched), using the shared tie-aware
+# metric, averaged over the 5 saved folds. Non-fraud clients keep their clean inputs; every
 # fraud client in the held-out fold is attacked.
 #
-#   python3 -m src.eval.adversarial trees  # M3 x {clean, uniform, smooth, index-consistent} x feature groups
-#   python3 -m src.eval.adversarial cnn    # M7 x {clean, uniform, smooth, PGD}, before/after adversarial training
+# Attacks on the invoices, after which features and sequences are rebuilt with the same
+# pipeline code as everyone else's (src/features/aggregate.py for v0, behavioural.py for v1,
+# sequence.py):
+#   uniform  every invoice's consumption x 0.70
+#   smooth   a multiplier that ramps linearly from 1 to f_end over the client's invoices (an
+#            honest-looking slow decline), with f_end set so the total falls exactly 30%
+# and, for the CNN only, a white-box attack on its input:
+#   pgd      10 PGD steps on the sequence, each month only lowered, projected back onto the
+#            30% budget; the static branch is held fixed
 #
-# The attacked-invoice v1 feature builder is still needed; see _feature_builder.
+# Defences: adversarial augmentation for M3 (one attacked copy of each training-fold fraud),
+# PGD adversarial training and mimicry augmentation for M7.
+#
+#   python3 -m src.eval.adversarial trees --features v0   # M3 study and defence
+#   python3 -m src.eval.adversarial cnn --features v0     # M7 study; needs python run.py cnn first
+#   python3 -m src.eval.adversarial all --features v0     (python run.py robustness)
+#
+# Writes results/tables/robustness_by_fold.csv and the summary results/tables/robustness.csv
+# (mean and std over folds per model and attack). Rows of other feature versions are kept.
 
+import argparse
+import os
 import pickle
-import sys
 import time
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import torch
 
+from src.data.load import LEVELS
+from src.eval.metrics import budget_size, expected_tp_curve
+from src.eval.oof import write_frames
 from src.features.sequence import build_sequence
-from src.models.common import SEED, load_train
+from src.models.cnn import SEQ_SCALE, DualCNN, load_seq, to_model_seq
+from src.models.common import SEED, TabularPrep, load_train
 
 BUDGET = 0.30
 TOP = 0.05
-LEVELS = [
-    "consommation_level_1",
-    "consommation_level_2",
-    "consommation_level_3",
-    "consommation_level_4",
-]
+CONSUMPTION_PREFIX = ("cons_pm", "share_level")  # the F2 consumption group
+BY_FOLD = Path("results/tables/robustness_by_fold.csv")
+SUMMARY = Path("results/tables/robustness.csv")
 
 
-def _feature_builder():
-    # MISSING DEPENDENCY: no module in the repo defines these two names yet. They were expected
-    # in src.features.aggregate and are imported only when the study runs, so the rest of this
-    # module stays importable.
-    #   build_v1(invoices, clients) -> DataFrame with one row per client, keyed by client_id
-    #       (index or column; reset_index() is applied before caching), with the same columns
-    #       as features_v1_with_inspection.parquet. invoices are clean invoice rows of the
-    #       training fraud clients after an attack has rewritten the level columns, cons and
-    #       cons_pm (and new_index for index_consistent), so reconciliation features must be
-    #       recomputed from them; clients are their rows of data/interim/client.parquet.
-    #       Attacked clients must be featurised exactly like everyone else.
-    #   LEAKY_PREFIX: tuple of column-name prefixes of the features built from the
-    #       inspector-written columns (counter_statue, reading_remarque), the "F9 meter status"
-    #       group.
-    from src.features.aggregate import LEAKY_PREFIX, build_v1
+def build_features(fv, inv, cli):
+    # The feature step for this version, run on (attacked) invoices of the given clients.
+    # Returns one row per client indexed by client_id, with the columns of features_<fv>.
+    if fv == "v0":
+        from src.features.aggregate import build_features as v0
 
-    return build_v1, LEAKY_PREFIX
+        out = v0(inv, cli)
+    elif fv == "v1":
+        from src.features.behavioural import build_features as v1
+
+        out = v1(inv, cli["client_id"])
+    else:
+        raise ValueError(f"No feature builder for {fv}.")
+    return out.set_index("client_id")
 
 
 # Invoice attacks
 def _scale_levels(inv, factor):
+    # Lower the four consumption levels and recompute cons and cons_pm the way clean.py does
+    # (cons_pm = cons / months_valid, missing where the billing period is impossible).
     out = inv.copy()
     for level in LEVELS:
         out[level] = np.ceil(out[level].to_numpy() * factor).astype(np.int64)
     out["cons"] = out[LEVELS].sum(axis=1)
-    out["cons_pm"] = out["cons"] / out["months_number"].clip(lower=1)
+    out["cons_pm"] = out["cons"] / out["months_valid"]
     return out
 
 
@@ -81,187 +100,122 @@ def _smooth_factor(cons, budget=BUDGET):
 def attack_smooth(inv):
     inv = inv.sort_values(["client_id", "invoice_date"]).reset_index(drop=True)
     f = np.empty(len(inv))
-    for _, idx in inv.groupby("client_id", observed=True).indices.items():
-        f[idx] = _smooth_factor(inv["cons"].to_numpy(float)[idx])
+    cons = inv["cons"].to_numpy(float)
+    for idx in inv.groupby("client_id", sort=False).indices.values():
+        f[idx] = _smooth_factor(cons[idx])
     return _scale_levels(inv, f)
 
 
-def attack_index_consistent(inv):
-    # Smooth mimicry + readings rewritten so new_index - old_index matches the lowered
-    # consumption (attacker also controls the meter reading).
-    a = attack_smooth(inv)
-    coef = a["counter_coefficient"].clip(lower=1)
-    a["new_index"] = a["old_index"] + np.round(a["cons"] / coef).astype(np.int64)
-    return a
-
-
-ATTACKS = {
-    "uniform": attack_uniform,
-    "smooth": attack_smooth,
-    "index_consistent": attack_index_consistent,
-}
+ATTACKS = {"uniform": attack_uniform, "smooth": attack_smooth}
 
 
 def load_fraud_invoices():
+    # Clean invoices and client rows of the training-split frauds (the only clients attacked).
+    clients = pd.read_parquet("data/interim/client.parquet")
+    clients["client_id"] = clients["client_id"].astype(str)
     folds = pd.read_csv("data/splits/folds.csv", dtype={"client_id": str})
-    cli = pd.read_parquet("data/interim/client.parquet")
-    cli["client_id"] = cli["client_id"].astype(str)
-    fr = set(folds.merge(cli, on="client_id").query("target == 1")["client_id"])
+    fraud = set(folds.merge(clients, on="client_id").query("target == 1")["client_id"])
     inv = pd.read_parquet("data/interim/invoice_clean.parquet")
     inv["client_id"] = inv["client_id"].astype(str)
-    inv["counter_type"] = inv["counter_type"].astype(str)
-    inv = inv[inv["client_id"].isin(fr)].reset_index(drop=True)
-    return inv, cli[cli["client_id"].isin(fr)].reset_index(drop=True)
+    inv = inv[inv["client_id"].isin(fraud)].reset_index(drop=True)
+    return inv, clients[clients["client_id"].isin(fraud)].reset_index(drop=True)
 
 
-def attacked_features(cache="data/processed/attacked_v1_{}.parquet"):
-    # v1_with_inspection features for every training fraud client under each attack (cached).
-    import os
-
+def attacked_inputs(fv, cache="data/processed/attacked_{fv}_{attack}"):
+    # Features and sequences of every training fraud under each attack, cached on disk.
     out = {}
-    need = [a for a in ATTACKS if not os.path.exists(cache.format(a))]
-    if need:
-        build_v1, _ = _feature_builder()
+    missing = [a for a in ATTACKS if not os.path.exists(cache.format(fv=fv, attack=a) + ".parquet")]
+    if missing:
         inv, cli = load_fraud_invoices()
-        for a in need:
+        for a in missing:
             t = time.time()
+            base = cache.format(fv=fv, attack=a)
             ainv = ATTACKS[a](inv)
-            f = build_v1(ainv, cli).reset_index()
-            f.to_parquet(cache.format(a), index=False)
+            build_features(fv, ainv, cli).reset_index().to_parquet(base + ".parquet", index=False)
             seq, ids = build_sequence(ainv, cli["client_id"].values)
-            np.save(cache.format(a).replace(".parquet", "_seq.npy"), seq)
-            np.save(cache.format(a).replace(".parquet", "_ids.npy"), ids)
+            np.save(base + "_seq.npy", seq)
+            np.save(base + "_ids.npy", ids)
             drop = 1 - ainv["cons"].sum() / inv["cons"].sum()
-            print(f"  attack {a}: total declared consumption -{drop:.1%} ({time.time() - t:.0f}s)")
+            print(f"  attack {a}: declared consumption -{drop:.1%} ({time.time() - t:.0f}s)")
     for a in ATTACKS:
-        out[a] = pd.read_parquet(cache.format(a)).set_index("client_id")
+        base = cache.format(fv=fv, attack=a)
+        feats = pd.read_parquet(base + ".parquet").set_index("client_id")
+        sid = np.load(base + "_ids.npy")
+        seq = to_model_seq(np.load(base + "_seq.npy"))
+        out[a] = (feats, pd.Series(np.arange(len(sid)), index=sid), seq)
     return out
 
 
 def recall_at(y, s, top=TOP):
-    k = max(1, int(len(y) * top))
-    return y[np.argsort(-s)][:k].sum() / y.sum()
+    # Shared tie-aware recall in the top `top` share of clients (src/eval/metrics.py).
+    y = np.asarray(y, dtype=float)
+    return float(expected_tp_curve(y, s)[budget_size(len(y), top)] / y.sum())
 
 
-# Trees (M3, mimicry)
-F6_DATA_VALIDITY = (
-    "n_index_backwards",
-    "n_recon_mismatch",
-    "recon_gap_mean",
-    "n_bad_months_number",
-)
+def swap_frauds(X, rows, F, ids):
+    # Copy of X with the given rows replaced by the attacked features of those clients.
+    X = X.copy()
+    idx = X.index[rows]
+    X.loc[idx, :] = F.loc[ids, X.columns].set_axis(idx).astype(X.dtypes.to_dict())
+    return X
 
 
-def feature_groups():
-    # Column-name prefixes of the feature groups the tree study leaves out in turn.
-    return {"F6 data validity": F6_DATA_VALIDITY, "F9 meter status": _feature_builder()[1]}
+def _log(rows, study, fv):
+    r = rows[-1]
+    print(
+        f"  {r['model']} fold {r['fold']}: "
+        + "  ".join(f"{k}={r[k]:.3f}" for k in ("clean", *ATTACKS, "pgd") if k in r),
+        flush=True,
+    )
+    frame = pd.DataFrame(rows).assign(study=study, feature_version=fv)
+    old = pd.read_csv(BY_FOLD) if BY_FOLD.exists() else pd.DataFrame()
+    if not old.empty:
+        old = old[~((old["study"] == study) & (old["feature_version"] == fv))]
+    write_frames({BY_FOLD: pd.concat([old, frame], ignore_index=True)})
 
 
-def tree_study():
-    # The shared fitter handles categories and fold-specific class weights. PARAMS currently
-    # describes the default model; tuning can update it when the reference model is selected.
+# Trees (M3)
+def tree_study(fv="v0"):
+    # M3 as is, M3 without the consumption group (which group carries the vulnerability), and
+    # M3 with adversarial augmentation: each training-fold fraud gets one attacked copy
+    # (uniform or smooth at random, 1:1), label 1. fit_m3 recomputes scale_pos_weight after
+    # augmentation. Only training-fold frauds are augmented, so the held-out fold stays unseen.
     from src.models.trees import fit_m3
 
-    ids, X, y, folds = load_train("v1_with_inspection")
-    att = attacked_features()
-    groups = feature_groups()
-    variants = {
-        "M3 v1_with_inspection (all groups)": [],
-        "M3 without F9 (= v1)": ["F9 meter status"],
-        "M3 without F6": ["F6 data validity"],
-        "M3 without F6 and F9": ["F6 data validity", "F9 meter status"],
-    }
-    rows = []
-    for vname, drop in variants.items():
-        cols = [c for c in X.columns if not any(c.startswith(groups[g]) for g in drop)]
-        for k in range(5):
-            tr, va = folds != k, folds == k
-            m = fit_m3(X.loc[tr, cols], y[tr])
-            Xva = X.loc[va, cols]
-            yv = y[va]
-            clean = m.predict_proba(Xva)[:, 1]
-            r = {"model": vname, "fold": k, "clean": recall_at(yv, clean)}
-            fr_ids = ids[va][yv == 1]
-            fr_pos = np.where(yv == 1)[0]
-            for a, F in att.items():
-                Xa = Xva.copy()
-                Xa.iloc[fr_pos] = F.loc[fr_ids, cols].to_numpy()
-                r[a] = recall_at(yv, m.predict_proba(Xa)[:, 1])
-            rows.append(r)
-            pd.DataFrame(rows).to_csv("results/tables/robustness_trees_by_fold.csv", index=False)
-            print(
-                f"  {vname} fold {k}: "
-                + "  ".join(
-                    f"{c}={float(v):.3f}" for c, v in r.items() if c not in ("model", "fold")
-                ),
-                flush=True,
-            )
-    d = pd.DataFrame(rows)
-    d.to_csv("results/tables/robustness_trees_by_fold.csv", index=False)
-    return d
-
-
-def tree_defence():
-    # Two cheap defences for M3 (tree side):
-    #   * monotone: LightGBM monotone_constraints = +1 on F6 data-validity features, so more
-    #     reconciliation failures can never lower the risk score
-    #   * augment: adversarial data augmentation, each training-fold fraud gets one attacked
-    #     copy (uniform or smooth at random, 1:1), label 1. Only frauds of the training fold
-    #     are used, so the held-out fold stays unseen.
-    # Use the same categorical handling as tree_study; fitting a raw classifier here would
-    # bypass it. The fitter recomputes the weight after any training-fold augmentation.
-    from src.models.trees import fit_m3
-
-    ids, X, y, folds = load_train("v1_with_inspection")
-    att = attacked_features()
-    cols = list(X.columns)
-    mono = [1 if c.startswith(F6_DATA_VALIDITY) else 0 for c in cols]
+    ids, X, y, folds = load_train(fv)
+    att = attacked_inputs(fv)
+    consumption = [c for c in X.columns if c.startswith(CONSUMPTION_PREFIX)]
     rng = np.random.default_rng(SEED)
     rows = []
-    for vname in ["M3 + monotone F6", "M3 + adv. augmentation", "M3 + both"]:
+    for name in ("M3", "M3 without consumption features", "M3 + adv. augmentation"):
+        cols = [c for c in X.columns if c not in consumption] if "without" in name else list(X)
         for k in range(5):
             tr, va = folds != k, folds == k
             Xtr, ytr = X.loc[tr, cols], y[tr]
-            if "augment" in vname or "both" in vname:
+            if "augmentation" in name:
                 fr = ids[tr][ytr == 1]
                 pick = rng.integers(0, 2, len(fr))
-                aug = np.where(
-                    pick[:, None] == 0,
-                    att["uniform"].loc[fr, cols].to_numpy(),
-                    att["smooth"].loc[fr, cols].to_numpy(),
-                )
-                # A mixed string/numeric numpy array has object dtype. Restore the feature
-                # dtypes so numeric validity features stay numeric after augmentation.
-                augmented = pd.DataFrame(aug, columns=cols).astype(Xtr.dtypes.to_dict())
-                Xtr = pd.concat([Xtr, augmented], ignore_index=True)
-                ytr = np.concatenate([ytr, np.ones(len(fr), np.float32)])
-            extra = (
-                {"monotone_constraints": mono} if ("monotone" in vname or "both" in vname) else {}
-            )
-            m = fit_m3(Xtr, ytr, **extra)
+                copies = pd.concat(
+                    [
+                        att["uniform"][0].loc[fr[pick == 0], cols],
+                        att["smooth"][0].loc[fr[pick == 1], cols],
+                    ]
+                ).astype(Xtr.dtypes.to_dict())
+                Xtr = pd.concat([Xtr, copies], ignore_index=True)
+                ytr = np.concatenate([ytr, np.ones(len(copies), ytr.dtype)])
+            m = fit_m3(Xtr, ytr)
             Xva, yv = X.loc[va, cols], y[va]
-            r = {"model": vname, "fold": k, "clean": recall_at(yv, m.predict_proba(Xva)[:, 1])}
-            fr_ids, fr_pos = ids[va][yv == 1], np.where(yv == 1)[0]
-            for a, F in att.items():
-                Xa = Xva.copy()
-                Xa.iloc[fr_pos] = F.loc[fr_ids, cols].to_numpy()
+            fr_pos, fr_ids = np.flatnonzero(yv == 1), ids[va][yv == 1]
+            r = {"model": name, "fold": k, "clean": recall_at(yv, m.predict_proba(Xva)[:, 1])}
+            for a, (F, _, _) in att.items():
+                Xa = swap_frauds(Xva, fr_pos, F, fr_ids)
                 r[a] = recall_at(yv, m.predict_proba(Xa)[:, 1])
             rows.append(r)
-            pd.DataFrame(rows).to_csv("results/tables/robustness_treedef_by_fold.csv", index=False)
-            print(
-                f"  {vname} fold {k}: "
-                + "  ".join(
-                    f"{c}={float(v):.3f}" for c, v in r.items() if c not in ("model", "fold")
-                ),
-                flush=True,
-            )
+            _log(rows, "trees", fv)
     return pd.DataFrame(rows)
 
 
-# CNN (M7, PGD)
-from src.models.cnn import SEQ_SCALE, DualCNN, load_seq, to_model_seq  # noqa: E402
-
-
+# CNN (M7)
 def project_budget(x_adv, x0, mask):
     # Keep x_adv <= x0, >= 0, unchanged on masked months, and total raw declared consumption
     # >= (1 - BUDGET) * original (per client).
@@ -299,11 +253,8 @@ def predict_batched(model, S, Xs, bs=4096):
     out = []
     with torch.no_grad():
         for i in range(0, len(S), bs):
-            out.append(
-                torch.sigmoid(
-                    model(torch.as_tensor(S[i : i + bs]), torch.as_tensor(Xs[i : i + bs]))
-                ).numpy()
-            )
+            batch = model(torch.as_tensor(S[i : i + bs]), torch.as_tensor(Xs[i : i + bs]))
+            out.append(torch.sigmoid(batch).numpy())
     return np.concatenate(out)
 
 
@@ -321,177 +272,129 @@ def pgd_augment(steps=5, alpha=0.05):
     return aug
 
 
-def cnn_study(fv="v1", defend=True, folds_to_run=range(5)):
+def _evaluate_cnn(name, model, k, prep, X, S, y, ids, att):
+    # Recall@5% of one fold model, clean and under each attack.
+    Xva, Sva, yv = prep.transform(X), S, y
+    fr_pos, fr_ids = np.flatnonzero(yv == 1), ids[yv == 1]
+    r = {"model": name, "fold": k, "clean": recall_at(yv, predict_batched(model, Sva, Xva))}
+    for a, (F, pos_map, seq) in att.items():
+        Sa = Sva.copy()
+        Sa[fr_pos] = seq[pos_map[fr_ids].to_numpy()]
+        Xa = prep.transform(swap_frauds(X, fr_pos, F, fr_ids))
+        r[a] = recall_at(yv, predict_batched(model, Sa, Xa))
+    Sa = Sva.copy()
+    Sa[fr_pos] = pgd_seq(model, Sva[fr_pos], Xva[fr_pos], steps=10)
+    r["pgd"] = recall_at(yv, predict_batched(model, Sa, Xva))
+    return r
+
+
+def cnn_study(fv="v0", folds_to_run=range(5)):
+    # The saved M7 fold models (python run.py cnn), then two defences trained per fold: PGD
+    # adversarial training, and mimicry augmentation (one uniform or smooth copy of each
+    # training-fold fraud, with sequence and static features rebuilt from the attacked
+    # invoices).
     from src.models.dl import train_model
 
     ids, X, y, folds = load_train(fv)
     S = load_seq(ids)
-    att = attacked_features()
-    att_seq = {}
-    for a in att:
-        base = f"data/processed/attacked_v1_{a}"
-        sq, sid = np.load(base + "_seq.npy"), np.load(base + "_ids.npy")
-        att_seq[a] = (pd.Series(np.arange(len(sid)), index=sid), to_model_seq(sq))
+    att = attacked_inputs(fv)
+    # Resume: keep folds already finished by an earlier, interrupted run (three models each).
     rows = []
+    if BY_FOLD.exists():
+        old = pd.read_csv(BY_FOLD)
+        old = old[(old["study"] == "cnn") & (old["feature_version"] == fv)]
+        done = old.groupby("fold")["model"].nunique()
+        done = set(done[done == 3].index)
+        rows = old[old["fold"].isin(done)].drop(columns=["study", "feature_version"])
+        rows = rows.dropna(axis=1, how="all").to_dict("records")
+    else:
+        done = set()
     for k in folds_to_run:
+        if k in done:
+            print(f"  fold {k} already done", flush=True)
+            continue
+        rng = np.random.default_rng(SEED + k)
         tr, va = folds != k, folds == k
-        prep = pickle.load(open(f"results/models/prep_{fv}_fold{k}.pkl", "rb"))
-        Xva = prep.transform(X[va])
-        Sva, yv = S[va], y[va]
-        fr_pos = np.where(yv == 1)[0]
-        fr_ids = ids[va][yv == 1]
-        models = {}
-        m = DualCNN(Xva.shape[1])
-        m.load_state_dict(torch.load(f"results/models/M7_{fv}_fold{k}.pt"))
-        models["M7"] = m
-        if defend:
-            Xtr = prep.transform(X[tr])
-            print(f"  adversarial training M7 fold {k}", flush=True)
-            md, _ = train_model(
-                lambda: DualCNN(Xtr.shape[1]),
-                [S[tr], Xtr],
-                y[tr],
-                loss="bce",
-                bs=512,
-                max_epochs=12,
-                patience=3,
-                augment=pgd_augment(),
-            )
-            torch.save(md.state_dict(), f"results/models/M7adv_{fv}_fold{k}.pt")
-            models["M7 + adv. training"] = md
-        for name, mdl in models.items():
-            r = {"model": name, "fold": k}
-            r["clean"] = recall_at(yv, predict_batched(mdl, Sva, Xva))
-            for a in ["uniform", "smooth"]:
-                pos_map, sq = att_seq[a]
-                Sa, Xa = Sva.copy(), X[va].copy()
-                Sa[fr_pos] = sq[pos_map[fr_ids].values]
-                Xa.iloc[fr_pos] = att[a].loc[fr_ids, X.columns].to_numpy()
-                r[a] = recall_at(yv, predict_batched(mdl, Sa, prep.transform(Xa)))
-            Sa = Sva.copy()
-            Sa[fr_pos] = pgd_seq(mdl, Sva[fr_pos], Xva[fr_pos], steps=10)
-            r["pgd"] = recall_at(yv, predict_batched(mdl, Sa, Xva))
-            rows.append(r)
-            pd.DataFrame(rows).to_csv("results/tables/robustness_cnn_by_fold.csv", index=False)
-            print(
-                f"  {name} fold {k}: "
-                + "  ".join(
-                    f"{c}={float(v):.3f}" for c, v in r.items() if c not in ("model", "fold")
-                ),
-                flush=True,
-            )
-    d = pd.DataFrame(rows)
-    d.to_csv("results/tables/robustness_cnn_by_fold.csv", index=False)
-    return d
+        with open(f"results/models/prep_{fv}_fold{k}.pkl", "rb") as fh:
+            prep = pickle.load(fh)
+        assert isinstance(prep, TabularPrep)
+        Xtr = prep.transform(X[tr])
+        base = DualCNN(Xtr.shape[1])
+        base.load_state_dict(torch.load(f"results/models/M7_{fv}_fold{k}.pt"))
 
+        print(f"  PGD adversarial training, fold {k}", flush=True)
+        pgd_model, _ = train_model(
+            lambda: DualCNN(Xtr.shape[1]),
+            [S[tr], Xtr],
+            y[tr],
+            loss="bce",
+            bs=512,
+            max_epochs=12,
+            patience=3,
+            augment=pgd_augment(),
+        )
 
-def cnn_mimicry_defence(fv="v1", folds_to_run=range(5)):
-    # M7 trained with one mimicry-attacked copy (uniform or smooth, random) of each
-    # training-fold fraud, label 1, sequence and static inputs both rebuilt from the attacked
-    # invoices. Evaluated like cnn_study().
-    from src.models.dl import train_model
-
-    ids, X, y, folds = load_train(fv)
-    S = load_seq(ids)
-    att = attacked_features()
-    att_seq = {}
-    for a in ("uniform", "smooth"):
-        base = f"data/processed/attacked_v1_{a}"
-        sq, sid = np.load(base + "_seq.npy"), np.load(base + "_ids.npy")
-        att_seq[a] = (pd.Series(np.arange(len(sid)), index=sid), to_model_seq(sq))
-    rng = np.random.default_rng(SEED)
-    rows = []
-    for k in folds_to_run:
-        tr, va = folds != k, folds == k
-        prep = pickle.load(open(f"results/models/prep_{fv}_fold{k}.pkl", "rb"))
+        print(f"  mimicry augmentation, fold {k}", flush=True)
         fr = ids[tr][y[tr] == 1]
-        pick = rng.integers(0, 2, len(fr))
-        Sa_tr = np.stack(
-            [
-                att_seq["uniform" if p == 0 else "smooth"][1][
-                    att_seq["uniform" if p == 0 else "smooth"][0][c]
-                ]
-                for c, p in zip(fr, pick)
-            ]
+        uni = rng.integers(0, 2, len(fr)) == 0
+        parts = [("uniform", fr[uni]), ("smooth", fr[~uni])]
+        Sa = np.concatenate([att[a][2][att[a][1][c].to_numpy()] for a, c in parts])
+        Xa = pd.concat([att[a][0].loc[c, X.columns] for a, c in parts], ignore_index=True).astype(
+            X.dtypes.to_dict()
         )
-        Xa_tr = pd.DataFrame(
-            np.where(
-                pick[:, None] == 0,
-                att["uniform"].loc[fr, X.columns].to_numpy(),
-                att["smooth"].loc[fr, X.columns].to_numpy(),
-            ),
-            columns=X.columns,
-        )
-        S_tr = np.concatenate([S[tr], Sa_tr])
-        X_tr = prep.transform(pd.concat([X[tr], Xa_tr], ignore_index=True))
-        y_tr = np.concatenate([y[tr], np.ones(len(fr), np.float32)])
-        print(f"  mimicry-augmented M7 fold {k}", flush=True)
-        m, _ = train_model(
-            lambda: DualCNN(X_tr.shape[1]),
-            [S_tr, X_tr],
-            y_tr,
+        X_aug = prep.transform(pd.concat([X[tr], Xa], ignore_index=True))
+        mimic_model, _ = train_model(
+            lambda: DualCNN(X_aug.shape[1]),
+            [np.concatenate([S[tr], Sa]), X_aug],
+            np.concatenate([y[tr], np.ones(len(fr), y.dtype)]),
             loss="bce",
             bs=512,
             max_epochs=12,
             patience=3,
         )
-        Xva, Sva, yv = prep.transform(X[va]), S[va], y[va]
-        fr_pos, fr_ids = np.where(yv == 1)[0], ids[va][yv == 1]
-        r = {
-            "model": "M7 + mimicry augmentation",
-            "fold": k,
-            "clean": recall_at(yv, predict_batched(m, Sva, Xva)),
-        }
-        for a in ("uniform", "smooth"):
-            pos_map, sq = att_seq[a]
-            Sa, Xa = Sva.copy(), X[va].copy()
-            Sa[fr_pos] = sq[pos_map[fr_ids].values]
-            Xa.iloc[fr_pos] = att[a].loc[fr_ids, X.columns].to_numpy()
-            r[a] = recall_at(yv, predict_batched(m, Sa, prep.transform(Xa)))
-        Sa = Sva.copy()
-        Sa[fr_pos] = pgd_seq(m, Sva[fr_pos], Xva[fr_pos], steps=10)
-        r["pgd"] = recall_at(yv, predict_batched(m, Sa, Xva))
-        rows.append(r)
-        pd.DataFrame(rows).to_csv("results/tables/robustness_cnndef_by_fold.csv", index=False)
-        print(
-            "  "
-            + "  ".join(f"{c}={float(v):.3f}" for c, v in r.items() if c not in ("model", "fold")),
-            flush=True,
-        )
-    return pd.DataFrame(rows)
+
+        for name, model in (
+            ("M7", base),
+            ("M7 + PGD adv. training", pgd_model),
+            ("M7 + mimicry augmentation", mimic_model),
+        ):
+            rows.append(_evaluate_cnn(name, model, k, prep, X[va], S[va], y[va], ids[va], att))
+            _log(rows, "cnn", fv)
 
 
 def summarise():
-    import os
+    d = pd.read_csv(BY_FOLD)
+    attacks = [c for c in ("clean", *ATTACKS, "pgd") if c in d]
+    long = d.melt(
+        id_vars=["study", "feature_version", "model", "fold"],
+        value_vars=attacks,
+        var_name="attack",
+        value_name="recall@5%",
+    ).dropna()
+    keys = ["study", "feature_version", "model", "attack"]
+    t = long.groupby(keys, sort=False)["recall@5%"].agg(["mean", "std"]).reset_index()
+    clean = t[t["attack"] == "clean"].set_index(["feature_version", "model"])["mean"]
+    t["drop_vs_clean"] = (
+        t["mean"] - pd.Series(list(zip(t["feature_version"], t["model"]))).map(clean).to_numpy()
+    )
+    write_frames({SUMMARY: t})
+    wide = t.pivot_table(
+        index=["feature_version", "model"], columns="attack", values="mean", sort=False
+    )
+    print(wide[[a for a in attacks if a in wide]].round(3).to_string())
 
-    parts = [
-        pd.read_csv(f"results/tables/robustness_{p}_by_fold.csv")
-        for p in ("trees", "treedef", "cnn", "cnndef")
-        if os.path.exists(f"results/tables/robustness_{p}_by_fold.csv")
-    ]
-    d = pd.concat(parts)
-    long = d.melt(id_vars=["model", "fold"], var_name="attack", value_name="recall@5%").dropna()
-    t = long.groupby(["model", "attack"])["recall@5%"].agg(["mean", "std"]).reset_index()
-    clean = t[t.attack == "clean"].set_index("model")["mean"]
-    t["drop_vs_clean"] = t["mean"] - t["model"].map(clean)
-    t.to_csv("results/tables/robustness.csv", index=False)
-    wide = t.pivot(index="model", columns="attack", values="mean")
-    order = [c for c in ["clean", "uniform", "smooth", "index_consistent", "pgd"] if c in wide]
-    print(wide[order].round(3).to_string())
-    return t
+
+def main():
+    p = argparse.ArgumentParser(description="Attack M3 and M7 and test the defences.")
+    p.add_argument("study", nargs="?", default="all", choices=["trees", "cnn", "all"])
+    p.add_argument("--features", default="v0", choices=["v0", "v1"])
+    a = p.parse_args()
+    if a.study in ("trees", "all"):
+        tree_study(a.features)
+    if a.study in ("cnn", "all"):
+        cnn_study(a.features)
+    summarise()
 
 
 if __name__ == "__main__":
-    what = sys.argv[1] if len(sys.argv) > 1 else "all"
-    if what in ("trees", "all"):
-        tree_study()
-    if what in ("treedef", "all"):
-        tree_defence()
-    if what in ("cnndef", "all"):
-        cnn_mimicry_defence()
-    if what in ("cnn", "all"):
-        import os
-
-        fl = [int(f) for f in os.environ.get("CNN_FOLDS", "0,1,2,3,4").split(",")]
-        cnn_study(folds_to_run=fl)
-    summarise()
+    main()

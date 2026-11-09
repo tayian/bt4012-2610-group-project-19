@@ -81,9 +81,13 @@ and evaluation rules.
 |---|---|
 | `python run.py seq` | Monthly consumption tensor `data/processed/seq.npy` (clients x 120 months x 3 channels) |
 | `python run.py seq-plot` | Sanity plot of the sequences (`results/figures/seq_sanity.png`) |
-| `python run.py mlp` | MLP (M4) on `features_v1`; `--mlp-loss both` also trains the focal-loss version |
+| `python run.py mlp` | MLP (M4) on `features_v1`; `--mlp-loss both` also trains the focal-loss version. `--dl-features v0` runs this and the other neural steps on `features_v0` |
 | `python run.py cnn` | Dual-input 1D-CNN (M7) on the sequences and `features_v1`; saves fold models to `results/models/` |
 | `python run.py anomaly` | Isolation forest (M5) and autoencoder (M6) |
+| `python run.py wide-deep` | Wide-and-deep CNN (M7wd): the M7 branches plus a Conv2D branch on a 10 x 12 year-by-month grid |
+| `python run.py rescue` | Share of the frauds LightGBM misses that M5/M6 rank in their top 10% (`results/tables/rescue.csv`) |
+| `python run.py pu` | PU learning (M11) on the LightGBM OOF scores: estimated true fraud rate in `results/tables/pu_estimate.csv` |
+| `python run.py robustness` | Attacks on LightGBM and the 1D-CNN, with defences (`results/tables/robustness.csv`, `results/figures/robustness_<version>.png`) |
 | `python run.py test-faithfulness` | Checks the Inspector Brief evaluation harness on sample briefs |
 | `python run.py test-rag` | Checks the retrieval libraries (downloads a ~90 MB model once) |
 | `python run.py lint` | Checks code style |
@@ -106,7 +110,7 @@ results/        tables/, figures/, oof/ (out-of-fold model scores), models/ (fol
 src/
   data/         loading, cleaning, raw-data check, split, stubs
   features/     baseline, consumption/billing and monthly sequence features
-  models/       logistic regression, LightGBM, MLP, 1D-CNN, anomaly models, shared preprocessing
+  models/       logistic regression, LightGBM, MLP, 1D-CNN, anomaly models, PU learning, shared preprocessing
   eval/         metrics, out-of-fold files, robustness study, rescue analysis
   llm/          RAG corpus tools and the Inspector Brief evaluation harness
   viz/          shared figure style and plots

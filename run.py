@@ -292,6 +292,29 @@ def commands(s):
             [[PY, "-m", "src.models.anomaly", "--features", s.dl_features]],
             "Score the isolation forest (M5) and autoencoder (M6)",
         ),
+        "wide-deep": (
+            [dl_step, "splits", "seq"],
+            [[PY, "-m", "src.models.cnn", "--features", s.dl_features, "--arch", "widedeep"]],
+            "Train the wide-and-deep CNN (M7wd: 1D + 10x12 Conv2D + static branches)",
+        ),
+        "rescue": (
+            ["lightgbm", "anomaly"],
+            [[PY, "-m", "src.eval.rescue", "--m3", "v0", "--anomaly", s.dl_features]],
+            "Share of M3's missed frauds that M5/M6 rank highly (results/tables/rescue.csv)",
+        ),
+        "pu": (
+            ["lightgbm"] if s.pu_m3 == "v0" else [],
+            [[PY, "-m", "src.models.pu", "--m3", s.pu_m3, "--weight", s.pu_weight]],
+            "PU learning on the M3 OOF scores (M11, results/tables/pu_estimate.csv)",
+        ),
+        "robustness": (
+            ["cnn"],
+            [
+                [PY, "-m", "src.eval.adversarial", "all", "--features", s.dl_features],
+                [PY, "-m", "src.viz.robustness_fig", "--features", s.dl_features],
+            ],
+            "Attack M3 and M7 and test the defences (results/tables/robustness.csv)",
+        ),
         "test": ([], [[PY, "-m", "pytest", "-q", "tests"]], "Run every test"),
         "test-rag": (
             [],
@@ -369,6 +392,10 @@ def main():
     parser.add_argument("--tree-jobs", type=int, default=2)
     parser.add_argument("--dl-features", choices=["v0", "v1"], default="v1")
     parser.add_argument("--mlp-loss", choices=["bce", "focal", "both"], default="bce")
+    parser.add_argument("--pu-m3", default="v0", help="version of the M3 OOF file used by pu")
+    parser.add_argument(
+        "--pu-weight", default="fold", help='M3 positive-class weight: "fold", "none" or a number'
+    )
     args = parser.parse_args()
     args.clients = args.clients or str(Path(args.raw_dir) / "client_train.csv")
     args.invoices = args.invoices or str(Path(args.raw_dir) / "invoice_train.csv")
