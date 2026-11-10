@@ -21,3 +21,11 @@ ignore = ["E501"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["src"]
+
+[tool.pyrefly]
+project-includes = [
+    "**/*.py*",
+    "**/*.ipynb",
+]
+python-interpreter-path = "BT4012ProjectEnv/Scripts/python.exe"
+search-path = ["."]
