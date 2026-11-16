@@ -145,88 +145,104 @@ learned to spot them (attacked recall far above clean):
   still equals the previous new_index), and a meter that would read below zero starts higher.
 
 Recall in the top 5% of clients, 5-fold CV, tuned M3 settings
-(`results/tables/robustness.csv`, `results/figures/robustness_v3.png` and `robustness_v1.png`):
+(`results/tables/robustness.csv`, `results/figures/robustness_v4.png`; v1 and v3 rows are in the
+same table):
 
-| Model | v3 clean | v3 uniform | v3 smooth | v1 clean | v1 uniform | v1 smooth |
+| Model | v4 clean | v4 uniform | v4 smooth | v1 clean | v1 uniform | v1 smooth |
 |---|---|---|---|---|---|---|
-| **M3 (final model)** | 0.382 | 0.377 | 0.360 | 0.302 | 0.285 | 0.283 |
-| M3 without consumption features | 0.371 | 0.365 | 0.379 | 0.278 | 0.277 | 0.287 |
-| M3 + augmentation (both attacks) | 0.377 | 0.430 | 0.449 | 0.297 | 0.344 | 0.357 |
-| M3 + augmentation, uniform only | 0.381 | 0.435 | **0.418** (held out) | 0.297 | 0.344 | **0.341** (held out) |
-| M3 + augmentation, smooth only | 0.369 | **0.418** (held out) | 0.461 | 0.293 | **0.337** (held out) | 0.363 |
+| **M3 (tree part of the final model)** | 0.324 | 0.303 | 0.275 | 0.302 | 0.285 | 0.283 |
+| M3 without consumption features | 0.302 | 0.290 | 0.292 | 0.278 | 0.277 | 0.287 |
+| M3 + augmentation (both attacks) | 0.308 | 0.354 | 0.376 | 0.297 | 0.344 | 0.357 |
+| M3 + augmentation, uniform only | 0.314 | 0.358 | **0.337** (held out) | 0.297 | 0.344 | **0.341** (held out) |
+| M3 + augmentation, smooth only | 0.298 | **0.340** (held out) | 0.398 | 0.293 | **0.337** (held out) | 0.363 |
 
-- The final model loses 0.005 recall to the uniform attack and 0.022 to the smooth one. Hiding
-  30% of consumption does not hide most frauds, because the meter, tariff and history features
-  do not move with it (without the consumption features the model is almost as good, 0.371).
-- Augmentation costs at most 0.013 clean recall, and its gain carries over to the attack it
-  was not trained on. Attacked recall above clean recall still means the model learns the
-  trace of the attack (a sustained fall in declared consumption), so report it as "a drop of
-  this kind is detectable", not as "the model is robust". In the study only frauds are
-  attacked, so any trace of the attack is a fraud signal by construction.
+- On v4, M3 loses 0.021 recall to the uniform attack and 0.049 (15%) to the smooth one. That is
+  more than on v3 (0.005 and 0.022), because v4's recency features (last one or two years
+  against the lifetime mean) are exactly what a gradual drop moves, and v3's meter counts,
+  which the attack cannot touch, are gone. Hiding 30% of consumption still leaves most of the
+  recall: without any consumption features the model keeps 0.302.
+- Augmentation costs 0.016 clean recall (0.308 against 0.324) and its gain carries over to the
+  attack it was not trained on (0.337 and 0.340 held out, both above the unaugmented model's
+  attacked recall). Attacked recall above clean recall still means the model learns the trace
+  of the attack (a sustained fall in declared consumption), so report it as "a drop of this
+  kind is detectable", not as "the model is robust". In the study only frauds are attacked,
+  so any trace of the attack is a fraud signal by construction. The final model is not
+  augmented: the clean cost is certain, the attack is hypothetical.
 - The v0 rows of the table come from the first attack and are kept only for the record.
 
-## 8. features_v3: meter, tariff and recency features (F12)
+## 8. features_v4: F12 without the features a meter replacement moves
 
 v1 summarises consumption over the whole history and never uses the tariff, meter-code,
 coefficient or meter-index fields. The time-robustness check (`results/tables/time_robustness.csv`)
 showed that recent invoices matter: cutting every client's history at 2016 drops tuned M3 from
 0.281 to 0.204 PR-AUC. F12 (`src/features/meter_tariff.py`, 27 features) adds recency
 (last 1 and 2 years against the lifetime mean), tariff mix, meter codes and numbers, meter
-index growth and per-band consumption.
+index growth and per-band consumption. features_v3 = v1 + all of F12.
 
-Tuned M3 v1 settings, folds 0 and 1 (`results/tables/f12_ablation.csv`):
+**v3 looked like a large gain, and most of it is leakage.** Tuned M3 on v3 scores 0.372 against
+0.281 on v1, with the gain coming from the counts of meters, meter codes and tariffs
+(`results/tables/f12_ablation.csv`). Labels have no date, so a meter replaced after a detected
+fraud would also raise those counts. Two checks:
 
-| Features | PR-AUC |
-|---|---|
-| v1 | 0.293 |
-| v1 + recency | 0.302 |
-| v1 + bands | 0.296 |
-| v1 + meter | 0.321 |
-| v1 + tariff | 0.339 |
-| **v3 (v1 + all F12)** | **0.379** |
+1. *When do meter replacements happen?* (`results/tables/f12_change_year.csv`,
+   `results/figures/meter_change_year.png`) Among clients whose last meter replacement was in
+   2006 to 2012, 3 to 5% are frauds, close to the 2.8% of clients with no replacement. From
+   2013 the rate jumps to 14 to 34%. Within a client's history, a single replacement in the
+   first 40% goes with a 5% fraud rate, one in the last 20% with 36 to 41%. That is what
+   replacements after detections in a 2013 to 2019 campaign would look like. (An earlier check
+   that only compared the share of changes in each client's final year missed this, because
+   the campaign years, not the final year, are what matter.)
+2. *Does the signal exist before 2013?* (`results/tables/f12_pre_cutoff.csv`) The same tuned
+   M3, PR-AUC on the 82,387 clients with invoices before 2013:
 
-The tariff and meter groups carry most of the gain, and `n_counter_codes` alone adds 0.03. That
-is the obvious leakage risk: a meter replacement or tariff change could follow a detected
-fraud, and labels have no date. The timing check (`results/tables/f12_change_timing.csv`)
-finds no sign of it. Fraud clients have 2.4 to 3.3 times as many meter-code, meter-number and
-tariff changes per client, but those changes are not bunched at the end of their history:
+   | Features | Full history | Invoices up to 2012 only |
+   |---|---|---|
+   | v1 | 0.293 | 0.153 |
+   | v4 (v3 minus change-sensitive) | 0.314 | 0.159 |
+   | v3 | 0.379 | 0.170 |
 
-| Change | Class | Per client | Median position in history | Share in last year | Share in last 2 years |
-|---|---|---|---|---|---|
-| meter code | non-fraud | 0.92 | 0.45 | 10.3% | 17.8% |
-| meter code | fraud | 2.42 | 0.49 | 8.8% | 16.1% |
-| meter number | non-fraud | 1.23 | 0.42 | 10.2% | 16.9% |
-| meter number | fraud | 3.28 | 0.54 | 10.1% | 18.1% |
-| tariff | non-fraud | 1.19 | 0.47 | 12.1% | 20.4% |
-| tariff | fraud | 2.81 | 0.47 | 8.9% | 16.3% |
+   The change-sensitive columns add 0.065 on the full history but only 0.011 before 2013.
 
-Meter-number changes sit a little later in fraud histories (median 0.54 against 0.42), but the
-share in the final one or two years matches the non-frauds, which is where replacements after
-a detected fraud would show up. So v3 was adopted. Retuned with Optuna (30 trials, `M3_tuned_params_v3.json`):
+So, by the same rule as decision 1, **the final table is features_v4**: v1 plus the 18 F12
+features a meter or tariff change cannot move (recency, tariff shares, coefficient flag, index
+growth, per-band consumption). The nine left out (`CHANGE_SENSITIVE`) are the meter, meter-code
+and tariff counts, the most common meter code, the largest meter index, and the first and last
+invoice years and the span between them. v3 is kept only as the leakage comparison, like
+`features_v1_with_inspection`. A feature measuring years since the last meter change, tried
+afterwards, added 0.10 PR-AUC on its own and was rejected for the same reason.
 
-| Model | v1 | v3 |
-|---|---|---|
-| M3 tuned | 0.281 +/- 0.011 | **0.372 +/- 0.012** |
-| M9 CatBoost | 0.265 +/- 0.014 | 0.353 +/- 0.005 |
-| M7wd wide-and-deep | 0.248 +/- 0.010 | 0.296 +/- 0.011 |
+| Model | v1 | v4 | v3 (leakage comparison) |
+|---|---|---|---|
+| M3 tuned (30 Optuna trials per table) | 0.281 +/- 0.011 | **0.300 +/- 0.011** | 0.372 +/- 0.012 |
+| M9 CatBoost | 0.265 +/- 0.014 | 0.285 +/- 0.011 | 0.353 +/- 0.005 |
+| M7wd wide-and-deep | 0.248 +/- 0.010 | 0.256 +/- 0.008 | 0.296 +/- 0.011 |
 
-The gain holds in every fold (+0.08 to +0.09 per fold with the v1 settings, before retuning).
-The remaining caveat for the report: the timing check rules out the obvious post-detection
-pattern, but it cannot prove that no meter change was a consequence of an inspection.
+The caveat that remains for the report: v1 itself loses half its PR-AUC when built from
+pre-2013 invoices (0.293 to 0.153). Part of that is simply less history, but consumption can
+also change after a detected fraud (a repaired meter reads the true consumption), and no
+feature built from undated labels can fully rule that out.
 
-## 9. Fusion: helps on v1, not on v3
+## 9. Fusion: tuned M3 plus wide-and-deep on v4
 
 Each model's out-of-fold scores become within-fold percentile ranks; a logistic-regression
 stacker is fitted on four folds and scored on the fifth (`results/tables/fusion_ablation.csv`).
 The rule fixed in advance: adopt the smallest stack whose gain over tuned M3 is positive in
 every fold.
 
-- **On v1** the stack of tuned M3 and wide-and-deep reached 0.288 against 0.281, better in 5 of
-  5 folds. The graph (GraphSAGE, label spreading) and anomaly models added nothing.
-- **On v3** the same stack gives +0.0003 (4 of 5 folds, worst fold -0.005), adding CatBoost
-  +0.0015 (3 of 5). No stack meets the rule. Rank averaging is worse than M3 alone in every
-  combination, because the weaker models get equal weight.
+| Feature table | M3 tuned | + M7wd (LR stack) | gain, mean / worst fold | folds improved |
+|---|---|---|---|---|
+| v1 | 0.281 | 0.288 | +0.007 | 5 / 5 |
+| v3 (leaky, comparison only) | 0.372 | 0.372 | +0.0003 / -0.005 | 4 / 5 |
+| **v4 (final)** | 0.3005 | **0.3058** | **+0.0053 / +0.0023** | **5 / 5** |
 
-The F12 features gave the tree what the sequence model was adding (recent behaviour), so the
-models now agree more and fusion has nothing left to add. **The final model is tuned M3 on v3
-alone**, which is also the easiest to explain: SHAP drivers come straight from it.
+- On v4, stacking tuned M3 with CatBoost alone gains only +0.0008. Adding CatBoost to M3 +
+  M7wd gives +0.0059, 0.0006 more for a third model, so the two-model stack is kept.
+- Rank averaging is worse than M3 alone in almost every combination, because the weaker models
+  get equal weight. The graph (GraphSAGE, label spreading) and anomaly models add nothing.
+- On v3, the meter-change features gave the tree the recent-behaviour signal the sequence
+  model was adding, so fusion had nothing left to add. Once those features are dropped, the
+  wide-and-deep model's monthly sequence is useful again.
+
+**The final model is M10: the LR stack of tuned M3 and wide-and-deep on features_v4**
+(0.306 +/- 0.011 CV PR-AUC, recall at the top 5% 0.326). SHAP drivers in the briefs come from
+tuned M3, which carries most of the stack's weight.
