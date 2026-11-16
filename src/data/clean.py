@@ -57,6 +57,9 @@ def final_year_status(dates, ratio=PARTIAL_MONTH_RATIO):
     years = dates.dt.year
     final = int(years.max())
     baseline = dates[years == final - 1].dt.month.value_counts().median()
+    if not baseline > 0:
+        # No invoices in the year before: nothing to compare with, so treat it as complete.
+        return final, True, None, float("nan")
     counts = dates[years == final].dt.month.value_counts().reindex(range(1, 13), fill_value=0)
     ratios = counts / baseline
     worst = int(ratios.idxmin())
