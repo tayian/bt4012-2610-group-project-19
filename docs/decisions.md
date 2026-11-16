@@ -246,3 +246,32 @@ every fold.
 **The final model is M10: the LR stack of tuned M3 and wide-and-deep on features_v4**
 (0.306 +/- 0.011 CV PR-AUC, recall at the top 5% 0.326). SHAP drivers in the briefs come from
 tuned M3, which carries most of the stack's weight.
+
+## 10. Test set: scored once, on the CV-chosen model
+
+The models above were refitted on all 108,394 training clients and scored once on the
+27,099 held-out test clients (`results/tables/test_results.csv`, 95% bootstrap intervals).
+Nothing was changed after this run.
+
+| Model | Test PR-AUC [95% CI] | ROC-AUC | Recall @5% | Precision @5% |
+|---|---|---|---|---|
+| M1 logistic regression | 0.193 [0.179, 0.210] | 0.816 | 0.209 | 0.233 |
+| M3 LightGBM, default | 0.276 [0.254, 0.299] | 0.844 | 0.306 | 0.342 |
+| M9 CatBoost | 0.274 [0.253, 0.296] | 0.843 | 0.299 | 0.334 |
+| M7wd wide-and-deep | 0.249 [0.231, 0.271] | 0.832 | 0.285 | 0.318 |
+| M3 tuned | 0.294 [0.272, 0.318] | 0.850 | 0.316 | 0.353 |
+| **M10 final stack** | **0.294 [0.272, 0.318]** | **0.852** | **0.316** | **0.353** |
+
+- Test PR-AUC (0.294) is close to CV (0.306), so the CV estimates were not optimistic.
+- The stack's gain over tuned M3 on the test set is +0.0002 (bootstrap 95% interval -0.008 to
+  +0.007, positive in 52% of resamples; `test_fusion_gain.csv`). The +0.005 CV gain did not
+  carry over: tuned M3 alone would have done as well, and the report should say so.
+- Fairness (`fairness.csv`): at the cost-optimal budget no district or region is selected at
+  more than twice its share of frauds. Calibration (`calibration_by_group.csv`): expected
+  calibration error 0.011 overall and at most 0.014 in any district, on test as on training.
+- SHAP stability (`explanation_stability.csv`): across three seeds the top driver is the same
+  for 98% of the top 5% of clients; score rank correlation 0.99.
+- Net recovery (`cost_model.csv`, `net_recovery.png`): with recovery worth 10 inspections, the
+  best budget is about 15% of clients (precision 0.23, recall 0.64); inspecting everyone loses
+  money at value-to-cost ratios of 5 and 10.
+

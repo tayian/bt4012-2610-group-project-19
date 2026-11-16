@@ -1,0 +1,2 @@
+comparison,pr_auc_gain,lo,hi,share_of_resamples_positive
+M10 stack - M3_tuned,0.00015769368403328876,-0.007716395371879783,0.007001850307371139,0.517
