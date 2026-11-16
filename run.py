@@ -152,6 +152,61 @@ def commands(s):
             ],
             "Re-run the exploratory analysis notebook (tables and figures)",
         ),
+        "benford": (
+            ["interim", "splits"],
+            [
+                [
+                    PY,
+                    "-m",
+                    "nbconvert",
+                    "--to",
+                    "notebook",
+                    "--execute",
+                    "--inplace",
+                    "--ExecutePreprocessor.record_timing=False",
+                    "notebooks/02_benford.ipynb",
+                ]
+            ],
+            "Benford first-digit, two-digit and last-digit tests (notebooks/02_benford.ipynb)",
+        ),
+        "eda-figures": (
+            ["feature-stats"],
+            [
+                [
+                    PY,
+                    "-m",
+                    "src.viz.eda_figures",
+                    "--interim",
+                    s.interim,
+                    "--split-dir",
+                    s.split_dir,
+                    "--features",
+                    s.features_v1,
+                ]
+            ],
+            "Outlier and validity tables, fraud-rate heatmap, consumption over time, top-6 boxplots",
+        ),
+        "time-robustness": (
+            ["features-v1", "splits"],
+            [
+                [
+                    PY,
+                    "-m",
+                    "src.eval.time_robustness",
+                    "--interim",
+                    s.interim,
+                    "--features",
+                    s.features_v1,
+                    "--clients",
+                    s.clients,
+                    "--split-dir",
+                    s.split_dir,
+                    "--n-jobs",
+                    str(s.tree_jobs),
+                ]
+            ],
+            "Tuned M3 on features from invoices up to 2016 vs full history (time_robustness.csv)",
+        ),
         "features": (
             ["interim", "splits"],
             [[PY, "-m", "src.features.aggregate", "--interim", s.interim, "--out", s.features_v0]],
@@ -236,6 +291,55 @@ def commands(s):
             [[PY, "-m", "src.models.graphsage"]],
             "M8sage GraphSAGE on the client graph; writes OOF scores and metrics",
         ),
+        "features-v3": (
+            ["features-v1"],
+            [[PY, "-m", "src.features.meter_tariff"]],
+            "Build F12 meter, tariff and recency features and features_v3 (v1 + F12)",
+        ),
+        "features-v3-audit": (
+            ["features-v3"],
+            [[PY, "-m", "src.features.meter_tariff", "--audit"]],
+            "F12 group ablation and the meter/tariff change-timing leakage check",
+        ),
+        "tune": (
+            ["features-v1", "splits"],
+            [[PY, "-m", "src.models.tune", "--features", s.features_v1]],
+            "Tune M3 LightGBM with Optuna (30 trials); publishes M3_tuned (about an hour)",
+        ),
+        "catboost": (
+            ["features-v1", "splits"],
+            [[PY, "-m", "src.models.catboost_model", "--features", s.features_v1]],
+            "M9 CatBoost with native categoricals on the saved folds",
+        ),
+        "fusion": (
+            [],
+            [[PY, "-m", "src.models.fusion", "cv"]],
+            "M10 fusion ablation and the LR stacker's OOF scores (needs the model OOF files)",
+        ),
+        "test-set": (
+            ["fusion"],
+            [
+                [PY, "-m", "src.models.test_set", "trees"],
+                [PY, "-m", "src.models.test_set", "widedeep"],
+                [PY, "-m", "src.models.test_set", "shap"],
+                [PY, "-m", "src.models.fusion", "test"],
+            ],
+            "Refit the final-table models on all training clients and score the test set once",
+        ),
+        "responsible": (
+            ["test-set"],
+            [
+                [PY, "-m", "src.eval.responsible", "fairness"],
+                [PY, "-m", "src.eval.responsible", "calibration"],
+                [PY, "-m", "src.eval.responsible", "stability"],
+            ],
+            "Fairness of inspection allocation, calibration by district, SHAP stability",
+        ),
+        "budget-figures": (
+            ["test-set"],
+            [[PY, "-m", "src.viz.budget_figures"]],
+            "Precision vs budget (F4), net recovery (F5) and the cost-model table",
+        ),
         "seq": (
             ["interim"],
             [
@@ -300,6 +404,18 @@ def commands(s):
             ["corpus"],
             [[PY, "-m", "src.llm.query_rewriter"]],
             "Test the query rewriter (snapshot -> 3 search queries) on 5 clients",
+        ),
+        "briefs": (
+            ["corpus"],
+            [[PY, "-m", "src.llm.briefs"]],
+            "Inspector Briefs for the top 30 clients: no evidence vs hybrid vs filtered hybrid "
+            "(results/tables/three_run_eval.csv; LLM responses cached in results/briefs/)",
+        ),
+        "agents": (
+            ["corpus"],
+            [[PY, "-m", "src.llm.agent"]],
+            "Single agent vs multi-agent briefs on the same 30 clients "
+            "(results/tables/agent_comparison.csv; logs in results/agent_logs/)",
         ),
         "baseline": (
             ["features"],
@@ -403,6 +519,11 @@ def commands(s):
             [],
             [[PY, "-m", "pytest", "-q", "tests/test_faithfulness.py"]],
             "Check the Inspector Brief evaluation harness on sample briefs",
+        ),
+        "test-briefs": (
+            [],
+            [[PY, "-m", "pytest", "-q", "tests/test_briefs.py", "tests/test_agent.py"]],
+            "Check brief generation, the agent tools and both agent systems (LLM mocked)",
         ),
         "test-llm": (
             [],
