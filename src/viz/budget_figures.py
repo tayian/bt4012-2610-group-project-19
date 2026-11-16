@@ -22,6 +22,7 @@ import matplotlib.pyplot as plt
 
 from src.eval.metrics import VALUE_COST_RATIOS, net_recovery_curve
 from src.eval.oof import write_frames
+from src.models.fusion import VERSION
 from src.viz import style
 
 # Fixed colour per model; the final model is the darkest and drawn last.
@@ -44,7 +45,7 @@ def test_scores():
         columns={"score": "M10"}
     )
     for name, _, _ in MODELS[:-1]:
-        o = pd.read_parquet(f"results/test/{name}_v1.parquet")[["client_id", "score"]]
+        o = pd.read_parquet(f"results/test/{name}_{VERSION}.parquet")[["client_id", "score"]]
         frame = frame.merge(o.rename(columns={"score": name}), on="client_id", validate="1:1")
     return frame.merge(cli, on="client_id", validate="1:1")
 

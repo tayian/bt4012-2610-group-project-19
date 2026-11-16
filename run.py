@@ -14,6 +14,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 PY = sys.executable
+# The final model's feature table (src/models/fusion.py VERSION).
+VERSION = "v3"
+V3 = "data/processed/features_v3.parquet"
 
 
 def commands(s):
@@ -302,13 +305,13 @@ def commands(s):
             "F12 group ablation and the meter/tariff change-timing leakage check",
         ),
         "tune": (
-            ["features-v1", "splits"],
-            [[PY, "-m", "src.models.tune", "--features", s.features_v1]],
+            ["features-v3", "splits"],
+            [[PY, "-m", "src.models.tune", "--features", V3]],
             "Tune M3 LightGBM with Optuna (30 trials); publishes M3_tuned (about an hour)",
         ),
         "catboost": (
-            ["features-v1", "splits"],
-            [[PY, "-m", "src.models.catboost_model", "--features", s.features_v1]],
+            ["features-v3", "splits"],
+            [[PY, "-m", "src.models.catboost_model", "--features", V3]],
             "M9 CatBoost with native categoricals on the saved folds",
         ),
         "fusion": (
@@ -319,9 +322,9 @@ def commands(s):
         "test-set": (
             ["fusion"],
             [
-                [PY, "-m", "src.models.test_set", "trees"],
-                [PY, "-m", "src.models.test_set", "widedeep"],
-                [PY, "-m", "src.models.test_set", "shap"],
+                [PY, "-m", "src.models.test_set", "trees", "--features", VERSION],
+                [PY, "-m", "src.models.test_set", "widedeep", "--features", VERSION],
+                [PY, "-m", "src.models.test_set", "shap", "--features", VERSION],
                 [PY, "-m", "src.models.fusion", "test"],
             ],
             "Refit the final-table models on all training clients and score the test set once",
@@ -496,6 +499,14 @@ def commands(s):
                 [PY, "-m", "src.viz.robustness_fig", "--features", s.dl_features],
             ],
             "Attack M3 and M7 and test the defences (results/tables/robustness.csv)",
+        ),
+        "robustness-final": (
+            ["features-v3", "splits"],
+            [
+                [PY, "-m", "src.eval.adversarial", "trees", "--features", VERSION],
+                [PY, "-m", "src.viz.robustness_fig", "--features", VERSION],
+            ],
+            "Attack the final model's features and test the tree defences (v3 rows)",
         ),
         "test": ([], [[PY, "-m", "pytest", "-q", "tests"]], "Run every test"),
         "test-rag": (

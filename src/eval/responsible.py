@@ -23,6 +23,7 @@ import pandas as pd
 
 from src.eval.metrics import net_recovery_curve
 from src.eval.oof import write_frames
+from src.models.fusion import VERSION
 
 GROUPS = ["district", "region", "client_catg"]
 MIN_GROUP = 200
@@ -147,12 +148,12 @@ def stability(n_jobs=4):
     from src.models.test_set import load_split
     from src.models.trees import fit_m3
 
-    (ids, X, y), _ = load_split("v1")
+    (ids, X, y), _ = load_split(VERSION)
     folds = pd.read_csv("data/splits/folds.csv", dtype={"client_id": "string"}).set_index(
         "client_id"
     )["fold"]
     f = folds.loc[ids].to_numpy()
-    params = json.loads(Path("results/tables/M3_tuned_params_v1.json").read_text())
+    params = json.loads(Path(f"results/tables/M3_tuned_params_{VERSION}.json").read_text())
     Xtr, Xva = X[f != 0], X[f == 0]
     tops, scores = [], []
     for seed in SEEDS:
