@@ -1,6 +1,9 @@
 # Five signed Tree SHAP drivers per training client, explained by its held-out-fold model.
 
 
+import json
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 
@@ -39,7 +42,9 @@ def top_rows(ids, X, values):
     return pd.DataFrame(rows, columns=SHAP_COLUMNS)
 
 
-def run(ctx, n_jobs=2, batch_size=4096):
+def run(ctx, n_jobs=2, batch_size=4096, params=None, name="M3"):
+    # params: LightGBM overrides (e.g. the tuned M3); name: the published OOF model to match.
+    params_m3 = params or {}
     import shap
 
     if batch_size < 1:
@@ -47,6 +52,8 @@ def run(ctx, n_jobs=2, batch_size=4096):
     frames, score_frames = [], []
     for fold in range(5):
         params = {"fold": fold, "n_jobs": n_jobs, "shap_version": shap.__version__}
+        if params_m3:
+            params["m3_params"] = params_m3
         cache = ctx.cache("M3_shap", params)
         if (cache / "complete.json").exists():
             print(f"REUSE SHAP fold {fold + 1}/5", flush=True)
@@ -57,7 +64,7 @@ def run(ctx, n_jobs=2, batch_size=4096):
             Xtr = ctx.X.loc[train].drop(columns="client_id")
             Xva = ctx.X.loc[valid].drop(columns="client_id")
             ids = ctx.X.loc[valid, "client_id"].to_numpy()
-            model = fit_m3(Xtr, ctx.y[train], n_jobs=n_jobs)
+            model = fit_m3(Xtr, ctx.y[train], **{**params_m3, "n_jobs": n_jobs})
             explainer = shap.TreeExplainer(
                 model.estimator_, feature_perturbation="tree_path_dependent", model_output="raw"
             )
@@ -86,15 +93,16 @@ def run(ctx, n_jobs=2, batch_size=4096):
         .loc[ctx.X.client_id]
         .reset_index()
     )
-    baseline_path = ctx.results / f"oof/M3_{ctx.suffix}.parquet"
-    if baseline_path.exists():
-        baseline = pd.read_parquet(baseline_path).set_index("client_id").loc[ctx.X.client_id]
-        if baseline.fold.tolist() != reference.fold.tolist() or not np.allclose(
-            baseline.score, reference.score, rtol=1e-8, atol=1e-10
-        ):
-            raise ValueError(
-                "M3 OOF scores differ from the SHAP model. Rebuild the current LightGBM baseline first."
-            )
+    baseline_path = ctx.results / f"oof/{name}_{ctx.suffix}.parquet"
+    if not baseline_path.exists():
+        raise ValueError(f"{baseline_path} is missing: publish the {name} model before its SHAP.")
+    baseline = pd.read_parquet(baseline_path).set_index("client_id").loc[ctx.X.client_id]
+    if baseline.fold.tolist() != reference.fold.tolist() or not np.allclose(
+        baseline.score, reference.score, rtol=1e-8, atol=1e-10
+    ):
+        raise ValueError(
+            f"{name} OOF scores differ from the SHAP model. Rebuild {baseline_path} first."
+        )
     if len(top) != 5 * len(ctx.X) or set(top.client_id) != set(ctx.X.client_id):
         raise ValueError("SHAP export must contain five rows for every training client.")
     order = dict(zip(ctx.X.client_id, range(len(ctx.X))))
@@ -106,12 +114,12 @@ def run(ctx, n_jobs=2, batch_size=4096):
     )
     output = ctx.results / f"shap_top5_{ctx.suffix}.parquet"
     write_frames(
-        {output: top, ctx.results / f"oof/M3_shap_reference_{ctx.suffix}.parquet": reference}
+        {output: top, ctx.results / f"oof/{name}_shap_reference_{ctx.suffix}.parquet": reference}
     )
     write_json(
         ctx.results / f"tables/shap_metadata_{ctx.suffix}.json",
         {
-            "model": "M3",
+            "model": name,
             "feature_set": ctx.feature_set,
             "data_fingerprint": ctx.fingerprint,
             "scope": "training clients, out-of-fold explanations",
@@ -131,9 +139,12 @@ def main():
     p = parser("Export the top five out-of-fold M3 SHAP drivers per training client.")
     p.add_argument("--n-jobs", type=int, default=2)
     p.add_argument("--batch-size", type=int, default=4096)
+    p.add_argument("--params", type=Path, help="JSON of tuned M3 parameters (src.models.tune)")
     args = p.parse_args()
     try:
-        run(get_context(args), args.n_jobs, args.batch_size)
+        params = json.loads(args.params.read_text()) if args.params else None
+        name = "M3_tuned" if args.params else "M3"
+        run(get_context(args), args.n_jobs, args.batch_size, params, name)
     except (ValueError, OSError) as exc:
         p.exit(2, f"shap: {exc}\n")
 

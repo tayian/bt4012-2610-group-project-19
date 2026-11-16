@@ -56,6 +56,10 @@ def balance_training(X, y, strategy, seed):
     for c in nums:
         if X[c].isna().all():
             extra[c] = np.nan
+        elif np.array_equal(X[c].dropna(), np.round(X[c].dropna())):
+            # Integer-valued columns (counts, 0/1 flags) stay whole numbers; otherwise only
+            # synthetic frauds would have values such as has_gaz = 0.4, which trees learn.
+            extra[c] = np.round(extra[c])
     for c in cats:
         # The sampler's missing marker becomes missing again in the native model input.
         extra[c] = pd.Categorical(extra[c], categories=X[c].cat.categories)

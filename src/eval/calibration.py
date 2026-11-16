@@ -55,8 +55,10 @@ class IsotonicClassifier(ClassifierMixin, BaseEstimator):
 
 
 def reliability(y, scores, model, bins=10):
+    # Equal-count bins (score deciles), so every point averages about a tenth of the clients;
+    # equal-width bins leave the top bins with a handful of clients for well-calibrated scores.
     y, scores = np.asarray(y), np.asarray(scores)
-    group = np.minimum((scores * bins).astype(int), bins - 1)
+    group = pd.qcut(pd.Series(scores).rank(method="first"), bins, labels=False).to_numpy()
     rows = []
     for b in range(bins):
         mask = group == b
@@ -117,12 +119,26 @@ def run(ctx, max_iter=15000, n_jobs=2, inner_folds=3):
         publish(ctx, oof, row, name)
         write_frames({ctx.results / f"oof/{kind}_calibration_raw_{ctx.suffix}.parquet": raw})
     table, bin_table = pd.DataFrame(comparisons), pd.concat(bins, ignore_index=True)
-    write_frames(
-        {
-            ctx.results / f"tables/calibration_{ctx.suffix}.csv": table,
-            ctx.results / f"tables/reliability_{ctx.suffix}.csv": bin_table,
-        }
-    )
+    write_frames({ctx.results / f"tables/calibration_{ctx.suffix}.csv": table})
+    plot_reliability(ctx, bin_table)
+    print(table[["model", "brier_mean", "brier_std"]].to_string(index=False))
+    return table, bin_table
+
+
+def replot(ctx):
+    # Rebuild the reliability table and figure from the published OOF files, without refitting.
+    order = ctx.X.client_id
+    bins = []
+    for kind in ("M1", "M3"):
+        for label, file in ((f"{kind}_raw", "calibration_raw"), (f"{kind}_isotonic", "isotonic")):
+            oof = pd.read_parquet(ctx.results / f"oof/{kind}_{file}_{ctx.suffix}.parquet")
+            scores = oof.set_index("client_id").loc[order, "score"]
+            bins.append(reliability(ctx.y, scores, label))
+    plot_reliability(ctx, pd.concat(bins, ignore_index=True))
+
+
+def plot_reliability(ctx, bin_table):
+    write_frames({ctx.results / f"tables/reliability_{ctx.suffix}.csv": bin_table})
     style.apply()
     fig, axes = plt.subplots(1, 2, figsize=(9, 4), sharex=True, sharey=True)
     for kind, ax in zip(("M1", "M3"), axes):
@@ -147,8 +163,6 @@ def run(ctx, max_iter=15000, n_jobs=2, inner_folds=3):
     fig.savefig(temp, format="png")
     plt.close(fig)
     temp.replace(output)
-    print(table[["model", "brier_mean", "brier_std"]].to_string(index=False))
-    return table, bin_table
 
 
 def main():
@@ -156,9 +170,15 @@ def main():
     p.add_argument("--max-iter", type=int, default=15000)
     p.add_argument("--n-jobs", type=int, default=2)
     p.add_argument("--inner-folds", type=int, default=3)
+    p.add_argument(
+        "--replot", action="store_true", help="redraw the reliability plot from saved OOF files"
+    )
     args = p.parse_args()
     try:
-        run(get_context(args), args.max_iter, args.n_jobs, args.inner_folds)
+        if args.replot:
+            replot(get_context(args))
+        else:
+            run(get_context(args), args.max_iter, args.n_jobs, args.inner_folds)
     except (ValueError, OSError, ConvergenceWarning) as exc:
         p.exit(2, f"calibrate: {exc}\n")
 
