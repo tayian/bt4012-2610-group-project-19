@@ -46,7 +46,7 @@ from src.models.common import SEED, TabularPrep, load_train
 BUDGET = 0.30
 TOP = 0.05
 # Features an attacker moves by lowering declared consumption: F2, in v1 also the F4/F5
-# trajectory and self-deviation groups, and in v3 the F12 recency and tariff-band columns.
+# trajectory and self-deviation groups, and in v3/v4 the F12 recency and tariff-band columns.
 CONSUMPTION_PREFIX = (
     "cons_pm",
     "share_level",
@@ -74,14 +74,17 @@ def build_features(fv, inv, cli):
         from src.features.behavioural import build_features as v1
 
         out = v1(inv, cli)
-    elif fv == "v3":
+    elif fv in ("v3", "v4"):
         from src.features.behavioural import build_features as v1
+        from src.features.meter_tariff import CHANGE_SENSITIVE
         from src.features.meter_tariff import build as f12
 
         out = v1(inv, cli)
         out["client_id"] = out["client_id"].astype(str)
         extra = f12(inv.assign(client_id=inv["client_id"].astype(str)))
         out = out.merge(extra, on="client_id", how="left", validate="one_to_one")
+        if fv == "v4":
+            out = out.drop(columns=CHANGE_SENSITIVE)
     else:
         raise ValueError(f"No feature builder for {fv}.")
     return out.set_index("client_id")
@@ -461,7 +464,7 @@ def summarise():
 def main():
     p = argparse.ArgumentParser(description="Attack M3 and M7 and test the defences.")
     p.add_argument("study", nargs="?", default="all", choices=["trees", "cnn", "all"])
-    p.add_argument("--features", default="v0", choices=["v0", "v1", "v3"])
+    p.add_argument("--features", default="v0", choices=["v0", "v1", "v3", "v4"])
     a = p.parse_args()
     if a.study in ("trees", "all"):
         tree_study(a.features)

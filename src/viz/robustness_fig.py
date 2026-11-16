@@ -42,7 +42,7 @@ ATTACKS = [
 
 def main():
     p = argparse.ArgumentParser(description="Plot recall@5% clean vs attacked.")
-    p.add_argument("--features", default="v0", choices=["v0", "v1", "v3"])
+    p.add_argument("--features", default="v0", choices=["v0", "v1", "v3", "v4"])
     a = p.parse_args()
     style.apply()
     t = pd.read_csv("results/tables/robustness.csv")

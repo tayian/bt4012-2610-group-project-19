@@ -52,7 +52,7 @@ def run(fv, loss):
 
 def main():
     p = argparse.ArgumentParser(description="Train the MLP (M4) on the saved folds.")
-    p.add_argument("--features", default="v1", choices=["v0", "v1", "v2", "v3"])
+    p.add_argument("--features", default="v1", choices=["v0", "v1", "v2", "v3", "v4"])
     p.add_argument("--loss", default="bce", choices=["bce", "focal", "both"])
     a = p.parse_args()
     for loss in ["bce", "focal"] if a.loss == "both" else [a.loss]:

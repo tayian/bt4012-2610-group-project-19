@@ -15,8 +15,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 PY = sys.executable
 # The final model's feature table (src/models/fusion.py VERSION).
-VERSION = "v3"
-V3 = "data/processed/features_v3.parquet"
+VERSION = "v4"
+V4 = "data/processed/features_v4.parquet"
 
 
 def commands(s):
@@ -297,21 +297,25 @@ def commands(s):
         "features-v3": (
             ["features-v1"],
             [[PY, "-m", "src.features.meter_tariff"]],
-            "Build F12 meter, tariff and recency features and features_v3 (v1 + F12)",
+            "Build F12 and features_v3 (v1 + F12) and features_v4 (v3 minus change-sensitive)",
         ),
         "features-v3-audit": (
             ["features-v3"],
-            [[PY, "-m", "src.features.meter_tariff", "--audit"]],
-            "F12 group ablation and the meter/tariff change-timing leakage check",
+            [
+                [PY, "-m", "src.features.meter_tariff", "--audit"],
+                [PY, "-m", "src.features.meter_tariff", "--pre-cutoff"],
+                [PY, "-m", "src.viz.leakage_fig"],
+            ],
+            "F12 ablation, change-timing table and the pre-2013 leakage check (about 1.5 h)",
         ),
         "tune": (
             ["features-v3", "splits"],
-            [[PY, "-m", "src.models.tune", "--features", V3]],
+            [[PY, "-m", "src.models.tune", "--features", V4]],
             "Tune M3 LightGBM with Optuna (30 trials); publishes M3_tuned (about an hour)",
         ),
         "catboost": (
             ["features-v3", "splits"],
-            [[PY, "-m", "src.models.catboost_model", "--features", V3]],
+            [[PY, "-m", "src.models.catboost_model", "--features", V4]],
             "M9 CatBoost with native categoricals on the saved folds",
         ),
         "fusion": (
