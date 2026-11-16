@@ -18,6 +18,8 @@ FEATURES = {
     "v0": "data/processed/features_v0.parquet",
     "v1": "data/processed/features_v1.parquet",
     "v1_with_inspection": "data/processed/features_v1_with_inspection.parquet",
+    "v2": "data/processed/features_v2.parquet",
+    "v2_with_inspection": "data/processed/features_v2_with_inspection.parquet",
 }
 CAT_ONEHOT = ["client_catg"]
 CAT_FREQ = ["district", "region"]
