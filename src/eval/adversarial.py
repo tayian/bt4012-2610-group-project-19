@@ -60,7 +60,7 @@ def build_features(fv, inv, cli):
     elif fv == "v1":
         from src.features.behavioural import build_features as v1
 
-        out = v1(inv, cli["client_id"])
+        out = v1(inv, cli)
     else:
         raise ValueError(f"No feature builder for {fv}.")
     return out.set_index("client_id")

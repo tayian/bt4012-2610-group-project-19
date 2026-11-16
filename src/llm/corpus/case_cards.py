@@ -36,7 +36,7 @@ def _load_or_build_features(
     if f1_path.is_file():
         f1 = pd.read_parquet(f1_path)
     else:
-        f1 = behavioural.build_features(invoices_clean, clients["client_id"])
+        f1 = behavioural.build_features(invoices_clean, clients)
     return f0, f1
 
 

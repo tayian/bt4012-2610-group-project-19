@@ -86,20 +86,39 @@ class CleanTests(unittest.TestCase):
         self.assertEqual(ratio, 0)
 
 
+def clients(ids):
+    return pd.DataFrame(
+        {
+            "client_id": ids,
+            "client_catg": 11,
+            "district": 60,
+            "region": 101,
+            "creation_date": pd.Timestamp("2010-01-01"),
+        }
+    )
+
+
 class BehaviouralTests(unittest.TestCase):
-    # Client C has six invoices: four ELEC on one meter, two GAZ on another.
+    # Client C has six invoices: four ELEC on one meter, two GAZ on another. D has none.
 
     def setUp(self):
         rows = [
             invoice("C", "2016-01-01", 400),
             invoice("C", "2016-05-01", 800, levels=[600, 200, 0, 0]),
-            invoice("C", "2016-09-01", 0),
+            invoice("C", "2016-09-01", 0, statue="1"),
             invoice("C", "2017-09-01", 1200, levels=[600, 300, 300, 0]),  # 12 months late
             invoice("C", "2016-01-01", 80, months=2, counter="g1", kind="GAZ"),
-            invoice("C", "2016-03-01", 40, months=2, counter="g1", kind="GAZ"),
+            invoice("C", "2016-03-01", 40, months=2, old=1003, counter="g1", kind="GAZ"),
         ]
         self.inv = clean.clean_invoices(pd.DataFrame(rows))
-        self.out = behavioural.build_features(self.inv, ["C", "D"]).set_index("client_id")
+        # In this tiny table 2017 looks like an incomplete final year; treat both years as full
+        # so the year-on-year feature can be checked (the partial case is tested separately).
+        self.inv["flag_partial_year"] = False
+        self.out = self.build(self.inv)
+
+    def build(self, inv, ids=("C", "D")):
+        out = behavioural.build_features(inv, clients(list(ids)), inspection=True)
+        return out.set_index("client_id")
 
     def test_consumption_stats(self):
         c = self.out.loc["C"]
@@ -129,6 +148,66 @@ class BehaviouralTests(unittest.TestCase):
         self.assertTrue(np.isnan(d.cons_pm_mean))
         numeric = self.out.select_dtypes(include="number").to_numpy(dtype=float)
         self.assertFalse(np.isinf(numeric).any())
+
+    def test_trajectory(self):
+        c = self.out.loc["C"]
+        # ELEC yearly means: 2016 = (100 + 200 + 0) / 3 = 100, 2017 = 300, so the "drop" is -2.
+        self.assertAlmostEqual(c.yoy_drop_max, -2)
+        # Only the ELEC series has three or more points for a slope.
+        t = np.array([0, 121, 244, 609]) / 365.25
+        self.assertAlmostEqual(c.slope_last3y, np.polyfit(t, [100, 200, 0, 300], 1)[0])
+        self.assertEqual((c.zero_run_max, c.zero_share), (1, 1 / 6))
+        self.assertEqual(c.sudden_spike_share, 0)
+
+    def test_partial_final_year_is_left_out_of_year_on_year(self):
+        inv = self.inv.copy()
+        inv["flag_partial_year"] = inv["invoice_date"].dt.year.eq(2017)
+        self.assertTrue(np.isnan(self.build(inv).loc["C"].yoy_drop_max))
+
+    def test_robust_z(self):
+        # ELEC: median 150, MAD 100; GAZ: median 30, MAD 10. Largest |z| is 150 / (1.4826 * 100).
+        c = self.out.loc["C"]
+        self.assertAlmostEqual(c.robust_z_max, 150 / (1.4826 * 100))
+        self.assertEqual(c.n_robust_z_gt3, 0)
+
+    def test_validity_counts_skip_rollovers(self):
+        rows = [
+            invoice("B", "2018-01-01", 1518, old=98482),
+            invoice("B", "2018-05-01", 50, old=500),
+        ]
+        rows[0]["new_index"] = 0  # an exact meter rollover
+        rows[1]["new_index"] = 400  # a real backwards reading, 150 short of cons
+        b = self.build(clean.clean_invoices(pd.DataFrame(rows)), ["B"]).loc["B"]
+        self.assertEqual(
+            (b.n_index_backwards, b.n_recon_mismatch, b.n_bad_months_number), (1, 1, 0)
+        )
+        self.assertAlmostEqual(b.recon_gap_mean, 75)
+
+    def test_digits(self):
+        c = self.out.loc["C"]
+        self.assertTrue(np.isnan(c.benford_mad))  # only 5 positive readings
+        self.assertAlmostEqual(c.round_reading_share, 5 / 6)  # new_index 1043 is not round
+        rows = [invoice("E", f"2015-{m:02d}-01", 100 + m) for m in range(1, 13)]
+        rows += [invoice("E", f"2016-{m:02d}-01", 900 + m) for m in range(1, 13)]
+        e = self.build(clean.clean_invoices(pd.DataFrame(rows)), ["E"]).loc["E"]
+        shares = np.zeros(9)
+        shares[[0, 8]] = 0.5
+        expected = np.abs(shares - np.log10(1 + 1 / np.arange(1, 10))).mean()
+        self.assertAlmostEqual(e.benford_mad, expected)
+
+    def test_inspection_features_only_in_with_inspection(self):
+        c = self.out.loc["C"]
+        self.assertAlmostEqual(c.statue_share_0, 5 / 6)
+        self.assertAlmostEqual(c.statue_share_1, 1 / 6)
+        self.assertEqual(c.n_statue_changes, 2)  # ELEC meter: 0, 0, 1, 0
+        self.assertEqual(c.remarque_share_6, 1)
+        plain = behavioural.build_features(self.inv, clients(["C", "D"]))
+        self.assertFalse(set(behavioural.INSPECTION_COLUMNS) & set(plain.columns))
+        self.assertEqual(self.out.loc["D"].n_statue_changes, 0)
+
+    def test_profile_columns(self):
+        c = self.out.loc["C"]
+        self.assertEqual((c.client_catg, c.has_elec, c.has_gaz, c.n_counters), ("11", 1, 1, 2))
 
     def test_kurtosis_matches_pandas_on_random_groups(self):
         rng = np.random.default_rng(4012)
