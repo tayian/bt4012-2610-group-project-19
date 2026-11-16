@@ -57,7 +57,11 @@ python run.py test-llm
 | Check the split | `python run.py splits` | Validates the committed train/test split in `data/splits/` |
 | Clean | `python run.py interim` | `data/interim/*.parquet`, `results/tables/data_quality.csv`, `code_values.csv` |
 | Baseline features | `python run.py features` | `data/processed/features_v0.parquet` |
-| Consumption and billing features | `python run.py features-v1` | `data/processed/features_v1.parquet` |
+| Behaviour features | `python run.py features-v1` | `data/processed/features_v1.parquet` and `features_v1_with_inspection.parquet` |
+| Feature statistics | `python run.py feature-stats` | `results/tables/stat_tests.csv`, `corr_pairs.csv`, `results/figures/corr_heatmap.png` |
+| Peer-residual and graph features | `python run.py peer`, `python run.py graph` | `data/processed/peer_residual.parquet`, `graph_features.parquet`, `knn_edges.parquet` |
+| Final features | `python run.py features-v2` | `data/processed/features_v2.parquet` and `features_v2_with_inspection.parquet` |
+| Graph model | `python run.py label-spreading` | `results/oof/M8_v1.parquet` and its row in `main_results.csv` |
 | RAG code book | `python run.py codebook` | `data/corpus/source_docs/codebook.md` |
 | Test fixtures | `python run.py stubs` | `data/stubs/` |
 | Exploratory analysis | `python run.py eda` | `notebooks/01_eda.ipynb`, `results/tables/basics.csv`, `descriptive.csv`, EDA figures |
@@ -83,6 +87,7 @@ and evaluation rules.
 | `python run.py seq-plot` | Sanity plot of the sequences (`results/figures/seq_sanity.png`) |
 | `python run.py mlp` | MLP (M4) on `features_v1`; `--mlp-loss both` also trains the focal-loss version. `--dl-features v0` runs this and the other neural steps on `features_v0` |
 | `python run.py cnn` | Dual-input 1D-CNN (M7) on the sequences and `features_v1`; saves fold models to `results/models/` |
+| `python run.py graphsage` | GraphSAGE (M8sage) on the client graph with `features_v2` node features |
 | `python run.py anomaly` | Isolation forest (M5) and autoencoder (M6) |
 | `python run.py wide-deep` | Wide-and-deep CNN (M7wd): the M7 branches plus a Conv2D branch on a 10 x 12 year-by-month grid |
 | `python run.py rescue` | Share of the frauds LightGBM misses that M5/M6 rank in their top 10% (`results/tables/rescue.csv`) |
