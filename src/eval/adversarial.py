@@ -45,8 +45,8 @@ from src.models.common import SEED, TabularPrep, load_train
 
 BUDGET = 0.30
 TOP = 0.05
-# Features an attacker moves by lowering declared consumption: F2, and in v1 also the F4/F5
-# trajectory and self-deviation groups.
+# Features an attacker moves by lowering declared consumption: F2, in v1 also the F4/F5
+# trajectory and self-deviation groups, and in v3 the F12 recency and tariff-band columns.
 CONSUMPTION_PREFIX = (
     "cons_pm",
     "share_level",
@@ -56,6 +56,8 @@ CONSUMPTION_PREFIX = (
     "zero_",
     "robust_z",
     "n_robust_z",
+    "ratio_last",
+    "level_",
 )
 BY_FOLD = Path("results/tables/robustness_by_fold.csv")
 SUMMARY = Path("results/tables/robustness.csv")
@@ -72,6 +74,14 @@ def build_features(fv, inv, cli):
         from src.features.behavioural import build_features as v1
 
         out = v1(inv, cli)
+    elif fv == "v3":
+        from src.features.behavioural import build_features as v1
+        from src.features.meter_tariff import build as f12
+
+        out = v1(inv, cli)
+        out["client_id"] = out["client_id"].astype(str)
+        extra = f12(inv.assign(client_id=inv["client_id"].astype(str)))
+        out = out.merge(extra, on="client_id", how="left", validate="one_to_one")
     else:
         raise ValueError(f"No feature builder for {fv}.")
     return out.set_index("client_id")
@@ -94,8 +104,36 @@ def _scale_levels(inv, factor):
         levels[:, j] -= cut
         remove -= cut
     out[LEVELS] = levels
+    removed = total - levels.sum(axis=1)
     out["cons"] = out[LEVELS].sum(axis=1)
     out["cons_pm"] = out["cons"] / out["months_valid"]
+    # A meter that records less also reads lower: each invoice's index difference falls by the
+    # units removed (divided by the meter coefficient), and every later reading on the same
+    # meter falls by the running total, so old_index still equals the previous new_index and
+    # index x coefficient still reconciles with cons as often as before. Leaving the readings
+    # as they were would give attacked bills a meter that keeps advancing while consumption
+    # falls, which the v3 meter-growth features (and a defence trained on such copies) spot.
+    coef = out["counter_coefficient"].to_numpy(np.int64)
+    lower = np.where(coef > 0, removed // np.maximum(coef, 1), 0)
+    order = out.sort_values(["client_id", "counter_type", "counter_number", "invoice_date"]).index
+    meter = out.loc[order, ["client_id", "counter_type", "counter_number"]]
+    running = (
+        pd.Series(lower, index=out.index)
+        .loc[order]
+        .groupby([meter["client_id"], meter["counter_type"], meter["counter_number"]])
+        .cumsum()
+    )
+    running = running.reindex(out.index).to_numpy(np.int64)
+    out["new_index"] = out["new_index"] - running
+    out["old_index"] = out["old_index"] - (running - lower)
+    out["idx_diff"] = out["idx_diff"] - lower
+    # A meter whose readings would go below zero starts higher instead (a constant per meter,
+    # so the differences stay as they are); negative readings would be another giveaway.
+    key = [out["client_id"], out["counter_type"], out["counter_number"]]
+    floor = out[["old_index", "new_index"]].min(axis=1).groupby(key).transform("min")
+    shift = (-floor).clip(lower=0)
+    out["new_index"] += shift
+    out["old_index"] += shift
     return out
 
 
@@ -423,7 +461,7 @@ def summarise():
 def main():
     p = argparse.ArgumentParser(description="Attack M3 and M7 and test the defences.")
     p.add_argument("study", nargs="?", default="all", choices=["trees", "cnn", "all"])
-    p.add_argument("--features", default="v0", choices=["v0", "v1"])
+    p.add_argument("--features", default="v0", choices=["v0", "v1", "v3"])
     a = p.parse_args()
     if a.study in ("trees", "all"):
         tree_study(a.features)

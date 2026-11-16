@@ -96,11 +96,24 @@ class PUTests(unittest.TestCase):
             )
 
 
+def metered(inv, start=500):
+    # One meter per client and counter type, readings chained so idx_diff = cons.
+    inv = inv.sort_values(["client_id", "invoice_date"]).reset_index(drop=True)
+    inv["counter_number"] = "1"
+    inv["counter_coefficient"] = 1
+    inv["new_index"] = start + inv.groupby(["client_id", "counter_type"])["cons"].cumsum()
+    inv["old_index"] = inv["new_index"] - inv["cons"]
+    inv["idx_diff"] = inv["cons"]
+    return inv
+
+
 class AttackTests(unittest.TestCase):
     def test_budget_and_cons_pm(self):
-        inv = invoices(
-            [("a", f"201{i}-01-01", 100 + 50 * i, 4, "ELEC") for i in range(6)]
-            + [("b", "2015-01-01", 80, np.nan, "ELEC")]
+        inv = metered(
+            invoices(
+                [("a", f"201{i}-01-01", 100 + 50 * i, 4, "ELEC") for i in range(6)]
+                + [("b", "2015-01-01", 80, np.nan, "ELEC")]
+            )
         )
         for attack in (adversarial.attack_uniform, adversarial.attack_smooth):
             out = attack(inv)
@@ -110,6 +123,17 @@ class AttackTests(unittest.TestCase):
             self.assertGreater(drop, adversarial.BUDGET - 0.02)
             np.testing.assert_allclose(out["cons_pm"][a], (out["cons"] / out["months_valid"])[a])
             self.assertTrue(out.loc[out["client_id"] == "b", "cons_pm"].isna().all())
+
+    def test_meter_readings_follow_the_attack(self):
+        # The meter reads lower too: idx_diff matches the new cons, each old_index equals the
+        # previous new_index, and no reading goes below zero even from a low start.
+        inv = metered(invoices([("a", f"201{i}-01-01", 400, 4, "ELEC") for i in range(5)]), 50)
+        for attack in (adversarial.attack_uniform, adversarial.attack_smooth):
+            out = attack(inv).sort_values("invoice_date")
+            np.testing.assert_array_equal(out["idx_diff"], out["cons"])
+            np.testing.assert_array_equal(out["new_index"] - out["old_index"], out["idx_diff"])
+            np.testing.assert_array_equal(out["old_index"].iloc[1:], out["new_index"].iloc[:-1])
+            self.assertGreaterEqual(out[["old_index", "new_index"]].min().min(), 0)
 
     def test_smooth_is_a_decline(self):
         f = adversarial._smooth_factor(np.full(10, 100.0))
