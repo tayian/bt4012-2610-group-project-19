@@ -1,0 +1,71 @@
+{
+  "client_id": "train_Client_100252",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T22:57:58",
+  "queries": [
+    "investigate high number of counters and invoices for potential meter tampering",
+    "review consumption skew and high kurtosis indicating irregular usage patterns",
+    "audit account with reading remark codes 6, 8, and 9 for billing irregularities"
+  ],
+  "evidence_ids": [
+    "TYP-11",
+    "TYP-09",
+    "SOP-v2025-2.2",
+    "SOP-v2025-4.1",
+    "TYP-06"
+  ],
+  "brief": {
+    "client_id": "train_Client_100252",
+    "risk_score": 0.3119,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client is in the 99.99th percentile of risk, with the number of counters (4) and total invoice count (77) being the primary drivers of the model's high-risk assessment.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account exhibits high consumption volatility, characterized by a skewness of 2.1725 and a sudden spike share of 0.1558, which aligns with the data signature for intermittent tampering or catch-up billing.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "Billing records indicate the presence of estimated readings (reading_remarque 8) and missing months, which necessitates a review for compliance with consecutive estimation limits.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-4.1"
+        ]
+      },
+      {
+        "point": "The Benford's Law MAD value of 0.0391 is a significant feature contributing to the risk score, suggesting potential irregularities in the reported consumption figures.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify the status of all 4 counters and inspect for signs of physical tampering or bypass.",
+      "Inspect terminal screws and conductors for clip marks or insulation damage consistent with temporary jumpers.",
+      "Obtain actual readings for all counters to resolve any potential consecutive estimated billing issues."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-4.1",
+        "action": "Verify if estimated readings exceed three consecutive cycles and perform mandatory inspection."
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "The high risk score is driven by structural factors (number of counters, invoice volume) and consumption volatility. It is unclear if the anomalies are due to intermittent tampering (TYP-09) or simply poor billing practices (estimated readings, missing months). The presence of 4 counters makes isolating the source of consumption irregularities difficult."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_100252\",\n  \"risk_score\": 0.3119,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client is in the 99.99th percentile of risk, with the number of counters (4) and total invoice count (77) being the primary drivers of the model's high-risk assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account exhibits high consumption volatility, characterized by a skewness of 2.1725 and a sudden spike share of 0.1558, which aligns with the data signature for intermittent tampering or catch-up billing.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"Billing records indicate the presence of estimated readings (reading_remarque 8) and missing months, which necessitates a review for compliance with consecutive estimation limits.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-4.1\"\n      ]\n    },\n    {\n      \"point\": \"The Benford's Law MAD value of 0.0391 is a significant feature contributing to the risk score, suggesting potential irregularities in the reported consumption figures.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the status of all 4 counters and inspect for signs of physical tampering or bypass.\",\n    \"Inspect terminal screws and conductors for clip marks or insulation damage consistent with temporary jumpers.\",\n    \"Obtain actual readings for all counters to resolve any potential consecutive estimated billing issues.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-4.1\",\n      \"action\": \"Verify if estimated readings exceed three consecutive cycles and perform mandatory inspection.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The high risk score is driven by structural factors (number of counters, invoice volume) and consumption volatility. It is unclear if the anomalies are due to intermittent tampering (TYP-09) or simply poor billing practices (estimated readings, missing months). The presence of 4 counters makes isolating the source of consumption irregularities difficult.\"\n}",
+  "usage": {
+    "input_tokens": 4244,
+    "output_tokens": 1918
+  },
+  "error": null
+}

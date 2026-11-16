@@ -1,0 +1,9 @@
+{
+  "queries": [
+    "investigate multiple meters account n_counters 2",
+    "analyze extreme consumption spikes robust_z_max 19.47",
+    "review meter reading remarks 6 8 9 for potential tampering"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite"
+}

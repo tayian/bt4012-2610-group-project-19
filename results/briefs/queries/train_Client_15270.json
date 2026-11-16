@@ -1,0 +1,9 @@
+{
+  "queries": [
+    "investigate account with multiple meters and high zero consumption run max 37",
+    "review billing irregularities for client with reading remark codes 6, 8, and 9",
+    "audit account with high number of invoices and significant year over year consumption drop"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite"
+}

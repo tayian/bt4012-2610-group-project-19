@@ -1,0 +1,60 @@
+{
+  "client_id": "train_Client_122081",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T22:41:58",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_122081",
+    "risk_score": 0.3131,
+    "risk_rank_pct": 100.0,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client has 3 counters, which places them in the 91.5th percentile of the training population.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has a high volume of 197 invoices, ranking in the 99.9th percentile.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Consumption metrics are significantly elevated, with a mean monthly consumption of 1012.0049 (98.1th percentile) and a maximum of 3555.0 (98.4th percentile).",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Meter activity shows irregularities, including 2 index rollovers and a maximum zero run of 17.0.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Billing history contains missing months and a maximum gap of 1060.0 days since the last invoice, which is in the 97.1th percentile.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Physically inspect all 3 counters for signs of tampering or bypass.",
+      "Verify current meter readings against the 2 recorded index rollovers.",
+      "Investigate the cause of the 1060-day gap in invoicing and missing months to determine if it is a meter failure or unauthorized usage."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "While the model identifies high risk based on invoice volume and consumption patterns, the specific cause of the zero runs and missing months is not confirmed and requires physical inspection to distinguish between technical meter issues and potential fraud."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_122081\",\n  \"risk_score\": 0.3131,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client has 3 counters, which places them in the 91.5th percentile of the training population.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has a high volume of 197 invoices, ranking in the 99.9th percentile.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Consumption metrics are significantly elevated, with a mean monthly consumption of 1012.0049 (98.1th percentile) and a maximum of 3555.0 (98.4th percentile).\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Meter activity shows irregularities, including 2 index rollovers and a maximum zero run of 17.0.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Billing history contains missing months and a maximum gap of 1060.0 days since the last invoice, which is in the 97.1th percentile.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Physically inspect all 3 counters for signs of tampering or bypass.\",\n    \"Verify current meter readings against the 2 recorded index rollovers.\",\n    \"Investigate the cause of the 1060-day gap in invoicing and missing months to determine if it is a meter failure or unauthorized usage.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the model identifies high risk based on invoice volume and consumption patterns, the specific cause of the zero runs and missing months is not confirmed and requires physical inspection to distinguish between technical meter issues and potential fraud.\"\n}",
+  "usage": {
+    "input_tokens": 2388,
+    "output_tokens": 1615
+  },
+  "error": null
+}

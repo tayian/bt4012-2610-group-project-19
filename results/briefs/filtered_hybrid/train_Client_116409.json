@@ -1,0 +1,71 @@
+{
+  "client_id": "train_Client_116409",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T23:10:55",
+  "queries": [
+    "investigate multiple meters for single client account",
+    "analyze consumption trend with meter status 0 and 5",
+    "review reading remarks 6, 8, and 9 for potential tampering"
+  ],
+  "evidence_ids": [
+    "TYP-09",
+    "SOP-v2025-2.2",
+    "TYP-11",
+    "TYP-04",
+    "SOP-v2025-5.1"
+  ],
+  "brief": {
+    "client_id": "train_Client_116409",
+    "risk_score": 0.3132,
+    "risk_rank_pct": 100.0,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client's benford_mad of 0.0361 exceeds the 0.015 threshold for potential data manipulation, though the round_reading_share of 0.1026 does not meet the heuristic threshold for reader collusion.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-04",
+          "SOP-v2025-5.1"
+        ]
+      },
+      {
+        "point": "The account maintains 4 counters, placing it in the 98.3 percentile of the training set, which suggests a complex metering environment that may be susceptible to tampering.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The slope_last3y value of 71.1937 is in the 94.9 percentile, indicating a sharp upward trend in consumption that requires verification against physical meter indices.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account record indicates has_missing_months = 1, which may represent gaps in billing or meter reading that require on-site clarification.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect all 4 counters for physical tampering, bypasses, or broken seals.",
+      "Verify the current index of all 4 counters against the last billed index to identify unbilled consumption.",
+      "Investigate the cause of the missing billing month and ensure meter accessibility."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-5.1",
+        "action": "Perform Benford's Law anomaly review and verify meter readings."
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "The elevated benford_mad suggests potential data anomalies, but the lack of high round_reading_share or consecutive zero-consumption invoices makes the specific fraud mechanism unclear. The high number of counters is the primary risk driver."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_116409\",\n  \"risk_score\": 0.3132,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client's benford_mad of 0.0361 exceeds the 0.015 threshold for potential data manipulation, though the round_reading_share of 0.1026 does not meet the heuristic threshold for reader collusion.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-04\",\n        \"SOP-v2025-5.1\"\n      ]\n    },\n    {\n      \"point\": \"The account maintains 4 counters, placing it in the 98.3 percentile of the training set, which suggests a complex metering environment that may be susceptible to tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The slope_last3y value of 71.1937 is in the 94.9 percentile, indicating a sharp upward trend in consumption that requires verification against physical meter indices.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account record indicates has_missing_months = 1, which may represent gaps in billing or meter reading that require on-site clarification.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect all 4 counters for physical tampering, bypasses, or broken seals.\",\n    \"Verify the current index of all 4 counters against the last billed index to identify unbilled consumption.\",\n    \"Investigate the cause of the missing billing month and ensure meter accessibility.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-5.1\",\n      \"action\": \"Perform Benford's Law anomaly review and verify meter readings.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The elevated benford_mad suggests potential data anomalies, but the lack of high round_reading_share or consecutive zero-consumption invoices makes the specific fraud mechanism unclear. The high number of counters is the primary risk driver.\"\n}",
+  "usage": {
+    "input_tokens": 4428,
+    "output_tokens": 2140
+  },
+  "error": null
+}

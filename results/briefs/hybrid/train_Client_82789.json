@@ -1,0 +1,76 @@
+{
+  "client_id": "train_Client_82789",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T23:05:31",
+  "queries": [
+    "investigate multiple meters n_counters 4 for potential tampering",
+    "analyze consumption volatility and high yoy_drop_max 0.8776",
+    "review account with reading_remarque codes 6 8 9 and counter_statue codes 0 1 5"
+  ],
+  "evidence_ids": [
+    "SOP-v2023-3.2",
+    "SOP-v2025-2.1",
+    "CODE-counter_statue-A",
+    "SOP-v2025-5.1",
+    "TYP-09"
+  ],
+  "brief": {
+    "client_id": "train_Client_82789",
+    "risk_score": 0.3104,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The account exhibits a maximum year-on-year consumption drop of 0.8776, which significantly exceeds the 50% threshold for suspected meter bypass or magnetic tampering.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-2.1"
+        ]
+      },
+      {
+        "point": "The presence of counter_statue code '5' in the account history necessitates a technical site inspection to verify meter operational status.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2023-3.2"
+        ]
+      },
+      {
+        "point": "The model identifies n_counters (4.0) and n_invoices (60.0) as the primary drivers of the high risk score, indicating an unusually complex account structure.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The benford_mad value of 0.0349 exceeds the 0.015 threshold for nonconformity, suggesting potential irregularities in the reported meter readings.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-5.1"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect terminal screws and conductors for clip marks or insulation damage",
+      "Test the casing with a Gaussmeter for residual magnetism",
+      "Verify meter operational status and confirm whether seal tampering is present"
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-2.1",
+        "action": "Urgent Forensic Site Inspection (Level 2)"
+      },
+      {
+        "rule_id": "SOP-v2023-3.2",
+        "action": "Routine Technical Site Inspection"
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the benford_mad is elevated, the round_reading_share of 0.2833 does not meet the 0.40 threshold required to trigger a mandatory supervisory audit under SOP-v2025-5.1, suggesting the Benford anomaly may be isolated."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_82789\",\n  \"risk_score\": 0.3104,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The account exhibits a maximum year-on-year consumption drop of 0.8776, which significantly exceeds the 50% threshold for suspected meter bypass or magnetic tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.1\"\n      ]\n    },\n    {\n      \"point\": \"The presence of counter_statue code '5' in the account history necessitates a technical site inspection to verify meter operational status.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2023-3.2\"\n      ]\n    },\n    {\n      \"point\": \"The model identifies n_counters (4.0) and n_invoices (60.0) as the primary drivers of the high risk score, indicating an unusually complex account structure.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The benford_mad value of 0.0349 exceeds the 0.015 threshold for nonconformity, suggesting potential irregularities in the reported meter readings.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-5.1\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect terminal screws and conductors for clip marks or insulation damage\",\n    \"Test the casing with a Gaussmeter for residual magnetism\",\n    \"Verify meter operational status and confirm whether seal tampering is present\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-2.1\",\n      \"action\": \"Urgent Forensic Site Inspection (Level 2)\"\n    },\n    {\n      \"rule_id\": \"SOP-v2023-3.2\",\n      \"action\": \"Routine Technical Site Inspection\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the benford_mad is elevated, the round_reading_share of 0.2833 does not meet the 0.40 threshold required to trigger a mandatory supervisory audit under SOP-v2025-5.1, suggesting the Benford anomaly may be isolated.\"\n}",
+  "usage": {
+    "input_tokens": 3781,
+    "output_tokens": 1888
+  },
+  "error": null
+}

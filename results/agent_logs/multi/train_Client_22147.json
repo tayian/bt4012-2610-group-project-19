@@ -1,0 +1,289 @@
+{
+  "system": "multi",
+  "client_id": "train_Client_22147",
+  "model_version": "M10_v1|gemini-3.1-flash-lite",
+  "tool_calls": [
+    {
+      "tool": "get_client_profile",
+      "args": {
+        "client_id": "train_Client_22147"
+      },
+      "seconds": 0.038,
+      "result_preview": "{'client_id': 'train_Client_22147', 'split': 'train', 'client_catg': 11, 'region': 311, 'district': 63, 'tenure_years': 21.88, 'n_counters': 3, 'n_invoices': 78, 'has_elec': 1, 'has_gaz': 1, 'counter_type': 'both'}"
+    },
+    {
+      "tool": "get_risk_score",
+      "args": {
+        "client_id": "train_Client_22147"
+      },
+      "seconds": 0.039,
+      "result_preview": "{'client_id': 'train_Client_22147', 'risk_score': 0.3142, 'risk_rank_pct': 100.0, 'risk_tier': 'high', 'model_version': 'M10_v1', 'note': 'risk_score is the out-of-fold score of the final stacked model (logistic regression over tuned LightGBM and wide-and-deep CNN ranks). It is a model score, not a "
+    },
+    {
+      "tool": "plot_history",
+      "args": {
+        "client_id": "train_Client_22147"
+      },
+      "seconds": 0.341,
+      "result_preview": "{'client_id': 'train_Client_22147', 'path': 'results/agent_logs/plots/train_Client_22147.png', 'n_invoices': 78, 'first_invoice': '2006-01-20', 'last_invoice': '2019-11-01', 'n_drops': 4, 'drop_dates': ['2009-05-19 (ELEC)', '2013-09-13 (GAZ)', '2014-11-09 (GAZ)', '2015-04-09 (GAZ)'], 'drop_years': ["
+    },
+    {
+      "tool": "explain_shap",
+      "args": {
+        "client_id": "train_Client_22147"
+      },
+      "seconds": 0.043,
+      "result_preview": "{'client_id': 'train_Client_22147', 'source': 'SHAP of the tuned LightGBM component of the stacked model', 'drivers': [{'rank': 1, 'feature': 'n_counters', 'value': 3.0, 'train_pct': 91.5, 'shap_value': 2.7645, 'direction': 'raises risk'}, {'rank': 2, 'feature': 'region', 'value': 311.0, 'train_pct'"
+    },
+    {
+      "tool": "benford_check",
+      "args": {
+        "client_id": "train_Client_22147"
+      },
+      "seconds": 0.055,
+      "result_preview": "{'client_id': 'train_Client_22147', 'benford_mad': 0.0431, 'round_reading_share': 0.2051, 'round_reading_share_train_pct': 43.9, 'n_positive_readings': 78, 'benford_flag': 'nonconformity', 'round_reading_flag': False, 'caveat': 'Benford deviation is a screening signal only; in this data benford_mad "
+    },
+    {
+      "tool": "retrieve_evidence",
+      "args": {
+        "query": "meter tampering code 5 counter_statue"
+      },
+      "seconds": 8.435,
+      "result_preview": "{'query': 'meter tampering code 5 counter_statue', 'chunks': [{'id': 'CODE-counter_statue-3', 'doc': 'codebook', 'section': 'counter_statue', 'version': 'v1.0', 'valid_from': '2005-01-01', 'valid_to': None, 'counter_type': 'both', 'text': '[CODE-counter_statue-3] counter_statue = 3\\n* **Observed in "
+    },
+    {
+      "tool": "retrieve_evidence",
+      "args": {
+        "query": "consumption profile category 11 region 311 discrepancy"
+      },
+      "seconds": 0.071,
+      "result_preview": "{'query': 'consumption profile category 11 region 311 discrepancy', 'chunks': [{'id': 'CODE-client_catg-12', 'doc': 'codebook', 'section': 'client_catg', 'version': 'v1.0', 'valid_from': '2005-01-01', 'valid_to': None, 'counter_type': 'both', 'text': '[CODE-client_catg-12] client_catg = 12\\n* **Obse"
+    },
+    {
+      "tool": "retrieve_evidence",
+      "args": {
+        "query": "meter bypass unauthorized reconnection SOP precedent"
+      },
+      "seconds": 0.022,
+      "result_preview": "{'query': 'meter bypass unauthorized reconnection SOP precedent', 'chunks': [{'id': 'SOP-v2025-3.3', 'doc': 'sop', 'section': '3.3', 'version': 'v2025', 'valid_from': '2025-01-01', 'valid_to': None, 'counter_type': 'both', 'text': \"[SOP-v2025-3.3] Unauthorized Service Reconnection Enforcement\\n* **C"
+    }
+  ],
+  "llm_calls": [
+    {
+      "role": "planner",
+      "input_tokens": 353,
+      "output_tokens": 242
+    },
+    {
+      "role": "gatherer",
+      "input_tokens": 1222,
+      "output_tokens": 278
+    },
+    {
+      "role": "gatherer",
+      "input_tokens": 6613,
+      "output_tokens": 610
+    },
+    {
+      "role": "writer",
+      "input_tokens": 6001,
+      "output_tokens": 1913
+    }
+  ],
+  "evidence_ids": [
+    "CODE-counter_statue-3",
+    "SOP-v2025-3.2",
+    "CODE-counter_statue-5",
+    "CODE-counter_statue-2",
+    "CODE-counter_statue-4",
+    "CODE-client_catg-12",
+    "TYP-07",
+    "CODE-counter_code-310",
+    "SOP-v2025-2.3",
+    "CODE-counter_code-305",
+    "SOP-v2025-3.3",
+    "SOP-v2025-1.2",
+    "SOP-v2025-4.2",
+    "SOP-v2025-3.1",
+    "TYP-05"
+  ],
+  "brief": {
+    "client_id": "train_Client_22147",
+    "risk_score": 0.3142,
+    "risk_rank_pct": 100.0,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The model identifies the client's high number of counters (3) and regional location (311) as the primary drivers for the high risk score, contributing significantly to the risk assessment.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client's consumption history shows four distinct drops in usage between 2009 and 2015, which warrants investigation for potential unauthorized service interruptions or meter tampering.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The Benford analysis indicates nonconformity in the reading data, which serves as a screening signal for potential data manipulation or irregular reporting.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "As the client possesses both electricity and gas connections, any inspection must adhere to the mandatory dual-fuel cross-inspection protocol, requiring a forensic audit of both meters.",
+        "citations": [
+          "SOP-v2025-1.2"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify seal integrity on all 3 counters.",
+      "Inspect for bypasses or unauthorized reconnections given the historical consumption drops.",
+      "Perform acoustic bypass leak testing on the gas meter.",
+      "Verify the current activity on the premises matches the residential category (11)."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-1.2",
+        "action": "Mandatory Dual-Counter Audit. Comprehensive inspection of electricity meter, gas counter, and incoming service lines."
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "The Benford nonconformity is a screening signal only and not definitive proof of fraud. Additionally, the specific meaning of the historical consumption drops (e.g., whether they correspond to legitimate service orders or tampering) requires verification against the account's service-order history, which is not fully detailed in the snapshot."
+  },
+  "auditor_verdict": "pass",
+  "error": null,
+  "started": "2026-11-16T23:11:50",
+  "llm_model": "gemini-3.1-flash-lite",
+  "plan": [
+    "Does the consumption history for the three counters show sudden, synchronized drops or zero-readings that deviate from the 21-year historical baseline?",
+    "Are there any recorded meter tampering alerts or 'code 5' irregularities associated with this client's specific counter types in the last 24 months?",
+    "Do the recent invoice patterns align with the standard consumption profiles for the client's category (11) and region (311), or are there unexplained discrepancies?",
+    "Does the client's account history contain any previous precedent cases or SOP-flagged interventions related to meter bypass or unauthorized reconnection?"
+  ],
+  "gatherer_notes": "1. **Consumption History:** The consumption history shows four distinct drops (2009, 2013, 2014, 2015) [SNAPSHOT]. These should be cross-referenced with the account's service-order history to determine if they correspond to legitimate cut-offs or potential tampering events.\n\n2. **Meter Tampering/Code 5:** `CODE-counter_statue-5` is associated with a 10.42% fraud rate in training data, significantly higher than the base rate [CODE-counter_statue-5]. If this code appears in the client's history, `SOP-v2025-3.2` mandates a priority enforcement dispatch within seven days to inspect for seal integrity and external magnets [SOP-v2025-3.2].\n\n3. **Consumption Profile:** The client is category 11 (residential), but if consumption patterns show high mean/max usage or heavy use of upper tariff bands, `TYP-07` suggests investigating for potential tariff misclassification (e.g., a business operating under a residential contract) [TYP-07].\n\n4. **Precedent/SOP:** `SOP-v2025-1.2` mandates a dual-fuel cross-inspection for this client since they have both electricity and gas meters [SOP-v2025-1.2]. Additionally, `TYP-05` and `SOP-v2025-3.3` provide protocols for investigating unauthorized reconnections, specifically looking for consumption on accounts with active cut-off orders [TYP-05, SOP-v2025-3.3].",
+  "tool_outputs": {
+    "get_client_profile": {
+      "client_id": "train_Client_22147",
+      "split": "train",
+      "client_catg": 11,
+      "region": 311,
+      "district": 63,
+      "tenure_years": 21.88,
+      "n_counters": 3,
+      "n_invoices": 78,
+      "has_elec": 1,
+      "has_gaz": 1,
+      "counter_type": "both"
+    },
+    "get_risk_score": {
+      "client_id": "train_Client_22147",
+      "risk_score": 0.3142,
+      "risk_rank_pct": 100.0,
+      "risk_tier": "high",
+      "model_version": "M10_v1",
+      "note": "risk_score is the out-of-fold score of the final stacked model (logistic regression over tuned LightGBM and wide-and-deep CNN ranks). It is a model score, not a verified probability of fraud. risk_rank_pct is the percentile among training clients (higher = riskier). Tier: high = top 1% of clients, medium = top 5% (the monthly inspection budget), low = the rest."
+    },
+    "plot_history": {
+      "client_id": "train_Client_22147",
+      "path": "results/agent_logs/plots/train_Client_22147.png",
+      "n_invoices": 78,
+      "first_invoice": "2006-01-20",
+      "last_invoice": "2019-11-01",
+      "n_drops": 4,
+      "drop_dates": [
+        "2009-05-19 (ELEC)",
+        "2013-09-13 (GAZ)",
+        "2014-11-09 (GAZ)",
+        "2015-04-09 (GAZ)"
+      ],
+      "drop_years": [
+        2009,
+        2013,
+        2014,
+        2015
+      ],
+      "first_year": 2006,
+      "last_year": 2019
+    },
+    "explain_shap": {
+      "client_id": "train_Client_22147",
+      "source": "SHAP of the tuned LightGBM component of the stacked model",
+      "drivers": [
+        {
+          "rank": 1,
+          "feature": "n_counters",
+          "value": 3.0,
+          "train_pct": 91.5,
+          "shap_value": 2.7645,
+          "direction": "raises risk"
+        },
+        {
+          "rank": 2,
+          "feature": "region",
+          "value": 311.0,
+          "train_pct": null,
+          "shap_value": 0.6605,
+          "direction": "raises risk"
+        },
+        {
+          "rank": 3,
+          "feature": "n_invoices",
+          "value": 78.0,
+          "train_pct": 95.0,
+          "shap_value": 0.5474,
+          "direction": "raises risk"
+        },
+        {
+          "rank": 4,
+          "feature": "cons_pm_skew",
+          "value": 1.6954,
+          "train_pct": 76.6,
+          "shap_value": 0.1936,
+          "direction": "raises risk"
+        },
+        {
+          "rank": 5,
+          "feature": "invoices_per_year",
+          "value": 5.6605,
+          "train_pct": 84.4,
+          "shap_value": -0.1526,
+          "direction": "lowers risk"
+        }
+      ]
+    },
+    "benford_check": {
+      "client_id": "train_Client_22147",
+      "benford_mad": 0.0431,
+      "round_reading_share": 0.2051,
+      "round_reading_share_train_pct": 43.9,
+      "n_positive_readings": 78,
+      "benford_flag": "nonconformity",
+      "round_reading_flag": false,
+      "caveat": "Benford deviation is a screening signal only; in this data benford_mad is on average lower for fraud clients, and round_reading_share carries no signal."
+    }
+  },
+  "audits": [
+    {
+      "client_id": "train_Client_22147",
+      "schema_valid": true,
+      "citation_valid_rate": 1.0,
+      "number_accuracy_rate": 1.0,
+      "rule_applicability_rate": 1.0,
+      "faithfulness_mean": 5.0,
+      "all_pass": true,
+      "faithfulness_scores": [
+        5,
+        5,
+        5,
+        5
+      ]
+    }
+  ],
+  "seconds": 156.84872437501326,
+  "n_tool_calls": 8,
+  "input_tokens": 14189,
+  "output_tokens": 3043
+}

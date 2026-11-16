@@ -1,0 +1,71 @@
+{
+  "client_id": "train_Client_111233",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T22:58:10",
+  "queries": [
+    "investigate high number of meters n_counters 6 for client category 51",
+    "review consumption anomalies and meter status codes 0 and 5",
+    "audit billing irregularities and reading remark codes 6, 8, and 9"
+  ],
+  "evidence_ids": [
+    "CODE-counter_code-310",
+    "CODE-counter_statue-5",
+    "SOP-v2025-4.1",
+    "CODE-counter_statue-3",
+    "TYP-06"
+  ],
+  "brief": {
+    "client_id": "train_Client_111233",
+    "risk_score": 0.3119,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client is in the 99.99th percentile of risk, with the model identifying the number of counters (6) and client category (51) as the primary drivers of the risk score.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account history includes counter_statue code '5', which is historically associated with suspected anomalies or meter defects and carries a higher fraud rate (10.42%) compared to the base rate (5.58%).",
+        "citations": [
+          "SNAPSHOT",
+          "CODE-counter_statue-5"
+        ]
+      },
+      {
+        "point": "Billing data shows irregular patterns, including 'has_missing_months' and a high mean of days since the last invoice (70.9 days), which are consistent with potential meter jamming or reporting issues.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-06"
+        ]
+      },
+      {
+        "point": "The client exhibits high consumption variability, with 'share_level_2_plus_elec' at 0.8393, which is a significant feature in the risk model's assessment.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect meter seams, terminal covers, and windows for physical tampering, pinholes, or seal damage.",
+      "Perform a high-draw appliance test to verify if the meter registers consumption correctly.",
+      "Verify if the account has exceeded three consecutive estimated billing cycles (reading_remarque 8) to ensure compliance with estimation limits."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-4.1",
+        "action": "Audit billing records for three consecutive estimated readings; if confirmed, perform a mandatory physical inspection within 10 business days."
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "The risk score is high, but the data does not confirm deliberate tampering. The presence of counter_statue 5 indicates a potential defect, but this is an association with historical fraud rates rather than direct evidence of guilt. The billing irregularity (missing months) requires verification to distinguish between administrative errors and meter failure."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_111233\",\n  \"risk_score\": 0.3119,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client is in the 99.99th percentile of risk, with the model identifying the number of counters (6) and client category (51) as the primary drivers of the risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account history includes counter_statue code '5', which is historically associated with suspected anomalies or meter defects and carries a higher fraud rate (10.42%) compared to the base rate (5.58%).\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"CODE-counter_statue-5\"\n      ]\n    },\n    {\n      \"point\": \"Billing data shows irregular patterns, including 'has_missing_months' and a high mean of days since the last invoice (70.9 days), which are consistent with potential meter jamming or reporting issues.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-06\"\n      ]\n    },\n    {\n      \"point\": \"The client exhibits high consumption variability, with 'share_level_2_plus_elec' at 0.8393, which is a significant feature in the risk model's assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect meter seams, terminal covers, and windows for physical tampering, pinholes, or seal damage.\",\n    \"Perform a high-draw appliance test to verify if the meter registers consumption correctly.\",\n    \"Verify if the account has exceeded three consecutive estimated billing cycles (reading_remarque 8) to ensure compliance with estimation limits.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-4.1\",\n      \"action\": \"Audit billing records for three consecutive estimated readings; if confirmed, perform a mandatory physical inspection within 10 business days.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The risk score is high, but the data does not confirm deliberate tampering. The presence of counter_statue 5 indicates a potential defect, but this is an association with historical fraud rates rather than direct evidence of guilt. The billing irregularity (missing months) requires verification to distinguish between administrative errors and meter failure.\"\n}",
+  "usage": {
+    "input_tokens": 3825,
+    "output_tokens": 2005
+  },
+  "error": null
+}

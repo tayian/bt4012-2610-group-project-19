@@ -1,0 +1,54 @@
+{
+  "client_id": "train_Client_120118",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T22:51:47",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_120118",
+    "risk_score": 0.3103,
+    "risk_rank_pct": 99.97,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client has 4 counters, which is the primary feature contributing to the risk score [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Consumption data exhibits high skewness (3.2293) and kurtosis (10.6218), suggesting irregular usage patterns compared to the training population [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client record indicates missing months, which may correspond to gaps in meter reading or billing [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client is located in region 311, which is a significant factor in the model's risk calculation [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect all 4 counters for physical tampering or unauthorized bypass.",
+      "Verify the accuracy of meter readings against the reported consumption history.",
+      "Investigate the cause of missing billing months."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "The risk score is driven largely by structural features like the number of counters and regional data rather than direct evidence of meter tampering or specific billing anomalies."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_120118\",\n  \"risk_score\": 0.3103,\n  \"risk_rank_pct\": 99.97,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client has 4 counters, which is the primary feature contributing to the risk score [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Consumption data exhibits high skewness (3.2293) and kurtosis (10.6218), suggesting irregular usage patterns compared to the training population [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client record indicates missing months, which may correspond to gaps in meter reading or billing [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client is located in region 311, which is a significant factor in the model's risk calculation [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect all 4 counters for physical tampering or unauthorized bypass.\",\n    \"Verify the accuracy of meter readings against the reported consumption history.\",\n    \"Investigate the cause of missing billing months.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The risk score is driven largely by structural features like the number of counters and regional data rather than direct evidence of meter tampering or specific billing anomalies.\"\n}",
+  "usage": {
+    "input_tokens": 2342,
+    "output_tokens": 1639
+  },
+  "error": null
+}

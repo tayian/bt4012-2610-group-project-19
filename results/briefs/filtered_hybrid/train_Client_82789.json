@@ -1,0 +1,78 @@
+{
+  "client_id": "train_Client_82789",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T23:17:30",
+  "queries": [
+    "investigate multiple meters n_counters 4 for potential tampering",
+    "analyze consumption volatility and high yoy_drop_max 0.8776",
+    "review account with reading_remarque codes 6 8 9 and counter_statue codes 0 1 5"
+  ],
+  "evidence_ids": [
+    "TYP-06",
+    "SOP-v2025-2.1",
+    "CODE-counter_statue-A",
+    "SOP-v2025-5.1",
+    "TYP-09"
+  ],
+  "brief": {
+    "client_id": "train_Client_82789",
+    "risk_score": 0.3104,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client exhibits a year-on-year consumption drop of 0.8776, which exceeds the 0.50 threshold defined for suspected meter bypass or magnetic tampering.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-2.1"
+        ]
+      },
+      {
+        "point": "The account shows a Benford's Law mean absolute deviation of 0.0349, exceeding the 0.015 threshold, which indicates potential irregularities in meter reading data.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-5.1"
+        ]
+      },
+      {
+        "point": "Consumption data shows high skew (2.0859) and kurtosis (4.6776), consistent with the volatile consumption patterns associated with intermittent tampering.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "The presence of missing months and a high number of counters (4.0) suggests potential mechanical issues or unreported meter failures, warranting physical inspection.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-06"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect terminal screws and conductors for clip marks or insulation damage.",
+      "Test the casing with a Gaussmeter for residual magnetism.",
+      "Tap the casing while appliances run to check for mechanical obstruction.",
+      "Compare spike dates with reading-route schedules."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-2.1",
+        "action": "Urgent Forensic Site Inspection (Level 2) within 14 calendar days."
+      },
+      {
+        "rule_id": "SOP-v2025-5.1",
+        "action": "Initiate internal supervisory audit of the assigned meter reader."
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the Benford's Law deviation is high, the round reading share of 0.2833 is below the 0.40 threshold required for the full supervisory audit protocol, creating ambiguity regarding potential reader collusion. Additionally, the high number of counters and long tenure may naturally contribute to consumption volatility."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_82789\",\n  \"risk_score\": 0.3104,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits a year-on-year consumption drop of 0.8776, which exceeds the 0.50 threshold defined for suspected meter bypass or magnetic tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.1\"\n      ]\n    },\n    {\n      \"point\": \"The account shows a Benford's Law mean absolute deviation of 0.0349, exceeding the 0.015 threshold, which indicates potential irregularities in meter reading data.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-5.1\"\n      ]\n    },\n    {\n      \"point\": \"Consumption data shows high skew (2.0859) and kurtosis (4.6776), consistent with the volatile consumption patterns associated with intermittent tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The presence of missing months and a high number of counters (4.0) suggests potential mechanical issues or unreported meter failures, warranting physical inspection.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-06\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect terminal screws and conductors for clip marks or insulation damage.\",\n    \"Test the casing with a Gaussmeter for residual magnetism.\",\n    \"Tap the casing while appliances run to check for mechanical obstruction.\",\n    \"Compare spike dates with reading-route schedules.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-2.1\",\n      \"action\": \"Urgent Forensic Site Inspection (Level 2) within 14 calendar days.\"\n    },\n    {\n      \"rule_id\": \"SOP-v2025-5.1\",\n      \"action\": \"Initiate internal supervisory audit of the assigned meter reader.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the Benford's Law deviation is high, the round reading share of 0.2833 is below the 0.40 threshold required for the full supervisory audit protocol, creating ambiguity regarding potential reader collusion. Additionally, the high number of counters and long tenure may naturally contribute to consumption volatility.\"\n}",
+  "usage": {
+    "input_tokens": 4074,
+    "output_tokens": 2613
+  },
+  "error": null
+}

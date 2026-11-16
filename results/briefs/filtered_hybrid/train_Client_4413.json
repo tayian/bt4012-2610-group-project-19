@@ -1,0 +1,72 @@
+{
+  "client_id": "train_Client_4413",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T23:09:33",
+  "queries": [
+    "investigate multiple meters n_counters 3 for potential energy diversion",
+    "analyze consumption skew and high robust_z_max for irregular usage patterns",
+    "review reading remark codes 6 8 9 for potential meter tampering"
+  ],
+  "evidence_ids": [
+    "TYP-09",
+    "TYP-02",
+    "TYP-06",
+    "TYP-10",
+    "SOP-v2025-5.1"
+  ],
+  "brief": {
+    "client_id": "train_Client_4413",
+    "risk_score": 0.3141,
+    "risk_rank_pct": 100.0,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The account exhibits a Benford's Law mean absolute deviation of 0.0349, which exceeds the 0.015 threshold for potential audit [SOP-v2025-5.1].",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-5.1"
+        ]
+      },
+      {
+        "point": "Consumption data shows high skewness (3.1536), a signature associated with intermittent tampering or catch-up billing patterns [TYP-09].",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "The client profile includes 3 counters and 71 invoices, which are the primary drivers of the model's risk assessment [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account record contains missing months (has_missing_months = 1), which is a data signature for irregular billing or potential meter failure [TYP-06].",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-06"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Perform a full audit of the meter reader route due to the Benford's Law anomaly [SOP-v2025-5.1].",
+      "Inspect terminal screws and conductors for signs of temporary jumpers or tampering [TYP-09].",
+      "Check for physical obstructions or debris in the meter casing [TYP-06]."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-5.1",
+        "action": "Initiate internal supervisory audit of the assigned meter reader."
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the Benford's Law anomaly is present, the round_reading_share (0.2113) does not meet the 0.40 threshold required for the mandatory supervisory audit under [SOP-v2025-5.1]. The high risk score is driven largely by account metadata (n_counters, n_invoices) rather than explicit physical tamper flags."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_4413\",\n  \"risk_score\": 0.3141,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The account exhibits a Benford's Law mean absolute deviation of 0.0349, which exceeds the 0.015 threshold for potential audit [SOP-v2025-5.1].\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-5.1\"\n      ]\n    },\n    {\n      \"point\": \"Consumption data shows high skewness (3.1536), a signature associated with intermittent tampering or catch-up billing patterns [TYP-09].\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The client profile includes 3 counters and 71 invoices, which are the primary drivers of the model's risk assessment [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account record contains missing months (has_missing_months = 1), which is a data signature for irregular billing or potential meter failure [TYP-06].\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-06\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Perform a full audit of the meter reader route due to the Benford's Law anomaly [SOP-v2025-5.1].\",\n    \"Inspect terminal screws and conductors for signs of temporary jumpers or tampering [TYP-09].\",\n    \"Check for physical obstructions or debris in the meter casing [TYP-06].\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-5.1\",\n      \"action\": \"Initiate internal supervisory audit of the assigned meter reader.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the Benford's Law anomaly is present, the round_reading_share (0.2113) does not meet the 0.40 threshold required for the mandatory supervisory audit under [SOP-v2025-5.1]. The high risk score is driven largely by account metadata (n_counters, n_invoices) rather than explicit physical tamper flags.\"\n}",
+  "usage": {
+    "input_tokens": 4658,
+    "output_tokens": 2084
+  },
+  "error": null
+}

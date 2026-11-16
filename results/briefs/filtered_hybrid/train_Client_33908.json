@@ -1,0 +1,74 @@
+{
+  "client_id": "train_Client_33908",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T23:11:19",
+  "queries": [
+    "investigate multiple meter accounts for single client ID",
+    "review consumption anomalies and sudden spike share for meter status 0",
+    "audit billing history for reading remark codes 6, 8, and 9"
+  ],
+  "evidence_ids": [
+    "TYP-04",
+    "SOP-v2025-4.1",
+    "TYP-11",
+    "TYP-09",
+    "TYP-08"
+  ],
+  "brief": {
+    "client_id": "train_Client_33908",
+    "risk_score": 0.3129,
+    "risk_rank_pct": 100.0,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The presence of reading_remarque codes 8 and 9 indicates a history of estimated or unread billing, which is a primary mechanism for hiding consumption as described in the playbook.",
+        "citations": [
+          "TYP-08",
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client's benford_mad value of 0.039 exceeds the 0.015 threshold, suggesting a potential departure from natural consumption patterns.",
+        "citations": [
+          "TYP-04",
+          "TYP-08",
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "A sudden_spike_share of 0.2368 indicates significant consumption volatility, which is a data signature associated with intermittent tampering or catch-up billing.",
+        "citations": [
+          "TYP-09",
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The has_missing_months flag indicates potential gaps in billing data, necessitating a review for compliance with estimation limits.",
+        "citations": [
+          "SOP-v2025-4.1",
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify physical accessibility of the meter to determine if 'not read' remarks are valid.",
+      "Inspect meter seals and terminals for signs of bypass or tampering.",
+      "Calculate the unbilled balance by comparing the current dial reading with the last billed index."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-4.1",
+        "action": "Verify consecutive estimated billing cycles and perform mandatory supervisory audit if limit exceeded."
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "The benford_mad score is based on a limited invoice history (38 invoices), which may reduce its statistical reliability. Furthermore, while estimated readings are present, the exact number of consecutive cycles requires manual verification to confirm a breach of SOP-v2025-4.1."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_33908\",\n  \"risk_score\": 0.3129,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The presence of reading_remarque codes 8 and 9 indicates a history of estimated or unread billing, which is a primary mechanism for hiding consumption as described in the playbook.\",\n      \"citations\": [\n        \"TYP-08\",\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client's benford_mad value of 0.039 exceeds the 0.015 threshold, suggesting a potential departure from natural consumption patterns.\",\n      \"citations\": [\n        \"TYP-04\",\n        \"TYP-08\",\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"A sudden_spike_share of 0.2368 indicates significant consumption volatility, which is a data signature associated with intermittent tampering or catch-up billing.\",\n      \"citations\": [\n        \"TYP-09\",\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The has_missing_months flag indicates potential gaps in billing data, necessitating a review for compliance with estimation limits.\",\n      \"citations\": [\n        \"SOP-v2025-4.1\",\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify physical accessibility of the meter to determine if 'not read' remarks are valid.\",\n    \"Inspect meter seals and terminals for signs of bypass or tampering.\",\n    \"Calculate the unbilled balance by comparing the current dial reading with the last billed index.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-4.1\",\n      \"action\": \"Verify consecutive estimated billing cycles and perform mandatory supervisory audit if limit exceeded.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The benford_mad score is based on a limited invoice history (38 invoices), which may reduce its statistical reliability. Furthermore, while estimated readings are present, the exact number of consecutive cycles requires manual verification to confirm a breach of SOP-v2025-4.1.\"\n}",
+  "usage": {
+    "input_tokens": 4734,
+    "output_tokens": 2191
+  },
+  "error": null
+}

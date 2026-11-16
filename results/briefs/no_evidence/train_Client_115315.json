@@ -1,0 +1,54 @@
+{
+  "client_id": "train_Client_115315",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T22:47:30",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_115315",
+    "risk_score": 0.3107,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client operates 3 counters, which is the primary driver of the risk score and places the client in the 91.5th percentile for this metric.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Consumption patterns exhibit extreme irregularity, with cons_pm_skew (3.5607) and cons_pm_kurt (16.1311) both ranking in the 96th percentile of the training population.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The robust_z_max value of 14.2167 is in the 89.9th percentile, indicating significant statistical outliers in consumption history.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account record contains missing months (has_missing_months: 1) and specific reading remarks (codes 6, 8, 9), which require physical verification.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify all 3 counters for physical tampering or bypasses",
+      "Investigate the cause of missing monthly readings",
+      "Validate meter readings against the remarks 6, 8, and 9"
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "While the model identifies high risk based on consumption skew and counter count, there are no detected index errors such as backwards movement or rollovers, suggesting the anomaly may be related to operational gaps or the missing monthly data rather than confirmed meter tampering."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_115315\",\n  \"risk_score\": 0.3107,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client operates 3 counters, which is the primary driver of the risk score and places the client in the 91.5th percentile for this metric.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Consumption patterns exhibit extreme irregularity, with cons_pm_skew (3.5607) and cons_pm_kurt (16.1311) both ranking in the 96th percentile of the training population.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The robust_z_max value of 14.2167 is in the 89.9th percentile, indicating significant statistical outliers in consumption history.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account record contains missing months (has_missing_months: 1) and specific reading remarks (codes 6, 8, 9), which require physical verification.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify all 3 counters for physical tampering or bypasses\",\n    \"Investigate the cause of missing monthly readings\",\n    \"Validate meter readings against the remarks 6, 8, and 9\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the model identifies high risk based on consumption skew and counter count, there are no detected index errors such as backwards movement or rollovers, suggesting the anomaly may be related to operational gaps or the missing monthly data rather than confirmed meter tampering.\"\n}",
+  "usage": {
+    "input_tokens": 2335,
+    "output_tokens": 1454
+  },
+  "error": null
+}

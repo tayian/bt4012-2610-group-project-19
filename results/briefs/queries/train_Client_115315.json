@@ -1,0 +1,9 @@
+{
+  "queries": [
+    "investigate multiple meter accounts for single client with high consumption skew",
+    "review consumption anomalies and high robust z-score for meter remark codes 6, 8, 9",
+    "audit billing history for irregular invoice frequency and high consumption variance"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite"
+}

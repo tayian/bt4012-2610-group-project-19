@@ -1,0 +1,54 @@
+{
+  "client_id": "train_Client_23526",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T22:40:08",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_23526",
+    "risk_score": 0.3132,
+    "risk_rank_pct": 100.0,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client operates 3 counters, which places them in the 91.5th percentile of the training population and is a primary driver of the risk score.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Consumption data shows high skewness (3.5231), ranking in the 95.8th percentile, which indicates irregular usage patterns.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The robust Z-score maximum is 15.4054, placing the client in the 90.7th percentile and suggesting extreme consumption outliers.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account history contains missing months and reading remarks 6, 8, and 9, which require physical verification.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect all 3 counters for physical tampering or bypasses.",
+      "Verify the accuracy of meter readings against the recorded consumption history.",
+      "Investigate the cause of missing billing months."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "The risk score is driven by statistical outliers and structural account features. While these indicate potential anomalies, they do not definitively prove fraud without onsite verification of the meter infrastructure."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_23526\",\n  \"risk_score\": 0.3132,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client operates 3 counters, which places them in the 91.5th percentile of the training population and is a primary driver of the risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Consumption data shows high skewness (3.5231), ranking in the 95.8th percentile, which indicates irregular usage patterns.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The robust Z-score maximum is 15.4054, placing the client in the 90.7th percentile and suggesting extreme consumption outliers.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account history contains missing months and reading remarks 6, 8, and 9, which require physical verification.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect all 3 counters for physical tampering or bypasses.\",\n    \"Verify the accuracy of meter readings against the recorded consumption history.\",\n    \"Investigate the cause of missing billing months.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The risk score is driven by statistical outliers and structural account features. While these indicate potential anomalies, they do not definitively prove fraud without onsite verification of the meter infrastructure.\"\n}",
+  "usage": {
+    "input_tokens": 2334,
+    "output_tokens": 1573
+  },
+  "error": null
+}

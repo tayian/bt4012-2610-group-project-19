@@ -1,0 +1,81 @@
+{
+  "client_id": "train_Client_66981",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T23:04:59",
+  "queries": [
+    "investigate multiple meter count anomaly n_counters 6",
+    "review billing irregularities and bad months number 2",
+    "audit meter status codes 0 1 5 and reading remark codes 6 8 9"
+  ],
+  "evidence_ids": [
+    "SOP-v2025-3.2",
+    "CODE-reading_remarque-6",
+    "SOP-v2023-2.3",
+    "SOP-v2023-3.2",
+    "SOP-v2025-2.1"
+  ],
+  "brief": {
+    "client_id": "train_Client_66981",
+    "risk_score": 0.3105,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client exhibits a year-on-year consumption drop of 81.94%, which exceeds the 50% threshold defined for suspected meter bypass or magnetic tampering.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-2.1"
+        ]
+      },
+      {
+        "point": "The account history includes counter_statue code '5', which is associated with suspected meter anomalies or defects.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-3.2",
+          "SOP-v2023-3.2"
+        ]
+      },
+      {
+        "point": "The client has a high volume of activity with 6 counters and 201 invoices, placing them in the 99.9th percentile for these metrics.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account records indicate 2 bad months and missing months, suggesting potential data quality issues or irregular billing cycles.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify seal integrity",
+      "Check for external magnet attachment",
+      "Inspect terminal links",
+      "Verify meter operational status"
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-2.1",
+        "action": "Urgent Forensic Site Inspection (Level 2)"
+      },
+      {
+        "rule_id": "SOP-v2025-3.2",
+        "action": "Priority Enforcement Dispatch (Level 2)"
+      },
+      {
+        "rule_id": "SOP-v2023-3.2",
+        "action": "Routine Technical Site Inspection"
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the consumption drop and anomaly status code are strong indicators, the high number of counters and invoices may complicate the forensic analysis, requiring a thorough review of all six meters."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_66981\",\n  \"risk_score\": 0.3105,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits a year-on-year consumption drop of 81.94%, which exceeds the 50% threshold defined for suspected meter bypass or magnetic tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.1\"\n      ]\n    },\n    {\n      \"point\": \"The account history includes counter_statue code '5', which is associated with suspected meter anomalies or defects.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-3.2\",\n        \"SOP-v2023-3.2\"\n      ]\n    },\n    {\n      \"point\": \"The client has a high volume of activity with 6 counters and 201 invoices, placing them in the 99.9th percentile for these metrics.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account records indicate 2 bad months and missing months, suggesting potential data quality issues or irregular billing cycles.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify seal integrity\",\n    \"Check for external magnet attachment\",\n    \"Inspect terminal links\",\n    \"Verify meter operational status\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-2.1\",\n      \"action\": \"Urgent Forensic Site Inspection (Level 2)\"\n    },\n    {\n      \"rule_id\": \"SOP-v2025-3.2\",\n      \"action\": \"Priority Enforcement Dispatch (Level 2)\"\n    },\n    {\n      \"rule_id\": \"SOP-v2023-3.2\",\n      \"action\": \"Routine Technical Site Inspection\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the consumption drop and anomaly status code are strong indicators, the high number of counters and invoices may complicate the forensic analysis, requiring a thorough review of all six meters.\"\n}",
+  "usage": {
+    "input_tokens": 3466,
+    "output_tokens": 2173
+  },
+  "error": null
+}

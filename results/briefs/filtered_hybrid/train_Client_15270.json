@@ -1,0 +1,82 @@
+{
+  "client_id": "train_Client_15270",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T23:13:47",
+  "queries": [
+    "investigate account with multiple meters and high zero consumption run max 37",
+    "review billing irregularities for client with reading remark codes 6, 8, and 9",
+    "audit account with high number of invoices and significant year over year consumption drop"
+  ],
+  "evidence_ids": [
+    "TYP-11",
+    "TYP-09",
+    "SOP-v2025-2.2",
+    "SOP-v2025-4.1",
+    "SOP-v2025-2.1"
+  ],
+  "brief": {
+    "client_id": "train_Client_15270",
+    "risk_score": 0.3112,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client exhibits a year-on-year consumption drop of 96.26%, which significantly exceeds the 50% threshold for suspected meter bypass or tampering.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-2.1"
+        ]
+      },
+      {
+        "point": "The account records a maximum consecutive zero-consumption run of 37 invoices, far exceeding the threshold of 2 consecutive invoices that mandates immediate physical inspection.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-2.2"
+        ]
+      },
+      {
+        "point": "Consumption data shows high volatility, with a sudden_spike_share of 0.3091 and a skewness of 2.0979, consistent with intermittent tampering patterns where consumption is suppressed and then reconciled.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "The presence of reading_remarque code '8' indicates the account has been subject to estimated billing, which requires verification to ensure it does not violate consecutive estimation limits.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-4.1"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect terminal screws and conductors for clip marks, scratches, or insulation damage from temporary jumpers.",
+      "Test the meter casing with a Gaussmeter for residual magnetism from a recently removed magnet.",
+      "Verify the physical status and integrity of all 4 counters.",
+      "Check for unauthorized neutral disconnection or direct bypass."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-2.1",
+        "action": "Urgent Forensic Site Inspection (Level 2)"
+      },
+      {
+        "rule_id": "SOP-v2025-2.2",
+        "action": "Priority Inspection & Service Verification"
+      },
+      {
+        "rule_id": "SOP-v2025-4.1",
+        "action": "Systemic Estimation Lockout & Supervisory Audit"
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the consumption data strongly suggests tampering (high zero-run and YoY drop), the specific count of consecutive estimated readings (code 8) is not explicitly confirmed as three or more in the snapshot, though the presence of the code warrants verification."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_15270\",\n  \"risk_score\": 0.3112,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits a year-on-year consumption drop of 96.26%, which significantly exceeds the 50% threshold for suspected meter bypass or tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.1\"\n      ]\n    },\n    {\n      \"point\": \"The account records a maximum consecutive zero-consumption run of 37 invoices, far exceeding the threshold of 2 consecutive invoices that mandates immediate physical inspection.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.2\"\n      ]\n    },\n    {\n      \"point\": \"Consumption data shows high volatility, with a sudden_spike_share of 0.3091 and a skewness of 2.0979, consistent with intermittent tampering patterns where consumption is suppressed and then reconciled.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The presence of reading_remarque code '8' indicates the account has been subject to estimated billing, which requires verification to ensure it does not violate consecutive estimation limits.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-4.1\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect terminal screws and conductors for clip marks, scratches, or insulation damage from temporary jumpers.\",\n    \"Test the meter casing with a Gaussmeter for residual magnetism from a recently removed magnet.\",\n    \"Verify the physical status and integrity of all 4 counters.\",\n    \"Check for unauthorized neutral disconnection or direct bypass.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-2.1\",\n      \"action\": \"Urgent Forensic Site Inspection (Level 2)\"\n    },\n    {\n      \"rule_id\": \"SOP-v2025-2.2\",\n      \"action\": \"Priority Inspection & Service Verification\"\n    },\n    {\n      \"rule_id\": \"SOP-v2025-4.1\",\n      \"action\": \"Systemic Estimation Lockout & Supervisory Audit\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the consumption data strongly suggests tampering (high zero-run and YoY drop), the specific count of consecutive estimated readings (code 8) is not explicitly confirmed as three or more in the snapshot, though the presence of the code warrants verification.\"\n}",
+  "usage": {
+    "input_tokens": 3966,
+    "output_tokens": 1968
+  },
+  "error": null
+}

@@ -1,0 +1,9 @@
+{
+  "queries": [
+    "investigate multiple meters account with counter_statue 0",
+    "analyze consumption skewness and sudden spike share",
+    "review reading_remarque 6 8 9 for potential meter tampering"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite"
+}

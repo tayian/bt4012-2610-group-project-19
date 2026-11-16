@@ -1,0 +1,71 @@
+{
+  "client_id": "train_Client_65998",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T23:02:32",
+  "queries": [
+    "investigate multiple meters n_counters 2 for potential energy diversion",
+    "analyze significant consumption decline slope_last3y with remark codes 6 8 9",
+    "review billing irregularities and meter status 0 for potential tampering"
+  ],
+  "evidence_ids": [
+    "TYP-08",
+    "TYP-10",
+    "SOP-v2025-2.1",
+    "SOP-v2023-3.1",
+    "TYP-06"
+  ],
+  "brief": {
+    "client_id": "train_Client_65998",
+    "risk_score": 0.3109,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client exhibits a year-on-year consumption drop of 0.9927, which exceeds the 50% threshold for suspected meter bypass or tampering.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-2.1"
+        ]
+      },
+      {
+        "point": "The account history includes a meter rollover event (n_index_rollover = 1) and instances of missing months (has_missing_months = 1), indicating potential data irregularities.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The presence of reading remarks '6', '8', and '9' suggests potential issues with meter access or estimated billing, consistent with patterns of estimated reading abuse.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-08"
+        ]
+      },
+      {
+        "point": "The consumption trend over the last three years shows a sharp negative slope (-270.5661), which is significantly lower than the training population average.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect meter for physical tampering or bypass mechanisms.",
+      "Verify meter accessibility and document any obstructions preventing accurate readings.",
+      "Check for signs of meter rollover or mechanical failure."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-2.1",
+        "action": "Urgent Forensic Site Inspection (Level 2) required within 14 calendar days."
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the consumption drop and reading remarks are concerning, the data does not definitively distinguish between deliberate tampering and genuine meter failure or occupancy changes."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_65998\",\n  \"risk_score\": 0.3109,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits a year-on-year consumption drop of 0.9927, which exceeds the 50% threshold for suspected meter bypass or tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.1\"\n      ]\n    },\n    {\n      \"point\": \"The account history includes a meter rollover event (n_index_rollover = 1) and instances of missing months (has_missing_months = 1), indicating potential data irregularities.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The presence of reading remarks '6', '8', and '9' suggests potential issues with meter access or estimated billing, consistent with patterns of estimated reading abuse.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-08\"\n      ]\n    },\n    {\n      \"point\": \"The consumption trend over the last three years shows a sharp negative slope (-270.5661), which is significantly lower than the training population average.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect meter for physical tampering or bypass mechanisms.\",\n    \"Verify meter accessibility and document any obstructions preventing accurate readings.\",\n    \"Check for signs of meter rollover or mechanical failure.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-2.1\",\n      \"action\": \"Urgent Forensic Site Inspection (Level 2) required within 14 calendar days.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the consumption drop and reading remarks are concerning, the data does not definitively distinguish between deliberate tampering and genuine meter failure or occupancy changes.\"\n}",
+  "usage": {
+    "input_tokens": 4348,
+    "output_tokens": 1733
+  },
+  "error": null
+}

@@ -1,0 +1,4 @@
+run,n_briefs,n_llm_failures,schema_valid_pct,citation_validity_pct,number_accuracy_pct,rule_applicability_pct,faithfulness_mean,all_checks_pass_pct,risk_tier_correct_pct,rule_and_case_ids_ok_pct,own_case_card_retrieved_pct,expired_sop_retrieved_pct,judge,brief_model
+no_evidence,30,0,100.0,100.0,100.0,100.0,3.05,100.0,100.0,100.0,0.0,0.0,lexical,gemini-3.1-flash-lite
+hybrid,30,0,100.0,100.0,98.63247863247864,65.55555555555557,3.433333333333333,46.666666666666664,100.0,83.33333333333334,0.0,56.666666666666664,lexical,gemini-3.1-flash-lite
+filtered_hybrid,30,0,100.0,100.0,98.92468642468641,100.0,3.341666666666667,86.66666666666667,100.0,73.33333333333333,0.0,0.0,lexical,gemini-3.1-flash-lite

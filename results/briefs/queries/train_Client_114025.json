@@ -1,0 +1,9 @@
+{
+  "queries": [
+    "investigate multiple meters n_counters 4 for potential energy diversion",
+    "analyze zero consumption patterns zero_run_max 6 and meter status codes 0 1 5",
+    "review high frequency of round number readings round_reading_share 0.32 and remark codes 6 8 9"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite"
+}

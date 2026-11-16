@@ -49,6 +49,17 @@ ID_RE = re.compile(
     r"(?:train|test)_Client_\d+)\b"
 )
 CITE_RE = re.compile(r"\[([^\]]+)\]")
+
+
+def bracket_ids(text: str) -> list[str]:
+    # IDs cited in square brackets; one bracket may list several ("[SNAPSHOT, TYP-09]").
+    return split_ids(CITE_RE.findall(text))
+
+
+def split_ids(ids) -> list[str]:
+    return [p.strip() for i in ids for p in str(i).split(",") if p.strip()]
+
+
 NUM_RE = re.compile(r"(?<![\w.])[-+]?\d[\d,]*(?:\.\d+)?%?")
 SOP_RE = re.compile(r"^SOP-(v\d{4})-")
 
@@ -118,14 +129,14 @@ def _brief_text_fields(brief) -> list[tuple[str, str, list[str]]]:
     for i, e in enumerate(brief.get("evidence", [])):
         out.append((f"evidence[{i}]", str(e.get("point", "")), list(e.get("citations", []))))
     for i, t in enumerate(brief.get("onsite_checks", [])):
-        out.append((f"onsite_checks[{i}]", str(t), CITE_RE.findall(str(t))))
+        out.append((f"onsite_checks[{i}]", str(t), bracket_ids(str(t))))
     for i, r in enumerate(brief.get("applicable_rules", [])):
         out.append((f"applicable_rules[{i}]", str(r.get("action", "")), [r.get("rule_id", "")]))
     out.append(
         (
             "uncertainty",
             str(brief.get("uncertainty", "")),
-            CITE_RE.findall(str(brief.get("uncertainty", ""))),
+            bracket_ids(str(brief.get("uncertainty", ""))),
         )
     )
     return out
@@ -134,8 +145,8 @@ def _brief_text_fields(brief) -> list[tuple[str, str, list[str]]]:
 def all_citations(brief) -> list[str]:
     ids = []
     for _, text, cites in _brief_text_fields(brief):
-        ids += [c.strip() for c in cites if c]
-        ids += [c.strip() for c in CITE_RE.findall(text)]
+        ids += split_ids(c for c in cites if c)
+        ids += bracket_ids(text)
     ids += [c for c in brief.get("similar_cases", [])]
     return [i for i in ids if i]
 
@@ -172,7 +183,7 @@ def check_numbers(brief, snapshot, evidence) -> dict:
     snap_nums = _flatten_numbers(snapshot)
     bad, n = [], 0
     for loc, text, cites in _brief_text_fields(brief):
-        cites = set(cites) | set(CITE_RE.findall(text))
+        cites = set(split_ids(cites)) | set(bracket_ids(text))
         sources = list(snap_nums)
         for c in cites:
             sources += chunk_nums.get(c, [])
@@ -269,13 +280,148 @@ def make_anthropic_judge(model="claude-haiku-5-5", client=None) -> Callable[[str
     return judge
 
 
+GEMINI_JUDGE_PROMPT = """You are an independent fact-checker for a utility-fraud inspection brief.
+You did not write the brief. For each numbered CLAIM, read only the SOURCES it cites and rate how
+well those sources support it. Use no outside knowledge.
+5 = every part of the claim, including each number, is stated in the cited sources
+4 = supported, with only rewording or rounding
+3 = partly supported, or needs an inference the sources do not state
+2 = mostly unsupported
+1 = unsupported, contradicted, or no sources cited
+Return a JSON list of integers, one per claim, in claim order, nothing else.
+
+SOURCES:
+{sources}
+
+CLAIMS:
+{claims}"""
+
+
+def _judge_key(point: str, cited_texts: list[str], model: str = "") -> str:
+    import hashlib
+
+    raw = model + "\x02" + point + "\x00" + "\x01".join(cited_texts)
+    return hashlib.sha1(raw.encode("utf-8")).hexdigest()
+
+
+def make_gemini_judge(model=None, client=None, cache_path=None, max_retries=6):
+    # Gemini LLM judge with its own prompt (not the brief writer's). Scores are cached on disk
+    # by (claim, cited text), so rescoring costs nothing. judge.prime(brief, snapshot, evidence)
+    # scores all of a brief's points in one call; a failed call falls back to lexical_judge and
+    # is counted in judge.n_fallback.
+    import os
+    import time
+    from pathlib import Path
+
+    model = model or os.getenv("GEMINI_MODEL", "gemini-3.1-flash-lite")
+    path = Path(cache_path) if cache_path else None
+    cache: dict[str, int] = {}
+    if path is not None and path.is_file():
+        cache = json.loads(path.read_text(encoding="utf-8"))
+    state = {"client": client}
+
+    def _client():
+        if state["client"] is None:
+            from src.llm.briefs import get_gemini_client
+
+            state["client"] = get_gemini_client()
+        return state["client"]
+
+    def _save():
+        if path is not None:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps(cache, indent=0, sort_keys=True), encoding="utf-8")
+
+    def _ask(claims: list[tuple[str, list[str]]], sources: dict[str, str]) -> list[int]:
+        src = "\n\n".join(f"[{sid}]\n{text}" for sid, text in sources.items()) or "(none)"
+        lines = "\n".join(
+            f"{i + 1}. {point} (cites: {', '.join(ids) or 'nothing'})"
+            for i, (point, ids) in enumerate(claims)
+        )
+        prompt = GEMINI_JUDGE_PROMPT.format(sources=src, claims=lines)
+        from src.llm.query_rewriter import low_thinking
+
+        config = {"response_mime_type": "application/json", "temperature": 0.0}
+        config.update(low_thinking(model))
+        for attempt in range(max_retries):
+            try:
+                resp = _client().models.generate_content(
+                    model=model, contents=prompt, config=config
+                )
+                scores = [int(s) for s in json.loads(resp.text)]
+                if len(scores) != len(claims):
+                    raise ValueError(f"{len(scores)} scores for {len(claims)} claims")
+                return [min(5, max(1, s)) for s in scores]
+            except Exception as exc:
+                from src.llm.briefs import DailyQuotaExceeded, _daily_quota, _retryable
+
+                if _daily_quota(exc):
+                    raise DailyQuotaExceeded(f"daily request quota for {model} is used up") from exc
+                if attempt + 1 < max_retries and _retryable(exc):
+                    time.sleep(min(90.0, 4.0 * 2**attempt))
+                    continue
+                raise
+
+    def _fallback(point, cited_texts):
+        judge.n_fallback += 1
+        return lexical_judge(point, cited_texts)
+
+    def judge(point, cited_texts):
+        key = _judge_key(point, cited_texts, model)
+        if key in cache:
+            return cache[key]
+        if not cited_texts:
+            return 1
+        try:
+            sources = {f"S{i + 1}": t for i, t in enumerate(cited_texts)}
+            score = _ask([(point, list(sources))], sources)[0]
+        except Exception as exc:
+            # Out of daily quota: stop rather than mix judges within one table.
+            if type(exc).__name__ == "DailyQuotaExceeded":
+                raise
+            return _fallback(point, cited_texts)
+        cache[key] = score
+        _save()
+        return score
+
+    def prime(brief, snapshot, evidence):
+        # Score every uncached evidence point of one brief in a single call.
+        texts = {c["id"]: c.get("text", "") for c in evidence}
+        texts["SNAPSHOT"] = json.dumps(snapshot, default=str)
+        todo, sources = [], {}
+        for e in brief.get("evidence", []) or []:
+            ids = [c for c in split_ids(e.get("citations", [])) if c in texts]
+            cited = [texts[c] for c in ids]
+            if not cited or _judge_key(e.get("point", ""), cited, model) in cache:
+                continue
+            todo.append((e.get("point", ""), ids, cited))
+            sources.update({c: texts[c] for c in ids})
+        if not todo:
+            return
+        try:
+            scores = _ask([(p, ids) for p, ids, _ in todo], sources)
+        except Exception as exc:
+            if type(exc).__name__ == "DailyQuotaExceeded":
+                raise
+            return  # judge() falls back point by point
+        for (p, _, cited), s in zip(todo, scores):
+            cache[_judge_key(p, cited, model)] = s
+        _save()
+
+    judge.__name__ = f"gemini_judge:{model}"
+    judge.prime = prime
+    judge.n_fallback = 0
+    judge.cache = cache
+    return judge
+
+
 def check_faithfulness(brief, snapshot, evidence, judge=None) -> dict:
     judge = judge or lexical_judge
     texts = {c["id"]: c.get("text", "") for c in evidence}
     texts["SNAPSHOT"] = json.dumps(snapshot, default=str)
     scores = []
     for e in brief.get("evidence", []):
-        cited = [texts[c] for c in e.get("citations", []) if c in texts]
+        cited = [texts[c] for c in split_ids(e.get("citations", [])) if c in texts]
         scores.append(judge(e.get("point", ""), cited))
     mean = sum(scores) / len(scores) if scores else float("nan")
     return {"mean": mean, "scores": scores, "judge": getattr(judge, "__name__", "custom")}

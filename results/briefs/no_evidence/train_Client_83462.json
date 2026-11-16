@@ -1,0 +1,60 @@
+{
+  "client_id": "train_Client_83462",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T22:44:56",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_83462",
+    "risk_score": 0.3114,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client has 4 counters, which is in the 98.3 percentile of the training population, contributing significantly to the risk score.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has a high volume of 84 invoices, placing them in the 98.1 percentile for invoice count.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The consumption per month skewness is 1.7159, which is in the 77.2 percentile, suggesting irregular consumption patterns.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has a high invoice frequency of 8.0739 per year, ranking in the 98.3 percentile.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client record shows missing months, indicated by the has_missing_months flag, which may indicate gaps in billing data.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify the physical status and readings of all 4 counters.",
+      "Investigate the cause of missing months in the billing history.",
+      "Inspect for potential meter tampering given the high invoice frequency and consumption skewness."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "While the model identifies high risk based on counter count and invoice volume, there is no direct evidence of meter tampering such as index backwards or recon mismatches. The missing months flag suggests potential data gaps that require manual verification."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_83462\",\n  \"risk_score\": 0.3114,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client has 4 counters, which is in the 98.3 percentile of the training population, contributing significantly to the risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has a high volume of 84 invoices, placing them in the 98.1 percentile for invoice count.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The consumption per month skewness is 1.7159, which is in the 77.2 percentile, suggesting irregular consumption patterns.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has a high invoice frequency of 8.0739 per year, ranking in the 98.3 percentile.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client record shows missing months, indicated by the has_missing_months flag, which may indicate gaps in billing data.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the physical status and readings of all 4 counters.\",\n    \"Investigate the cause of missing months in the billing history.\",\n    \"Inspect for potential meter tampering given the high invoice frequency and consumption skewness.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the model identifies high risk based on counter count and invoice volume, there is no direct evidence of meter tampering such as index backwards or recon mismatches. The missing months flag suggests potential data gaps that require manual verification.\"\n}",
+  "usage": {
+    "input_tokens": 2339,
+    "output_tokens": 1350
+  },
+  "error": null
+}

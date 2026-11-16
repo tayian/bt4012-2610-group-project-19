@@ -1,0 +1,72 @@
+{
+  "client_id": "train_Client_73548",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T23:15:53",
+  "queries": [
+    "investigate high number of meters n_counters 4 for single account",
+    "analyze consumption skew and high robust_z_max indicating irregular usage patterns",
+    "review meter reading remarks 6 8 9 and missing billing months"
+  ],
+  "evidence_ids": [
+    "TYP-09",
+    "TYP-04",
+    "SOP-v2025-4.1",
+    "CODE-counter_statue-4",
+    "CODE-tarif_type-14"
+  ],
+  "brief": {
+    "client_id": "train_Client_73548",
+    "risk_score": 0.311,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client exhibits high consumption volatility, with cons_pm_skew (2.7637) and cons_pm_kurt (8.664) in the 92.0th and 90.8th percentiles respectively, which is consistent with the intermittent tampering patterns described in TYP-09.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "The client has 4 counters, placing them in the 98.3rd percentile for this feature, which is the primary driver of the model's risk assessment according to the SHAP analysis.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Billing history includes reading_remarque codes 8 (estimated) and 9 (not read). The presence of these codes, particularly 8, triggers specific SOP requirements for audit and lockout.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-4.1"
+        ]
+      },
+      {
+        "point": "The client has missing billing months (has_missing_months: 1), which may obscure consumption patterns and aligns with the risk of intermittent reporting or tampering.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect terminal screws and conductors for clip marks, scratches, or insulation damage indicative of temporary jumpers.",
+      "Test the meter casing with a Gaussmeter for residual magnetism from a recently removed magnet.",
+      "Verify physical accessibility of the meter to investigate the validity of 'not read' (code 9) remarks.",
+      "Install a temporary check meter on the service cable to compare consumption against the customer meter."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-4.1",
+        "action": "Systemic Estimation Lockout & Supervisory Audit. Mandatory physical inspection within 10 business days."
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the risk score is high, the client's high number of counters (4) may naturally contribute to higher consumption skew and kurtosis, potentially inflating the model's risk assessment. It is unclear if the volatility is due to legitimate multi-counter usage or intermittent tampering."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_73548\",\n  \"risk_score\": 0.311,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits high consumption volatility, with cons_pm_skew (2.7637) and cons_pm_kurt (8.664) in the 92.0th and 90.8th percentiles respectively, which is consistent with the intermittent tampering patterns described in TYP-09.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The client has 4 counters, placing them in the 98.3rd percentile for this feature, which is the primary driver of the model's risk assessment according to the SHAP analysis.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Billing history includes reading_remarque codes 8 (estimated) and 9 (not read). The presence of these codes, particularly 8, triggers specific SOP requirements for audit and lockout.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-4.1\"\n      ]\n    },\n    {\n      \"point\": \"The client has missing billing months (has_missing_months: 1), which may obscure consumption patterns and aligns with the risk of intermittent reporting or tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect terminal screws and conductors for clip marks, scratches, or insulation damage indicative of temporary jumpers.\",\n    \"Test the meter casing with a Gaussmeter for residual magnetism from a recently removed magnet.\",\n    \"Verify physical accessibility of the meter to investigate the validity of 'not read' (code 9) remarks.\",\n    \"Install a temporary check meter on the service cable to compare consumption against the customer meter.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-4.1\",\n      \"action\": \"Systemic Estimation Lockout & Supervisory Audit. Mandatory physical inspection within 10 business days.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the risk score is high, the client's high number of counters (4) may naturally contribute to higher consumption skew and kurtosis, potentially inflating the model's risk assessment. It is unclear if the volatility is due to legitimate multi-counter usage or intermittent tampering.\"\n}",
+  "usage": {
+    "input_tokens": 4135,
+    "output_tokens": 1991
+  },
+  "error": null
+}

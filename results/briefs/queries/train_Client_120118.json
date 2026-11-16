@@ -1,0 +1,9 @@
+{
+  "queries": [
+    "investigate multiple meter accounts for single client n_counters 4",
+    "analyze consumption skew and high variance with reading_remarque 6 8 9",
+    "review consumption history for counter_statue 0 1 5 and zero consumption patterns"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite"
+}

@@ -1,0 +1,9 @@
+{
+  "queries": [
+    "investigate multiple meters n_counters 3 for potential unmetered usage",
+    "review consumption skew and high robust_z_max 5.6521 for irregular usage patterns",
+    "audit reading remark codes 6 8 9 for potential meter tampering or estimation errors"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite"
+}

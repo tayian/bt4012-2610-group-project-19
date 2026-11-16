@@ -1,0 +1,54 @@
+{
+  "client_id": "train_Client_84583",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T22:45:29",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_84583",
+    "risk_score": 0.3113,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client operates with 2 counters, which is the highest-weighted feature in the risk model.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has an invoice frequency of 2.44 invoices per year, which is identified as a significant contributor to the risk score.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "There is a notable upward consumption trend over the last three years, with a slope_last3y value of 59.0519.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account history contains reading remarks 6, 8, and 9, alongside a flag for missing months, suggesting potential inconsistencies in billing data.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify the status and accessibility of both counters.",
+      "Inspect for potential meter tampering or bypasses given the consumption slope.",
+      "Validate the reading history against the physical meter readings."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "The risk score is driven by model features related to counter count and consumption trends; however, the absence of specific fraud patterns like index reversals or recon mismatches makes the exact nature of the risk unclear."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_84583\",\n  \"risk_score\": 0.3113,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client operates with 2 counters, which is the highest-weighted feature in the risk model.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has an invoice frequency of 2.44 invoices per year, which is identified as a significant contributor to the risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"There is a notable upward consumption trend over the last three years, with a slope_last3y value of 59.0519.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account history contains reading remarks 6, 8, and 9, alongside a flag for missing months, suggesting potential inconsistencies in billing data.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the status and accessibility of both counters.\",\n    \"Inspect for potential meter tampering or bypasses given the consumption slope.\",\n    \"Validate the reading history against the physical meter readings.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The risk score is driven by model features related to counter count and consumption trends; however, the absence of specific fraud patterns like index reversals or recon mismatches makes the exact nature of the risk unclear.\"\n}",
+  "usage": {
+    "input_tokens": 2317,
+    "output_tokens": 1423
+  },
+  "error": null
+}

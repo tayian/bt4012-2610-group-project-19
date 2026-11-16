@@ -1,0 +1,54 @@
+{
+  "client_id": "train_Client_111233",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T22:43:34",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_111233",
+    "risk_score": 0.3119,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client has 6 counters, which places them in the 99.9th percentile for this feature.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client exhibits a high share of level 2+ electricity consumption at 0.8393, which is in the 98.5th percentile.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account history contains missing months, indicating potential gaps in billing or meter reading data.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client's reading history includes remarks codes 6, 8, and 9.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify the physical status and integrity of all 6 counters.",
+      "Investigate the cause of missing months in the billing history.",
+      "Audit the electricity consumption patterns to validate the high share of level 2+ usage."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "While the model assigns a high risk score, there are no direct indicators of tampering such as index reversals, rollovers, or recon mismatches (all 0.0). The risk is primarily driven by the high number of counters and specific consumption patterns."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_111233\",\n  \"risk_score\": 0.3119,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client has 6 counters, which places them in the 99.9th percentile for this feature.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client exhibits a high share of level 2+ electricity consumption at 0.8393, which is in the 98.5th percentile.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account history contains missing months, indicating potential gaps in billing or meter reading data.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client's reading history includes remarks codes 6, 8, and 9.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the physical status and integrity of all 6 counters.\",\n    \"Investigate the cause of missing months in the billing history.\",\n    \"Audit the electricity consumption patterns to validate the high share of level 2+ usage.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the model assigns a high risk score, there are no direct indicators of tampering such as index reversals, rollovers, or recon mismatches (all 0.0). The risk is primarily driven by the high number of counters and specific consumption patterns.\"\n}",
+  "usage": {
+    "input_tokens": 2394,
+    "output_tokens": 1500
+  },
+  "error": null
+}

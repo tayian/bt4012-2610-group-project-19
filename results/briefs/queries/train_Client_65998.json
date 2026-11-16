@@ -1,0 +1,9 @@
+{
+  "queries": [
+    "investigate multiple meters n_counters 2 for potential energy diversion",
+    "analyze significant consumption decline slope_last3y with remark codes 6 8 9",
+    "review billing irregularities and meter status 0 for potential tampering"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite"
+}

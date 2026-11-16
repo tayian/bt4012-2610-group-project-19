@@ -1,0 +1,71 @@
+{
+  "client_id": "train_Client_86320",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T23:00:56",
+  "queries": [
+    "investigate multiple meter accounts n_counters 4 for potential tampering",
+    "analyze consumption skew and high robust_z_max indicating irregular usage patterns",
+    "review meter status 0 1 5 and remark codes 6 8 9 for billing irregularities"
+  ],
+  "evidence_ids": [
+    "TYP-11",
+    "TYP-09",
+    "SOP-v2023-3.1",
+    "SOP-v2023-3.2",
+    "CODE-tarif_type-14"
+  ],
+  "brief": {
+    "client_id": "train_Client_86320",
+    "risk_score": 0.3111,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client's record contains counter_statue code '5', which is flagged as a suspected anomaly or meter defect.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2023-3.2"
+        ]
+      },
+      {
+        "point": "The feature n_counters (value 4.0) is the primary driver of the risk score, contributing a SHAP value of 2.7043.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The consumption skew (cons_pm_skew = 2.7639) is elevated, which serves as a data signature proxy for intermittent tampering patterns.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "The client has a high volume of historical invoices (59.0), which is the second most significant feature influencing the model's risk assessment.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify meter operational status and confirm whether seal tampering is present per SOP-v2023-3.2.",
+      "Inspect terminal screws and conductors for clip marks, scratches, or insulation damage.",
+      "Test the meter casing with a Gaussmeter for residual magnetism."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2023-3.2",
+        "action": "Routine Technical Site Inspection"
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the model identifies high risk, the specific cause remains unverified. The high n_counters count is a strong statistical driver but does not confirm tampering. The presence of counter_statue 5 is the most actionable indicator."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_86320\",\n  \"risk_score\": 0.3111,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client's record contains counter_statue code '5', which is flagged as a suspected anomaly or meter defect.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2023-3.2\"\n      ]\n    },\n    {\n      \"point\": \"The feature n_counters (value 4.0) is the primary driver of the risk score, contributing a SHAP value of 2.7043.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The consumption skew (cons_pm_skew = 2.7639) is elevated, which serves as a data signature proxy for intermittent tampering patterns.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The client has a high volume of historical invoices (59.0), which is the second most significant feature influencing the model's risk assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify meter operational status and confirm whether seal tampering is present per SOP-v2023-3.2.\",\n    \"Inspect terminal screws and conductors for clip marks, scratches, or insulation damage.\",\n    \"Test the meter casing with a Gaussmeter for residual magnetism.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2023-3.2\",\n      \"action\": \"Routine Technical Site Inspection\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the model identifies high risk, the specific cause remains unverified. The high n_counters count is a strong statistical driver but does not confirm tampering. The presence of counter_statue 5 is the most actionable indicator.\"\n}",
+  "usage": {
+    "input_tokens": 4022,
+    "output_tokens": 2022
+  },
+  "error": null
+}

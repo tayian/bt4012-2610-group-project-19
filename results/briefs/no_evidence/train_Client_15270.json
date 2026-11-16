@@ -1,0 +1,61 @@
+{
+  "client_id": "train_Client_15270",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T22:45:35",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_15270",
+    "risk_score": 0.3112,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client has 4 counters, which places them in the 98.3rd percentile for this metric among training clients.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has 110 total invoices, which is in the 99.3rd percentile of the training population.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The maximum run of zero consumption is 37.0, which is in the 99.6th percentile, indicating potential periods of inactivity or meter bypass.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client record shows a high frequency of invoicing at 8.4336 invoices per year, ranking in the 98.5th percentile.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account record contains missing months, which may impact the accuracy of consumption analysis.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify the physical status and reading accuracy of all 4 registered counters.",
+      "Inspect for signs of tampering or bypass during the identified periods of zero consumption.",
+      "Reconcile the 110 historical invoices against physical meter readings to identify potential billing discrepancies.",
+      "Investigate the cause of missing months in the billing history."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "While the model flags this client as high risk due to extreme values in counter count and invoice frequency, there is no direct evidence of meter tampering or specific fraud indicators like index reversals or recon mismatches in the current snapshot."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_15270\",\n  \"risk_score\": 0.3112,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client has 4 counters, which places them in the 98.3rd percentile for this metric among training clients.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has 110 total invoices, which is in the 99.3rd percentile of the training population.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The maximum run of zero consumption is 37.0, which is in the 99.6th percentile, indicating potential periods of inactivity or meter bypass.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client record shows a high frequency of invoicing at 8.4336 invoices per year, ranking in the 98.5th percentile.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account record contains missing months, which may impact the accuracy of consumption analysis.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the physical status and reading accuracy of all 4 registered counters.\",\n    \"Inspect for signs of tampering or bypass during the identified periods of zero consumption.\",\n    \"Reconcile the 110 historical invoices against physical meter readings to identify potential billing discrepancies.\",\n    \"Investigate the cause of missing months in the billing history.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the model flags this client as high risk due to extreme values in counter count and invoice frequency, there is no direct evidence of meter tampering or specific fraud indicators like index reversals or recon mismatches in the current snapshot.\"\n}",
+  "usage": {
+    "input_tokens": 2348,
+    "output_tokens": 1313
+  },
+  "error": null
+}

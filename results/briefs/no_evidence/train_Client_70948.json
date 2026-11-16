@@ -1,0 +1,60 @@
+{
+  "client_id": "train_Client_70948",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T22:42:42",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_70948",
+    "risk_score": 0.3124,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client has 4 counters, which is in the 98.3rd percentile of the training population and is the primary driver of the risk score.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client exhibits a maximum year-over-year consumption drop of 1.0, placing them in the 93.2nd percentile for this metric.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Consumption data shows a skewness of 2.5627, which is in the 90.4th percentile, indicating irregular consumption patterns.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has 62 invoices, which is in the 83.8th percentile, contributing significantly to the model's risk assessment.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client record indicates the presence of missing months, which may suggest gaps in billing or meter reading data.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify all 4 counters are present and functional",
+      "Inspect for signs of meter tampering or bypass",
+      "Check for missing billing records corresponding to the missing months"
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "The model identifies high risk primarily based on the number of counters and historical consumption volatility; however, there is no direct evidence of meter tampering or specific fraud codes in the provided snapshot."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_70948\",\n  \"risk_score\": 0.3124,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client has 4 counters, which is in the 98.3rd percentile of the training population and is the primary driver of the risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client exhibits a maximum year-over-year consumption drop of 1.0, placing them in the 93.2nd percentile for this metric.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Consumption data shows a skewness of 2.5627, which is in the 90.4th percentile, indicating irregular consumption patterns.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has 62 invoices, which is in the 83.8th percentile, contributing significantly to the model's risk assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client record indicates the presence of missing months, which may suggest gaps in billing or meter reading data.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify all 4 counters are present and functional\",\n    \"Inspect for signs of meter tampering or bypass\",\n    \"Check for missing billing records corresponding to the missing months\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The model identifies high risk primarily based on the number of counters and historical consumption volatility; however, there is no direct evidence of meter tampering or specific fraud codes in the provided snapshot.\"\n}",
+  "usage": {
+    "input_tokens": 2342,
+    "output_tokens": 1396
+  },
+  "error": null
+}

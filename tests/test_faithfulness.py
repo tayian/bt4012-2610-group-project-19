@@ -81,3 +81,13 @@ def test_score_run_and_logger():
             log.set_brief(FX["briefs"][0])
         L = load_logs("single", d)
         assert L[0]["n_tool_calls"] == 1 and L[0]["input_tokens"] == 1200
+
+
+def test_comma_separated_citations_are_split():
+    b = json.loads(json.dumps(FX["briefs"][0]))
+    ids = b["evidence"][0]["citations"]
+    b["evidence"][0]["citations"] = [", ".join(ids)]
+    b["onsite_checks"][0] = b["onsite_checks"][0].replace("]", ", SNAPSHOT]", 1)
+    r = score_brief(b, SNAP[b["client_id"]], EV)
+    assert r["citation_valid_rate"] == 1.0, r["details"]["citations"]
+    assert r["number_accuracy_rate"] == _score(0)["number_accuracy_rate"]

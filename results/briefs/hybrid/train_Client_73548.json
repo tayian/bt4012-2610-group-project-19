@@ -1,0 +1,71 @@
+{
+  "client_id": "train_Client_73548",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T23:01:59",
+  "queries": [
+    "investigate high number of meters n_counters 4 for single account",
+    "analyze consumption skew and high robust_z_max indicating irregular usage patterns",
+    "review meter reading remarks 6 8 9 and missing billing months"
+  ],
+  "evidence_ids": [
+    "TYP-09",
+    "TYP-04",
+    "SOP-v2023-4.1",
+    "CODE-counter_statue-4",
+    "CODE-tarif_type-14"
+  ],
+  "brief": {
+    "client_id": "train_Client_73548",
+    "risk_score": 0.311,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client is flagged as high risk (99.98th percentile), with the number of counters (4) being the primary driver of the model's risk assessment.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Consumption data shows high skew (2.7637), which aligns with the data signature for intermittent tampering where consumption fluctuates between low and high periods.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "The presence of reading_remarque 8 and 9 indicates reliance on estimated or unread billing, which necessitates verification of meter accessibility.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2023-4.1"
+        ]
+      },
+      {
+        "point": "The client has missing months (has_missing_months = 1), which may obscure consumption patterns and requires on-site verification of the meter status.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify meter accessibility and compare current index with last billed index.",
+      "Inspect for signs of intermittent tampering (e.g., bypass marks, residual magnetism).",
+      "Verify the status of all 4 counters associated with the client."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2023-4.1",
+        "action": "Verify if consecutive estimated readings exceed the limit and require a physical read."
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "The model relies heavily on the number of counters (4), which is an outlier; however, the specific nature of the consumption volatility (skew) could also be attributed to legitimate seasonal variations rather than fraud."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_73548\",\n  \"risk_score\": 0.311,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client is flagged as high risk (99.98th percentile), with the number of counters (4) being the primary driver of the model's risk assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Consumption data shows high skew (2.7637), which aligns with the data signature for intermittent tampering where consumption fluctuates between low and high periods.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The presence of reading_remarque 8 and 9 indicates reliance on estimated or unread billing, which necessitates verification of meter accessibility.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2023-4.1\"\n      ]\n    },\n    {\n      \"point\": \"The client has missing months (has_missing_months = 1), which may obscure consumption patterns and requires on-site verification of the meter status.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify meter accessibility and compare current index with last billed index.\",\n    \"Inspect for signs of intermittent tampering (e.g., bypass marks, residual magnetism).\",\n    \"Verify the status of all 4 counters associated with the client.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2023-4.1\",\n      \"action\": \"Verify if consecutive estimated readings exceed the limit and require a physical read.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The model relies heavily on the number of counters (4), which is an outlier; however, the specific nature of the consumption volatility (skew) could also be attributed to legitimate seasonal variations rather than fraud.\"\n}",
+  "usage": {
+    "input_tokens": 4131,
+    "output_tokens": 1901
+  },
+  "error": null
+}

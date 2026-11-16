@@ -1,0 +1,67 @@
+{
+  "client_id": "train_Client_105925",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T23:11:35",
+  "queries": [
+    "investigate multiple meters account n_counters 2",
+    "analyze extreme consumption spikes robust_z_max 19.47",
+    "review meter reading remarks 6 8 9 for potential tampering"
+  ],
+  "evidence_ids": [
+    "TYP-04",
+    "TYP-09",
+    "SOP-v2025-5.1",
+    "SOP-v2025-5.2",
+    "CODE-counter_code-453"
+  ],
+  "brief": {
+    "client_id": "train_Client_105925",
+    "risk_score": 0.3123,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client's benford_mad of 0.0776 significantly exceeds the 0.015 threshold, indicating a departure from expected digit distribution patterns [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Consumption data shows high skew (3.3421) and kurtosis (14.7663), which are consistent with the volatile consumption signatures of intermittent tampering [SNAPSHOT, TYP-09].",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "A robust_z_max of 19.477 indicates extreme consumption spikes, suggesting potential reconciliation gaps or irregular usage patterns [SNAPSHOT, TYP-09].",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "The account history includes reading_remarque codes 6, 8, and 9, alongside has_missing_months, which requires verification of meter accessibility and reading consistency [SNAPSHOT, TYP-04].",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-04"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect terminal screws and conductors for signs of temporary jumpers or bypasses [TYP-09].",
+      "Test the meter casing with a Gaussmeter for residual magnetism [TYP-09].",
+      "Perform an unannounced supervisory reading to compare the current index against the last billed index [TYP-04]."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "While the Benford's Law anomaly is present, the round_reading_share (0.275) does not meet the 0.40 threshold required to trigger the mandatory internal supervisory audit under [SOP-v2025-5.1]. Additionally, the regional median consumption required to trigger [SOP-v2025-5.2] is not provided in the snapshot, preventing confirmation of tariff reclassification requirements."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_105925\",\n  \"risk_score\": 0.3123,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client's benford_mad of 0.0776 significantly exceeds the 0.015 threshold, indicating a departure from expected digit distribution patterns [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Consumption data shows high skew (3.3421) and kurtosis (14.7663), which are consistent with the volatile consumption signatures of intermittent tampering [SNAPSHOT, TYP-09].\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"A robust_z_max of 19.477 indicates extreme consumption spikes, suggesting potential reconciliation gaps or irregular usage patterns [SNAPSHOT, TYP-09].\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The account history includes reading_remarque codes 6, 8, and 9, alongside has_missing_months, which requires verification of meter accessibility and reading consistency [SNAPSHOT, TYP-04].\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-04\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect terminal screws and conductors for signs of temporary jumpers or bypasses [TYP-09].\",\n    \"Test the meter casing with a Gaussmeter for residual magnetism [TYP-09].\",\n    \"Perform an unannounced supervisory reading to compare the current index against the last billed index [TYP-04].\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the Benford's Law anomaly is present, the round_reading_share (0.275) does not meet the 0.40 threshold required to trigger the mandatory internal supervisory audit under [SOP-v2025-5.1]. Additionally, the regional median consumption required to trigger [SOP-v2025-5.2] is not provided in the snapshot, preventing confirmation of tariff reclassification requirements.\"\n}",
+  "usage": {
+    "input_tokens": 4230,
+    "output_tokens": 2556
+  },
+  "error": null
+}

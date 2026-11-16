@@ -1,0 +1,72 @@
+{
+  "client_id": "train_Client_6987",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T22:59:18",
+  "queries": [
+    "multiple meter accounts investigation for client",
+    "irregular consumption pattern skew and kurtosis analysis",
+    "meter reading remark codes 6 8 9 investigation"
+  ],
+  "evidence_ids": [
+    "TYP-11",
+    "TYP-09",
+    "CODE-reading_remarque-6",
+    "SOP-v2023-1.2",
+    "CODE-counter_statue-1"
+  ],
+  "brief": {
+    "client_id": "train_Client_6987",
+    "risk_score": 0.3114,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client maintains both electricity and gas contracts, necessitating a joint inspection of all meters at the premises.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2023-1.2"
+        ]
+      },
+      {
+        "point": "The client has 4 counters, placing them in the 98.3rd percentile of training clients, which is the primary driver of the model's risk assessment.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Consumption data shows high skew (2.3114) and kurtosis (7.1895), which are indicators of volatile usage patterns consistent with intermittent tampering.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "The presence of counter_statue code '1' (disconnected/cut-off) in the history, while consumption is still recorded, suggests potential self-reconnection.",
+        "citations": [
+          "SNAPSHOT",
+          "CODE-counter_statue-1"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Perform a dual-meter inspection of all 4 counters.",
+      "Inspect terminal screws and conductors for signs of temporary jumpers or tampering.",
+      "Verify service-order history to confirm if the 'disconnected' status (code 1) aligns with actual site visits."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2023-1.2",
+        "action": "Conduct a Dual-Counter Field Audit, inspecting seals and index progression for all meters."
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "The Benford MAD score is in the 3.1 percentile, which is low and does not align with the high risk score, suggesting the anomaly may not be related to reading manipulation. The counter_statue '1' is a weak signal and requires verification of the account's actual service-order history."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_6987\",\n  \"risk_score\": 0.3114,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client maintains both electricity and gas contracts, necessitating a joint inspection of all meters at the premises.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2023-1.2\"\n      ]\n    },\n    {\n      \"point\": \"The client has 4 counters, placing them in the 98.3rd percentile of training clients, which is the primary driver of the model's risk assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Consumption data shows high skew (2.3114) and kurtosis (7.1895), which are indicators of volatile usage patterns consistent with intermittent tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The presence of counter_statue code '1' (disconnected/cut-off) in the history, while consumption is still recorded, suggests potential self-reconnection.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"CODE-counter_statue-1\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Perform a dual-meter inspection of all 4 counters.\",\n    \"Inspect terminal screws and conductors for signs of temporary jumpers or tampering.\",\n    \"Verify service-order history to confirm if the 'disconnected' status (code 1) aligns with actual site visits.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2023-1.2\",\n      \"action\": \"Conduct a Dual-Counter Field Audit, inspecting seals and index progression for all meters.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The Benford MAD score is in the 3.1 percentile, which is low and does not align with the high risk score, suggesting the anomaly may not be related to reading manipulation. The counter_statue '1' is a weak signal and requires verification of the account's actual service-order history.\"\n}",
+  "usage": {
+    "input_tokens": 4118,
+    "output_tokens": 2078
+  },
+  "error": null
+}

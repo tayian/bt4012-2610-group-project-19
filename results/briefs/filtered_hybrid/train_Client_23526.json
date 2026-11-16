@@ -1,0 +1,67 @@
+{
+  "client_id": "train_Client_23526",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T23:10:44",
+  "queries": [
+    "investigate multiple meters account with 3 counters",
+    "analyze consumption skew and high robust z-score",
+    "review meter reading remark codes 6, 8, and 9"
+  ],
+  "evidence_ids": [
+    "TYP-11",
+    "TYP-09",
+    "CODE-reading_remarque-6",
+    "TYP-06",
+    "CODE-tarif_type-14"
+  ],
+  "brief": {
+    "client_id": "train_Client_23526",
+    "risk_score": 0.3132,
+    "risk_rank_pct": 100.0,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client exhibits high consumption skewness (cons_pm_skew = 3.5231), which is a top-contributing feature to the risk score and serves as a proxy for volatile consumption patterns often associated with intermittent tampering.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "The client record indicates missing months (has_missing_months = 1), which is a recognized data signature for irregular billing and potential meter interference.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-06"
+        ]
+      },
+      {
+        "point": "The client has a high number of counters (3.0) and invoices (69.0), which are the primary features driving the model's risk assessment.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has a long tenure of 30.73 years, which is identified as a significant factor in the model's risk evaluation.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect terminal covers and seals for signs of tampering or physical obstruction.",
+      "Check for residual magnetism on the meter casing.",
+      "Verify the meter's operation by observing the disc or diaphragm during high-draw appliance usage.",
+      "Compare consumption spikes with historical reading schedules to identify potential catch-up billing."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "The high risk score is driven primarily by structural features such as high counter counts, long tenure, and consumption skewness, rather than explicit indicators of physical tampering like index reversals or reconciliation mismatches, which are currently absent."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_23526\",\n  \"risk_score\": 0.3132,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits high consumption skewness (cons_pm_skew = 3.5231), which is a top-contributing feature to the risk score and serves as a proxy for volatile consumption patterns often associated with intermittent tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The client record indicates missing months (has_missing_months = 1), which is a recognized data signature for irregular billing and potential meter interference.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-06\"\n      ]\n    },\n    {\n      \"point\": \"The client has a high number of counters (3.0) and invoices (69.0), which are the primary features driving the model's risk assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has a long tenure of 30.73 years, which is identified as a significant factor in the model's risk evaluation.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect terminal covers and seals for signs of tampering or physical obstruction.\",\n    \"Check for residual magnetism on the meter casing.\",\n    \"Verify the meter's operation by observing the disc or diaphragm during high-draw appliance usage.\",\n    \"Compare consumption spikes with historical reading schedules to identify potential catch-up billing.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The high risk score is driven primarily by structural features such as high counter counts, long tenure, and consumption skewness, rather than explicit indicators of physical tampering like index reversals or reconciliation mismatches, which are currently absent.\"\n}",
+  "usage": {
+    "input_tokens": 4334,
+    "output_tokens": 2033
+  },
+  "error": null
+}

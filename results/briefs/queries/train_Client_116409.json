@@ -1,0 +1,9 @@
+{
+  "queries": [
+    "investigate multiple meters for single client account",
+    "analyze consumption trend with meter status 0 and 5",
+    "review reading remarks 6, 8, and 9 for potential tampering"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite"
+}

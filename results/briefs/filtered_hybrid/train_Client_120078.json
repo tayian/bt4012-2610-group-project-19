@@ -1,0 +1,70 @@
+{
+  "client_id": "train_Client_120078",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T23:16:48",
+  "queries": [
+    "investigate multiple meters account with counter_statue 0",
+    "analyze consumption skewness and sudden spike share",
+    "review reading_remarque 6 8 9 for potential meter tampering"
+  ],
+  "evidence_ids": [
+    "CODE-counter_statue-0",
+    "TYP-09",
+    "CODE-reading_remarque-9",
+    "TYP-05",
+    "CODE-counter_statue-1"
+  ],
+  "brief": {
+    "client_id": "train_Client_120078",
+    "risk_score": 0.3105,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client exhibits high consumption volatility, with a cons_pm_skew of 2.2679 (87.4th percentile) and a sudden_spike_share of 0.2388 (82.8th percentile), which are indicators of potential intermittent tampering.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has 3 counters, which is a significant risk factor (91.5th percentile) and the primary driver of the model's risk assessment.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The benford_mad value of 0.0219 (1.1th percentile) indicates a deviation from expected digit distribution, contributing to the high risk score.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account history includes reading_remarque codes 6, 8, and 9, suggesting potential issues with meter accessibility or reading accuracy.",
+        "citations": [
+          "SNAPSHOT",
+          "CODE-reading_remarque-9"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect terminal screws and conductors for signs of temporary jumpers or bypasses.",
+      "Test the meter casing for residual magnetism.",
+      "Verify the status and physical integrity of all 3 counters."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "TYP-09",
+        "action": "Investigate for intermittent tampering by checking for saw-tooth consumption patterns and physical evidence of bypasses."
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the model flags high risk, the reading_remarque code 9 is frequent and not definitive evidence of obstruction. The counter_statue is consistently 0, providing no direct evidence of disconnection or self-reconnection."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_120078\",\n  \"risk_score\": 0.3105,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits high consumption volatility, with a cons_pm_skew of 2.2679 (87.4th percentile) and a sudden_spike_share of 0.2388 (82.8th percentile), which are indicators of potential intermittent tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has 3 counters, which is a significant risk factor (91.5th percentile) and the primary driver of the model's risk assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The benford_mad value of 0.0219 (1.1th percentile) indicates a deviation from expected digit distribution, contributing to the high risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account history includes reading_remarque codes 6, 8, and 9, suggesting potential issues with meter accessibility or reading accuracy.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"CODE-reading_remarque-9\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect terminal screws and conductors for signs of temporary jumpers or bypasses.\",\n    \"Test the meter casing for residual magnetism.\",\n    \"Verify the status and physical integrity of all 3 counters.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"TYP-09\",\n      \"action\": \"Investigate for intermittent tampering by checking for saw-tooth consumption patterns and physical evidence of bypasses.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the model flags high risk, the reading_remarque code 9 is frequent and not definitive evidence of obstruction. The counter_statue is consistently 0, providing no direct evidence of disconnection or self-reconnection.\"\n}",
+  "usage": {
+    "input_tokens": 4247,
+    "output_tokens": 1948
+  },
+  "error": null
+}

@@ -1,0 +1,54 @@
+{
+  "client_id": "train_Client_88873",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T22:43:15",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_88873",
+    "risk_score": 0.3122,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client is classified in the high risk tier with a risk rank percentile of 99.99, indicating they are among the highest risk clients in the dataset.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The number of counters (3) is the primary feature driving the risk score, contributing significantly to the model's assessment.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has 81 total invoices and a tenure of 17.34 years, both of which are identified as top-tier features influencing the risk model.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Data records indicate the presence of missing months and specific reading remarks (codes 6, 8, 9), which warrant physical verification.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify the status and physical condition of all 3 counters.",
+      "Check for potential bypasses or tampering given the reading remarks.",
+      "Reconcile the missing months in the billing history."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "The risk score is driven by structural features (number of counters, region, tenure) rather than explicit evidence of tampering such as index reversals or recon mismatches, which are currently absent."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_88873\",\n  \"risk_score\": 0.3122,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client is classified in the high risk tier with a risk rank percentile of 99.99, indicating they are among the highest risk clients in the dataset.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The number of counters (3) is the primary feature driving the risk score, contributing significantly to the model's assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has 81 total invoices and a tenure of 17.34 years, both of which are identified as top-tier features influencing the risk model.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Data records indicate the presence of missing months and specific reading remarks (codes 6, 8, 9), which warrant physical verification.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the status and physical condition of all 3 counters.\",\n    \"Check for potential bypasses or tampering given the reading remarks.\",\n    \"Reconcile the missing months in the billing history.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The risk score is driven by structural features (number of counters, region, tenure) rather than explicit evidence of tampering such as index reversals or recon mismatches, which are currently absent.\"\n}",
+  "usage": {
+    "input_tokens": 2337,
+    "output_tokens": 1531
+  },
+  "error": null
+}

@@ -1,0 +1,71 @@
+{
+  "client_id": "train_Client_42471",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T23:04:36",
+  "queries": [
+    "investigate multiple meters n_counters 3 for potential tampering",
+    "review consumption history for meter remark codes 6 8 9",
+    "analyze high invoice volume and long billing intervals"
+  ],
+  "evidence_ids": [
+    "TYP-11",
+    "SOP-v2023-3.2",
+    "CODE-reading_remarque-9",
+    "TYP-08",
+    "CASE-train_Client_40190"
+  ],
+  "brief": {
+    "client_id": "train_Client_42471",
+    "risk_score": 0.3105,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client's Benford's Law MAD value is 0.0308, which exceeds the 0.015 threshold often associated with data manipulation or artificial consumption patterns.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-08"
+        ]
+      },
+      {
+        "point": "The invoice history contains reading_remarque codes 6, 8, and 9, which are indicators of estimated billing and potential meter access obstruction.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-08",
+          "CODE-reading_remarque-9"
+        ]
+      },
+      {
+        "point": "The client has 82 invoices and 3 counters, which are identified as the primary drivers of the high risk score in the model's SHAP analysis.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The presence of missing months in the billing history may obscure actual consumption patterns and facilitate the use of estimated readings.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-08"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify physical accessibility of all 3 meters and document any obstructions.",
+      "Compare current meter readings with historical billing logs to identify potential catch-up gaps.",
+      "Inspect seals and terminals for evidence of tampering or bypass during the estimation periods.",
+      "Order relocation of meters to the property boundary if access remains restricted."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [
+      "CASE-train_Client_40190"
+    ],
+    "uncertainty": "The risk score is heavily influenced by the high volume of invoices and multiple counters, which are structural features rather than direct evidence of fraud. While the Benford's Law deviation and estimated reading codes suggest potential manipulation, these are indicators of risk rather than confirmed proof of tampering."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_42471\",\n  \"risk_score\": 0.3105,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client's Benford's Law MAD value is 0.0308, which exceeds the 0.015 threshold often associated with data manipulation or artificial consumption patterns.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-08\"\n      ]\n    },\n    {\n      \"point\": \"The invoice history contains reading_remarque codes 6, 8, and 9, which are indicators of estimated billing and potential meter access obstruction.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-08\",\n        \"CODE-reading_remarque-9\"\n      ]\n    },\n    {\n      \"point\": \"The client has 82 invoices and 3 counters, which are identified as the primary drivers of the high risk score in the model's SHAP analysis.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The presence of missing months in the billing history may obscure actual consumption patterns and facilitate the use of estimated readings.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-08\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify physical accessibility of all 3 meters and document any obstructions.\",\n    \"Compare current meter readings with historical billing logs to identify potential catch-up gaps.\",\n    \"Inspect seals and terminals for evidence of tampering or bypass during the estimation periods.\",\n    \"Order relocation of meters to the property boundary if access remains restricted.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [\n    \"CASE-train_Client_40190\"\n  ],\n  \"uncertainty\": \"The risk score is heavily influenced by the high volume of invoices and multiple counters, which are structural features rather than direct evidence of fraud. While the Benford's Law deviation and estimated reading codes suggest potential manipulation, these are indicators of risk rather than confirmed proof of tampering.\"\n}",
+  "usage": {
+    "input_tokens": 4185,
+    "output_tokens": 1644
+  },
+  "error": null
+}

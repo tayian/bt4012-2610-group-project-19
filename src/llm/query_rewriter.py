@@ -1,7 +1,7 @@
 # Query rewriter: turns a client risk snapshot into 3 short search queries for RAG retrieval.
 #
 # Uses the Section 14.4 system prompt and Gemini structured JSON output (model: GEMINI_MODEL,
-# default gemini-2.5-flash).
+# default gemini-3.1-flash-lite).
 
 from __future__ import annotations
 
@@ -20,8 +20,8 @@ try:
 except ImportError:
     pass
 
-# Project standard: GEMINI_MODEL from .env (see .env.example), else gemini-2.5-flash.
-DEFAULT_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+# Project standard: GEMINI_MODEL from .env (see .env.example), else gemini-3.1-flash-lite.
+DEFAULT_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.1-flash-lite")
 SAMPLE_SEED = 4012
 
 QUERY_REWRITER_SYSTEM_PROMPT = (
@@ -32,6 +32,12 @@ QUERY_REWRITER_SYSTEM_PROMPT = (
 )
 
 DEFAULT_OUTPUT_PATH = Path("results/tables/query_rewriter_eval.json")
+
+
+def low_thinking(model: str) -> dict[str, Any]:
+    # Gemini 3 models think at a high level by default, which on a full snapshot prompt can
+    # run past the API deadline (504); low thinking keeps calls to a few seconds.
+    return {"thinking_config": {"thinking_level": "low"}} if "gemini-3" in model else {}
 
 
 def format_snapshot_for_rewriter(snapshot: dict[str, Any]) -> str:
@@ -161,6 +167,7 @@ def rewrite_snapshot_to_queries(
                     "response_mime_type": "application/json",
                     "response_schema": list[str],
                     "temperature": 0.0,
+                    **low_thinking(model),
                 },
             )
             return _parse_three_queries(response.text)

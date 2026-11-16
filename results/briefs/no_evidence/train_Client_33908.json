@@ -1,0 +1,60 @@
+{
+  "client_id": "train_Client_33908",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T22:42:34",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_33908",
+    "risk_score": 0.3129,
+    "risk_rank_pct": 100.0,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client is ranked in the 100.0 percentile for risk, placing them in the high-risk tier.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The slope of consumption over the last 3 years is at the 98.1 percentile, indicating a significant deviation in usage trends.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has 2 counters and 38 invoices, which are identified as primary features influencing the model's risk score.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Account history shows a round reading share of 0.2632 and the presence of missing months.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Reading remarks codes 6, 8, and 9 are present in the client's history, indicating potential irregularities in meter readings.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify meter status for both counters",
+      "Inspect for potential bypass or tampering given the high consumption slope",
+      "Check for missing reading data and validate current meter index"
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "The model relies heavily on tenure and counter count, but the specific cause of the high consumption slope (174.8304) is not explicitly explained by the provided data."
+  },
+  "raw_text": "{\"client_id\":\"train_Client_33908\",\"risk_score\":0.3129,\"risk_rank_pct\":100.0,\"risk_tier\":\"high\",\"evidence\":[{\"point\":\"The client is ranked in the 100.0 percentile for risk, placing them in the high-risk tier.\",\"citations\":[\"SNAPSHOT\"]},{\"point\":\"The slope of consumption over the last 3 years is at the 98.1 percentile, indicating a significant deviation in usage trends.\",\"citations\":[\"SNAPSHOT\"]},{\"point\":\"The client has 2 counters and 38 invoices, which are identified as primary features influencing the model's risk score.\",\"citations\":[\"SNAPSHOT\"]},{\"point\":\"Account history shows a round reading share of 0.2632 and the presence of missing months.\",\"citations\":[\"SNAPSHOT\"]},{\"point\":\"Reading remarks codes 6, 8, and 9 are present in the client's history, indicating potential irregularities in meter readings.\",\"citations\":[\"SNAPSHOT\"]}],\"onsite_checks\":[\"Verify meter status for both counters\",\"Inspect for potential bypass or tampering given the high consumption slope\",\"Check for missing reading data and validate current meter index\"],\"applicable_rules\":[],\"similar_cases\":[],\"uncertainty\":\"The model relies heavily on tenure and counter count, but the specific cause of the high consumption slope (174.8304) is not explicitly explained by the provided data.\"}",
+  "usage": {
+    "input_tokens": 2351,
+    "output_tokens": 1806
+  },
+  "error": null
+}

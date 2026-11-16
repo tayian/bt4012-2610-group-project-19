@@ -1,0 +1,9 @@
+{
+  "queries": [
+    "investigate multiple meters with zero consumption runs and meter status codes 0 and 5",
+    "review billing history for high invoice frequency and long gaps in meter reading",
+    "audit account for meter reading remark codes 6, 8, and 9 indicating potential tampering"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite"
+}

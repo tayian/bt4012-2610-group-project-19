@@ -1,0 +1,68 @@
+{
+  "client_id": "train_Client_115315",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T23:03:31",
+  "queries": [
+    "investigate multiple meter accounts for single client with high consumption skew",
+    "review consumption anomalies and high robust z-score for meter remark codes 6, 8, 9",
+    "audit billing history for irregular invoice frequency and high consumption variance"
+  ],
+  "evidence_ids": [
+    "TYP-09",
+    "TYP-08",
+    "SOP-v2025-2.2",
+    "CODE-reading_remarque-9",
+    "TYP-11"
+  ],
+  "brief": {
+    "client_id": "train_Client_115315",
+    "risk_score": 0.3107,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client exhibits high consumption volatility, indicated by a cons_pm_skew of 3.5607, which is a data signature for intermittent tampering where consumption is suppressed and then spikes.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "The benford_mad value of 0.0486 exceeds the 0.015 threshold, suggesting potential manipulation of billing data or estimated reading abuse.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-08"
+        ]
+      },
+      {
+        "point": "The client operates with 3 counters, a feature identified as a primary driver of the high risk score, potentially indicating complex metering arrangements susceptible to tampering.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-11"
+        ]
+      },
+      {
+        "point": "The account history includes reading_remarque codes 6, 8, and 9, which are associated with estimated reading abuse and potential access obstruction.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-08"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect terminal screws and conductors for clip marks or insulation damage [TYP-09].",
+      "Check meter accessibility and document obstructions [TYP-08].",
+      "Verify CT/PT ratio and test terminal block seals [TYP-11]."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "While the model flags high risk due to consumption skew and the number of counters, there is no evidence of consecutive zero-consumption runs or reconciliation mismatches. The reading_remarque 9 is frequent in the general population and should not be treated as definitive evidence of obstruction [CODE-reading_remarque-9]."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_115315\",\n  \"risk_score\": 0.3107,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits high consumption volatility, indicated by a cons_pm_skew of 3.5607, which is a data signature for intermittent tampering where consumption is suppressed and then spikes.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The benford_mad value of 0.0486 exceeds the 0.015 threshold, suggesting potential manipulation of billing data or estimated reading abuse.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-08\"\n      ]\n    },\n    {\n      \"point\": \"The client operates with 3 counters, a feature identified as a primary driver of the high risk score, potentially indicating complex metering arrangements susceptible to tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-11\"\n      ]\n    },\n    {\n      \"point\": \"The account history includes reading_remarque codes 6, 8, and 9, which are associated with estimated reading abuse and potential access obstruction.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-08\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect terminal screws and conductors for clip marks or insulation damage [TYP-09].\",\n    \"Check meter accessibility and document obstructions [TYP-08].\",\n    \"Verify CT/PT ratio and test terminal block seals [TYP-11].\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the model flags high risk due to consumption skew and the number of counters, there is no evidence of consecutive zero-consumption runs or reconciliation mismatches. The reading_remarque 9 is frequent in the general population and should not be treated as definitive evidence of obstruction [CODE-reading_remarque-9].\"\n}",
+  "usage": {
+    "input_tokens": 4399,
+    "output_tokens": 2232
+  },
+  "error": null
+}

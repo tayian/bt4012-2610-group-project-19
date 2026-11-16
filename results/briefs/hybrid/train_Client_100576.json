@@ -1,0 +1,78 @@
+{
+  "client_id": "train_Client_100576",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T22:58:31",
+  "queries": [
+    "investigate meter status codes 0, 5 and remark codes 6, 8, 9 for potential tampering",
+    "review account for extended zero consumption runs and high robust z-score volatility",
+    "audit multi-meter account with excessive counter count and high invoice frequency"
+  ],
+  "evidence_ids": [
+    "SOP-v2025-2.2",
+    "SOP-v2023-3.2",
+    "TYP-11",
+    "SOP-v2025-3.2",
+    "TYP-09"
+  ],
+  "brief": {
+    "client_id": "train_Client_100576",
+    "risk_score": 0.3116,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client exhibits a high frequency of zero-consumption periods, with a zero_run_max of 28.0, which triggers mandatory inspection protocols under the rapid zero-consumption detection threshold.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-2.2"
+        ]
+      },
+      {
+        "point": "The presence of counter_statue code '5' in the client's history indicates a suspected anomaly or meter defect, requiring priority enforcement dispatch within seven calendar days.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-3.2"
+        ]
+      },
+      {
+        "point": "The consumption profile shows high volatility, with a sudden_spike_share of 0.3305 and a zero_share of 0.322, consistent with the intermittent tampering signature described in the catch-up billing playbook.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "The extreme range between the minimum consumption (0.0) and maximum consumption (433.0) supports the hypothesis of intermittent tampering, where consumption is suppressed and then reconciled.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect terminal screws and conductors for clip marks or insulation damage",
+      "Test the casing with a Gaussmeter for residual magnetism",
+      "Verify seal integrity and terminal links",
+      "Inspect for unauthorized neutral disconnection, direct bypass, or meter jamming"
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-3.2",
+        "action": "Priority Enforcement Dispatch (Level 2) within 7 days"
+      },
+      {
+        "rule_id": "SOP-v2025-2.2",
+        "action": "Priority Inspection & Service Verification"
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the data strongly suggests intermittent tampering, the specific physical mechanism (e.g., magnet usage vs. bypass) remains unverified without the physical site audit."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_100576\",\n  \"risk_score\": 0.3116,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits a high frequency of zero-consumption periods, with a zero_run_max of 28.0, which triggers mandatory inspection protocols under the rapid zero-consumption detection threshold.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.2\"\n      ]\n    },\n    {\n      \"point\": \"The presence of counter_statue code '5' in the client's history indicates a suspected anomaly or meter defect, requiring priority enforcement dispatch within seven calendar days.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-3.2\"\n      ]\n    },\n    {\n      \"point\": \"The consumption profile shows high volatility, with a sudden_spike_share of 0.3305 and a zero_share of 0.322, consistent with the intermittent tampering signature described in the catch-up billing playbook.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The extreme range between the minimum consumption (0.0) and maximum consumption (433.0) supports the hypothesis of intermittent tampering, where consumption is suppressed and then reconciled.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect terminal screws and conductors for clip marks or insulation damage\",\n    \"Test the casing with a Gaussmeter for residual magnetism\",\n    \"Verify seal integrity and terminal links\",\n    \"Inspect for unauthorized neutral disconnection, direct bypass, or meter jamming\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-3.2\",\n      \"action\": \"Priority Enforcement Dispatch (Level 2) within 7 days\"\n    },\n    {\n      \"rule_id\": \"SOP-v2025-2.2\",\n      \"action\": \"Priority Inspection & Service Verification\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the data strongly suggests intermittent tampering, the specific physical mechanism (e.g., magnet usage vs. bypass) remains unverified without the physical site audit.\"\n}",
+  "usage": {
+    "input_tokens": 3955,
+    "output_tokens": 1837
+  },
+  "error": null
+}

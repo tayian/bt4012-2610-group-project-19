@@ -1,0 +1,9 @@
+{
+  "queries": [
+    "multiple meter accounts investigation for client",
+    "irregular consumption pattern skew and kurtosis analysis",
+    "meter reading remark codes 6 8 9 investigation"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite"
+}

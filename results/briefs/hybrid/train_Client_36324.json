@@ -1,0 +1,72 @@
+{
+  "client_id": "train_Client_36324",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T23:01:50",
+  "queries": [
+    "investigate high consumption variability and multiple meters for client category 51",
+    "review billing history for reading remark codes 6, 8, and 9",
+    "analyze high electricity consumption levels and irregular invoice frequency"
+  ],
+  "evidence_ids": [
+    "TYP-11",
+    "TYP-09",
+    "TYP-07",
+    "SOP-v2023-4.1",
+    "CODE-tarif_type-14"
+  ],
+  "brief": {
+    "client_id": "train_Client_36324",
+    "risk_score": 0.311,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client is assigned to client_catg 51, which is identified in the playbook as having a significantly higher fraud rate of 17.2% compared to the base rate.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-07"
+        ]
+      },
+      {
+        "point": "The client exhibits a high share of upper tariff band usage (share_level_2_plus_elec = 0.8972), which is a data signature associated with potential tariff misclassification.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-07"
+        ]
+      },
+      {
+        "point": "The account history includes reading_remarque 8, which indicates the use of estimated billing, potentially masking actual consumption patterns.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2023-4.1"
+        ]
+      },
+      {
+        "point": "The client operates with 3 counters, which is the primary feature driving the model's risk assessment (SHAP value 1.2461).",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify the business activity on the premises to ensure it matches the assigned client category.",
+      "Inspect all 3 meters for signs of tampering or bypass, particularly given the high usage of upper tariff bands.",
+      "Perform a physical meter reading to resolve the estimated billing status and verify current index values."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2023-4.1",
+        "action": "Verify if five consecutive estimated invoices exist; if so, perform a mandatory physical meter read."
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the high risk score is strongly correlated with the client category and high usage patterns, the specific mechanism of fraud is not confirmed. The presence of estimated readings (reading_remarque 8) may obscure consumption patterns, making it difficult to distinguish between legitimate high usage and potential tampering without a physical inspection."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_36324\",\n  \"risk_score\": 0.311,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client is assigned to client_catg 51, which is identified in the playbook as having a significantly higher fraud rate of 17.2% compared to the base rate.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-07\"\n      ]\n    },\n    {\n      \"point\": \"The client exhibits a high share of upper tariff band usage (share_level_2_plus_elec = 0.8972), which is a data signature associated with potential tariff misclassification.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-07\"\n      ]\n    },\n    {\n      \"point\": \"The account history includes reading_remarque 8, which indicates the use of estimated billing, potentially masking actual consumption patterns.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2023-4.1\"\n      ]\n    },\n    {\n      \"point\": \"The client operates with 3 counters, which is the primary feature driving the model's risk assessment (SHAP value 1.2461).\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the business activity on the premises to ensure it matches the assigned client category.\",\n    \"Inspect all 3 meters for signs of tampering or bypass, particularly given the high usage of upper tariff bands.\",\n    \"Perform a physical meter reading to resolve the estimated billing status and verify current index values.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2023-4.1\",\n      \"action\": \"Verify if five consecutive estimated invoices exist; if so, perform a mandatory physical meter read.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the high risk score is strongly correlated with the client category and high usage patterns, the specific mechanism of fraud is not confirmed. The presence of estimated readings (reading_remarque 8) may obscure consumption patterns, making it difficult to distinguish between legitimate high usage and potential tampering without a physical inspection.\"\n}",
+  "usage": {
+    "input_tokens": 4422,
+    "output_tokens": 2059
+  },
+  "error": null
+}

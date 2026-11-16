@@ -1,0 +1,9 @@
+{
+  "queries": [
+    "investigate meter status codes 0, 5 and remark codes 6, 8, 9 for potential tampering",
+    "review account for extended zero consumption runs and high robust z-score volatility",
+    "audit multi-meter account with excessive counter count and high invoice frequency"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite"
+}

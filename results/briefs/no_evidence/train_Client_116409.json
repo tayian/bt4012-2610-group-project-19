@@ -1,0 +1,60 @@
+{
+  "client_id": "train_Client_116409",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T22:40:14",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_116409",
+    "risk_score": 0.3132,
+    "risk_rank_pct": 100.0,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client operates 4 counters, which is the primary feature driving the risk model's assessment.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client is located in region 311, which is identified as the second most significant factor in the risk calculation.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has a total of 39 invoices, which is a contributing factor to the model's risk score.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The consumption slope over the last 3 years is 71.1937, which is a high-impact feature in the model.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account record indicates the presence of missing months, which may warrant further investigation into billing continuity.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify the status and physical condition of all 4 counters.",
+      "Check for any unauthorized bypasses or tampering given the high consumption slope.",
+      "Review billing history for the missing months identified in the account records."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "The risk score is driven by statistical features such as counter count and regional data rather than direct evidence of fraud like index reversals or recon mismatches, which are currently absent."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_116409\",\n  \"risk_score\": 0.3132,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client operates 4 counters, which is the primary feature driving the risk model's assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client is located in region 311, which is identified as the second most significant factor in the risk calculation.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has a total of 39 invoices, which is a contributing factor to the model's risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The consumption slope over the last 3 years is 71.1937, which is a high-impact feature in the model.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account record indicates the presence of missing months, which may warrant further investigation into billing continuity.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the status and physical condition of all 4 counters.\",\n    \"Check for any unauthorized bypasses or tampering given the high consumption slope.\",\n    \"Review billing history for the missing months identified in the account records.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The risk score is driven by statistical features such as counter count and regional data rather than direct evidence of fraud like index reversals or recon mismatches, which are currently absent.\"\n}",
+  "usage": {
+    "input_tokens": 2332,
+    "output_tokens": 1519
+  },
+  "error": null
+}

@@ -1,0 +1,78 @@
+{
+  "client_id": "train_Client_114025",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T23:17:11",
+  "queries": [
+    "investigate multiple meters n_counters 4 for potential energy diversion",
+    "analyze zero consumption patterns zero_run_max 6 and meter status codes 0 1 5",
+    "review high frequency of round number readings round_reading_share 0.32 and remark codes 6 8 9"
+  ],
+  "evidence_ids": [
+    "TYP-06",
+    "TYP-10",
+    "CODE-reading_remarque-9",
+    "CODE-counter_statue-1",
+    "CASE-train_Client_16900"
+  ],
+  "brief": {
+    "client_id": "train_Client_114025",
+    "risk_score": 0.3105,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client's risk profile is heavily influenced by having 4 counters and a high share of level 2+ electricity consumption (83.13%), which are the top contributors to the model's risk assessment.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client shows a zero_run_max of 6.0 and a zero_share of 0.18, indicating significant periods of zero consumption that may suggest meter inactivity or tampering.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The presence of counter_statue code '1' is noted; while often associated with disconnected service, it requires verification as it can sometimes mask self-reconnection or unmetered use.",
+        "citations": [
+          "SNAPSHOT",
+          "CODE-counter_statue-1"
+        ]
+      },
+      {
+        "point": "The account history includes has_missing_months and irregular billing patterns, which are consistent with potential meter jamming or mechanical breakdown scenarios.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-06"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect meter casing for physical damage or inserted objects",
+      "Verify neutral connection integrity and voltage levels",
+      "Check for signs of meter tampering or bypass",
+      "Confirm current service status against counter_statue 1"
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "TYP-06",
+        "action": "Inspect for physical obstruction"
+      },
+      {
+        "rule_id": "TYP-10",
+        "action": "Check neutral connection and voltage"
+      }
+    ],
+    "similar_cases": [
+      "CASE-train_Client_16900"
+    ],
+    "uncertainty": "The reading_remarque code '9' is present but is highly frequent in the general population, making it a weak indicator of specific obstruction. The counter_statue '1' is also ambiguous without confirming the actual service order history."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_114025\",\n  \"risk_score\": 0.3105,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client's risk profile is heavily influenced by having 4 counters and a high share of level 2+ electricity consumption (83.13%), which are the top contributors to the model's risk assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client shows a zero_run_max of 6.0 and a zero_share of 0.18, indicating significant periods of zero consumption that may suggest meter inactivity or tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The presence of counter_statue code '1' is noted; while often associated with disconnected service, it requires verification as it can sometimes mask self-reconnection or unmetered use.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"CODE-counter_statue-1\"\n      ]\n    },\n    {\n      \"point\": \"The account history includes has_missing_months and irregular billing patterns, which are consistent with potential meter jamming or mechanical breakdown scenarios.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-06\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect meter casing for physical damage or inserted objects\",\n    \"Verify neutral connection integrity and voltage levels\",\n    \"Check for signs of meter tampering or bypass\",\n    \"Confirm current service status against counter_statue 1\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"TYP-06\",\n      \"action\": \"Inspect for physical obstruction\"\n    },\n    {\n      \"rule_id\": \"TYP-10\",\n      \"action\": \"Check neutral connection and voltage\"\n    }\n  ],\n  \"similar_cases\": [\n    \"CASE-train_Client_16900\"\n  ],\n  \"uncertainty\": \"The reading_remarque code '9' is present but is highly frequent in the general population, making it a weak indicator of specific obstruction. The counter_statue '1' is also ambiguous without confirming the actual service order history.\"\n}",
+  "usage": {
+    "input_tokens": 4347,
+    "output_tokens": 2056
+  },
+  "error": null
+}

@@ -1,0 +1,54 @@
+{
+  "client_id": "train_Client_66981",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "created": "2026-11-16T22:51:04",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_66981",
+    "risk_score": 0.3105,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client has 6 counters, which places them in the 99.9th percentile of the training population.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has 201 invoices, which is in the 99.9th percentile for invoice volume.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Consumption metrics are significantly elevated, with a mean consumption per month of 843.36 (97.6th percentile) and electricity consumption mean absolute deviation of 400.125 (98.5th percentile).",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has 2 recorded bad months, placing them in the 97.5th percentile for this metric.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify all 6 counters are present and functional",
+      "Inspect for signs of tampering or bypass on all meters",
+      "Verify current meter readings against invoice history"
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "The high risk score is primarily driven by the high number of counters and invoices rather than explicit fraud indicators like index reversals or recon mismatches. There is no direct evidence of tampering in the provided data."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_66981\",\n  \"risk_score\": 0.3105,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client has 6 counters, which places them in the 99.9th percentile of the training population.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has 201 invoices, which is in the 99.9th percentile for invoice volume.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Consumption metrics are significantly elevated, with a mean consumption per month of 843.36 (97.6th percentile) and electricity consumption mean absolute deviation of 400.125 (98.5th percentile).\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has 2 recorded bad months, placing them in the 97.5th percentile for this metric.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify all 6 counters are present and functional\",\n    \"Inspect for signs of tampering or bypass on all meters\",\n    \"Verify current meter readings against invoice history\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The high risk score is primarily driven by the high number of counters and invoices rather than explicit fraud indicators like index reversals or recon mismatches. There is no direct evidence of tampering in the provided data.\"\n}",
+  "usage": {
+    "input_tokens": 2427,
+    "output_tokens": 1492
+  },
+  "error": null
+}
