@@ -133,7 +133,7 @@ def run(fv, save=False, folds_to_run=range(5), max_epochs=15, arch="cnn1d"):
 
 def main():
     p = argparse.ArgumentParser(description="Train the 1D-CNN (M7) or its wide-and-deep variant.")
-    p.add_argument("--features", default="v1", choices=["v0", "v1", "v2"])
+    p.add_argument("--features", default="v1", choices=["v0", "v1", "v2", "v3"])
     p.add_argument("--arch", default="cnn1d", choices=sorted(ARCHS))
     p.add_argument("--save", action="store_true", help="keep fold models for the attacks")
     a = p.parse_args()

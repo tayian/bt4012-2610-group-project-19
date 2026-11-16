@@ -123,7 +123,7 @@ def m6_autoencoder(ids, X, y, folds, epochs=25):
 
 def main():
     p = argparse.ArgumentParser(description="Score the isolation forest (M5) and autoencoder (M6).")
-    p.add_argument("--features", default="v1", choices=["v0", "v1", "v2"])
+    p.add_argument("--features", default="v1", choices=["v0", "v1", "v2", "v3"])
     a = p.parse_args()
     ids, X, y, folds = load_train(a.features)
     # Anomaly scores are not probabilities, so their Brier score is left empty.
