@@ -1,11 +1,11 @@
 {
   "client_id": "train_Client_98914",
-  "risk_score": 0.6037565524157229,
-  "risk_rank_pct": 0.645,
+  "risk_score": 0.762211045570608,
+  "risk_rank_pct": 0.75,
   "risk_tier": "medium",
   "evidence": [
     {
-      "point": "Synthetic model score: 0.6037565524157229.",
+      "point": "Synthetic model score: 0.762211045570608.",
       "citations": [
         "SNAPSHOT"
       ]
@@ -33,7 +33,7 @@
     }
   ],
   "similar_cases": [
-    "CASE-train_Client_108530"
+    "CASE-train_Client_102629"
   ],
   "uncertainty": "STUB: all values and evidence are synthetic; no fraud conclusion is supported."
 }

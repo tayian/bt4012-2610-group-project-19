@@ -2,10 +2,11 @@
 #
 # Only the 1,000 client IDs are real. Labels and raw invoices are random; everything after
 # them goes through the real pipeline code: src/data/load.py reads the fake raw CSVs,
-# clean_invoices cleans them, and features_v0 and features_v1 are built by
-# src/features/{aggregate,behavioural}.py. The sequence tensor, splits, scores, SHAP values,
-# corpus chunks and briefs are random with the agreed shapes and column names. Nothing here is
-# a project result.
+# clean_invoices cleans them, and features_v0 and features_v1 (with and without inspection
+# columns) are built by src/features/{aggregate,behavioural}.py. features_v2 is assembled by
+# src/features/combine.py from v1 and random peer and graph columns. The sequence tensor,
+# splits, scores, SHAP values, corpus chunks and briefs are random with the agreed shapes and
+# column names. Nothing here is a project result.
 
 import argparse
 import json
@@ -18,7 +19,9 @@ import pandas as pd
 from src.data.clean import clean_invoices
 from src.data.load import LEVELS, load_clients, load_invoices
 from src.data.split import split_clients
-from src.features import aggregate, behavioural
+from src.features import aggregate, behavioural, combine
+from src.features.graph import FEATURES as GRAPH_FEATURES
+from src.features.peer import COLUMNS as PEER_FEATURES
 
 SEED = 4012
 N_CLIENTS = 1000
@@ -30,16 +33,8 @@ VERSIONS = ["v0", "v1", "v2"]
 FINAL_MODEL = "STUB-M10-v2"
 CATEGORICAL = ["client_catg", "district", "region"]
 
-# Planned v2 features; only the names are fixed so far.
-PLANNED_V2_COLUMNS = {
-    "yoy_drop_max": "float64",
-    "round_reading_share": "float64",
-    "benford_mad": "float64",
-    "n_index_backwards": "int64",
-}
-# Fields that may be recorded during an inspection. features_v2_with_inspection includes them
-# and features_v2 leaves them out, the layout the real files will use once they exist.
-INSPECTION_COLUMNS = ["statue_share_0", "statue_share_1", "remarque_share_6", "n_statue_changes"]
+# The v1 columns that features_v2 drops as redundant (written by src/features/feature_stats.py).
+CORR_PAIRS = Path("results/tables/corr_pairs.csv")
 
 FIXED_CHUNKS = [
     {
@@ -94,10 +89,10 @@ README = """# Fake STEG fixtures (stubs)
 
 Everything in this folder is fake except the 1,000 client IDs, which are taken from
 data/raw/client_train.csv. Labels and raw invoices are random. The interim files,
-features_v0 and features_v1 are built from those fake raw rows by the real load, clean
+features_v0, features_v1 and features_v1_with_inspection are built from those fake raw rows by the real load, clean
 and feature code, so they have the real schemas. seq.npy is random with the agreed shape
-(clients x 120 months x 3 channels). features_v2 (planned columns) and
-features_v2_with_inspection (planned and inspection-time columns), splits, scores, SHAP
+(clients x 120 months x 3 channels). features_v2 and features_v2_with_inspection have the
+real columns, with random peer-residual and graph values. Splits, scores, SHAP
 values, corpus chunks and briefs are random values with the real column names. Use them
 only for interface tests, never as results. The split here is synthetic; the official split
 is in data/splits/.
@@ -123,14 +118,6 @@ def score_brief(brief, snapshot, evidence) -> dict:
         "needs_human_review": True,
     }
 """
-
-
-def random_column(rng, name, dtype, n):
-    if name.startswith("has_"):
-        return rng.integers(0, 2, n)
-    if str(dtype) == "int64":
-        return rng.integers(0, 20, n)
-    return rng.gamma(2.0, 50.0, n)
 
 
 def raw_clients(rng, ids):
@@ -208,25 +195,31 @@ def load_raw(clients, invoices):
 
 
 def make_features(rng, invoices, clients):
-    # v0 and v1 come from the real feature code; v2 adds random planned columns, and
-    # v2_with_inspection also the inspection-time columns.
+    # v0 and v1 come from the real feature code; v2 is assembled by the real combine step from
+    # v1 and random values for the peer-residual and graph columns (which need labels and a
+    # graph, so they are not computed here).
     v0 = aggregate.build_features(invoices, clients)
-    v1 = behavioural.build_features(invoices, clients["client_id"])
-    n = len(v1)
-    v2 = v1.copy()
-    for column, dtype in PLANNED_V2_COLUMNS.items():
-        v2[column] = pd.Series(random_column(rng, column, dtype, n)).astype(dtype)
-    inspection = v2.copy()
-    share = rng.random(n)
-    inspection["statue_share_0"] = share
-    inspection["statue_share_1"] = 1 - share
-    inspection["remarque_share_6"] = rng.random(n)
-    inspection["n_statue_changes"] = rng.integers(0, 12, n).astype("int64")
+    v1_full = behavioural.build_features(invoices, clients, inspection=True)
+    n = len(v1_full)
+    ids = v1_full[["client_id"]]
+    peer = ids.assign(**{c: rng.normal(0, 1, n) for c in PEER_FEATURES})
+    graph = ids.assign(
+        **{
+            c: rng.integers(1, 50, n)
+            if c in ("degree", "community_size", "n_meter_neighbours")
+            else rng.random(n)
+            for c in GRAPH_FEATURES
+        }
+    )
+    drop = sorted(set(pd.read_csv(CORR_PAIRS)["drop"])) if CORR_PAIRS.exists() else []
+    v2_full = combine.combine(v1_full, peer, graph, drop)
+    inspection = [c for c in behavioural.INSPECTION_COLUMNS if c in v2_full.columns]
     return {
         "features_v0": v0,
-        "features_v1": v1,
-        "features_v2": v2,
-        "features_v2_with_inspection": inspection,
+        "features_v1": v1_full.drop(columns=behavioural.INSPECTION_COLUMNS),
+        "features_v1_with_inspection": v1_full,
+        "features_v2": v2_full.drop(columns=inspection),
+        "features_v2_with_inspection": v2_full,
     }
 
 
@@ -298,7 +291,8 @@ def build_stubs(out, clients_csv):
     save_parquet(clients, "data/interim/client.parquet")
     save_parquet(invoices, "data/interim/invoice_clean.parquet")
 
-    features = make_features(rng, invoices, clients)
+    # Its own generator, so changing the feature columns leaves the other stubs' draws alone.
+    features = make_features(np.random.default_rng([SEED, 2]), invoices, clients)
     for name, table in features.items():
         save_parquet(table, f"data/processed/{name}.parquet")
 
@@ -397,8 +391,7 @@ def build_stubs(out, clients_csv):
         "versions": [int(v[1:]) for v in VERSIONS],
         "models": MODELS,
         "split_source": "synthetic; never use as the official evaluation split",
-        "planned_v2_columns": list(PLANNED_V2_COLUMNS),
-        "inspection_columns": list(INSPECTION_COLUMNS),
+        "inspection_columns": list(behavioural.INSPECTION_COLUMNS),
         "files": files,
     }
     return manifest

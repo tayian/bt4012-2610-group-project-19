@@ -31,17 +31,20 @@
     "M11"
   ],
   "split_source": "synthetic; never use as the official evaluation split",
-  "planned_v2_columns": [
-    "yoy_drop_max",
-    "round_reading_share",
-    "benford_mad",
-    "n_index_backwards"
-  ],
   "inspection_columns": [
     "statue_share_0",
     "statue_share_1",
+    "statue_share_2",
+    "statue_share_3",
+    "statue_share_4",
+    "statue_share_5",
+    "statue_share_other",
+    "n_statue_changes",
     "remarque_share_6",
-    "n_statue_changes"
+    "remarque_share_7",
+    "remarque_share_8",
+    "remarque_share_9",
+    "remarque_share_other"
   ],
   "files": [
     "README.md",
@@ -50,6 +53,7 @@
     "data/interim/invoice_clean.parquet",
     "data/processed/features_v0.parquet",
     "data/processed/features_v1.parquet",
+    "data/processed/features_v1_with_inspection.parquet",
     "data/processed/features_v2.parquet",
     "data/processed/features_v2_with_inspection.parquet",
     "data/processed/seq.npy",

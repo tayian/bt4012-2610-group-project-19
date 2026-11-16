@@ -19,7 +19,7 @@ PY = sys.executable
 def commands(s):
     # Each step: (steps it needs first, commands to run, one-line description).
     raw_check = [] if s.skip_raw_check else ["check-raw"]
-    dl_step = "features" if s.dl_features == "v0" else "features-v1"
+    dl_step = {"v0": "features", "v1": "features-v1", "v2": "features-v2"}[s.dl_features]
     experiment_args = [
         "--features",
         s.features_v0,
@@ -37,6 +37,8 @@ def commands(s):
                 "interim",
                 "features",
                 "features-v1",
+                "features-v2",
+                "label-spreading",
                 "codebook",
                 "corpus",
                 "retrieval-eval",
@@ -168,7 +170,71 @@ def commands(s):
                     s.features_v1,
                 ]
             ],
-            "Build the consumption and billing features (features_v1)",
+            "Build features_v1 (F1 to F7) and features_v1_with_inspection (+ F9)",
+        ),
+        "feature-stats": (
+            ["features-v1", "splits"],
+            [
+                [
+                    PY,
+                    "-m",
+                    "src.features.feature_stats",
+                    "--features",
+                    str(Path(s.features_v1).with_name("features_v1_with_inspection.parquet")),
+                    "--interim",
+                    s.interim,
+                    "--split-dir",
+                    s.split_dir,
+                ]
+            ],
+            "Hypothesis tests, Spearman heatmap and redundant pairs (training clients)",
+        ),
+        "peer": (
+            ["interim", "splits"],
+            [
+                [
+                    PY,
+                    "-m",
+                    "src.features.peer",
+                    "--interim",
+                    s.interim,
+                    "--split-dir",
+                    s.split_dir,
+                ]
+            ],
+            "Out-of-fold peer-residual features (F8)",
+        ),
+        "graph": (
+            ["features-v1", "splits"],
+            [
+                [
+                    PY,
+                    "-m",
+                    "src.features.graph",
+                    "--interim",
+                    s.interim,
+                    "--split-dir",
+                    s.split_dir,
+                    "--features",
+                    s.features_v1,
+                ]
+            ],
+            "kNN client graph (knn_edges.parquet) and out-of-fold graph features (F10)",
+        ),
+        "features-v2": (
+            ["feature-stats", "peer", "graph"],
+            [[PY, "-m", "src.features.combine"]],
+            "Build features_v2 (v1 + F8 + F10, redundant columns dropped)",
+        ),
+        "label-spreading": (
+            ["graph"],
+            [[PY, "-m", "src.models.label_spreading"]],
+            "M8 label spreading on the client graph; writes OOF scores and metrics",
+        ),
+        "graphsage": (
+            ["features-v2"],
+            [[PY, "-m", "src.models.graphsage"]],
+            "M8sage GraphSAGE on the client graph; writes OOF scores and metrics",
         ),
         "seq": (
             ["interim"],
@@ -390,7 +456,7 @@ def main():
     parser.add_argument("--results-dir", default="results")
     parser.add_argument("--lr-max-iter", type=int, default=15000)
     parser.add_argument("--tree-jobs", type=int, default=2)
-    parser.add_argument("--dl-features", choices=["v0", "v1"], default="v1")
+    parser.add_argument("--dl-features", choices=["v0", "v1", "v2"], default="v1")
     parser.add_argument("--mlp-loss", choices=["bce", "focal", "both"], default="bce")
     parser.add_argument("--pu-m3", default="v0", help="version of the M3 OOF file used by pu")
     parser.add_argument(
