@@ -1,0 +1,101 @@
+query_id,category,method,gold_rank
+Q01,concept,dense,1
+Q02,concept,dense,1
+Q03,concept,dense,4
+Q04,concept,dense,
+Q05,concept,dense,2
+Q06,concept,dense,1
+Q07,concept,dense,
+Q08,concept,dense,2
+Q09,concept,dense,1
+Q10,concept,dense,1
+Q11,exact_code,dense,
+Q12,exact_code,dense,3
+Q13,exact_code,dense,2
+Q14,exact_code,dense,5
+Q15,exact_code,dense,
+Q16,exact_code,dense,2
+Q17,exact_code,dense,
+Q18,exact_code,dense,
+Q19,exact_code,dense,1
+Q20,exact_code,dense,1
+Q21,mixed,dense,1
+Q22,mixed,dense,2
+Q23,mixed,dense,1
+Q24,mixed,dense,2
+Q25,mixed,dense,1
+Q01,concept,bm25,1
+Q02,concept,bm25,1
+Q03,concept,bm25,
+Q04,concept,bm25,5
+Q05,concept,bm25,1
+Q06,concept,bm25,2
+Q07,concept,bm25,1
+Q08,concept,bm25,1
+Q09,concept,bm25,1
+Q10,concept,bm25,1
+Q11,exact_code,bm25,
+Q12,exact_code,bm25,3
+Q13,exact_code,bm25,
+Q14,exact_code,bm25,2
+Q15,exact_code,bm25,2
+Q16,exact_code,bm25,1
+Q17,exact_code,bm25,1
+Q18,exact_code,bm25,2
+Q19,exact_code,bm25,2
+Q20,exact_code,bm25,1
+Q21,mixed,bm25,4
+Q22,mixed,bm25,3
+Q23,mixed,bm25,2
+Q24,mixed,bm25,2
+Q25,mixed,bm25,1
+Q01,concept,hybrid,1
+Q02,concept,hybrid,1
+Q03,concept,hybrid,4
+Q04,concept,hybrid,
+Q05,concept,hybrid,1
+Q06,concept,hybrid,1
+Q07,concept,hybrid,2
+Q08,concept,hybrid,1
+Q09,concept,hybrid,1
+Q10,concept,hybrid,1
+Q11,exact_code,hybrid,
+Q12,exact_code,hybrid,1
+Q13,exact_code,hybrid,5
+Q14,exact_code,hybrid,2
+Q15,exact_code,hybrid,3
+Q16,exact_code,hybrid,1
+Q17,exact_code,hybrid,4
+Q18,exact_code,hybrid,3
+Q19,exact_code,hybrid,1
+Q20,exact_code,hybrid,1
+Q21,mixed,hybrid,1
+Q22,mixed,hybrid,1
+Q23,mixed,hybrid,1
+Q24,mixed,hybrid,2
+Q25,mixed,hybrid,1
+Q01,concept,hybrid + rerank,1
+Q02,concept,hybrid + rerank,1
+Q03,concept,hybrid + rerank,3
+Q04,concept,hybrid + rerank,3
+Q05,concept,hybrid + rerank,1
+Q06,concept,hybrid + rerank,1
+Q07,concept,hybrid + rerank,1
+Q08,concept,hybrid + rerank,1
+Q09,concept,hybrid + rerank,1
+Q10,concept,hybrid + rerank,1
+Q11,exact_code,hybrid + rerank,
+Q12,exact_code,hybrid + rerank,
+Q13,exact_code,hybrid + rerank,1
+Q14,exact_code,hybrid + rerank,1
+Q15,exact_code,hybrid + rerank,1
+Q16,exact_code,hybrid + rerank,1
+Q17,exact_code,hybrid + rerank,1
+Q18,exact_code,hybrid + rerank,1
+Q19,exact_code,hybrid + rerank,2
+Q20,exact_code,hybrid + rerank,1
+Q21,mixed,hybrid + rerank,2
+Q22,mixed,hybrid + rerank,1
+Q23,mixed,hybrid + rerank,1
+Q24,mixed,hybrid + rerank,2
+Q25,mixed,hybrid + rerank,1

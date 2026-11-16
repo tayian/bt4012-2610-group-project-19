@@ -50,19 +50,13 @@ def _compute_invoice_summaries(
     ir = inv_raw[inv_raw["client_id"].isin(fraud_ids)].copy()
 
     ic = ic.sort_values(["client_id", "invoice_date"], kind="stable")
-    ic["non_rollover_backwards"] = ic["flag_index_backwards"] & (~ic["flag_index_rollover"])
-    ic["is_zero"] = ic["cons"] == 0
 
-    # Vectorised per-client data-quality and date aggregations.
+    # Per-client dates, exact meter rollovers and the largest coefficient. The validity counts
+    # and zero_share come from features_v1 (same definitions, docs/feature_list.md).
     dq = ic.groupby("client_id", sort=False).agg(
         first_invoice=("invoice_date", "min"),
         last_invoice=("invoice_date", "max"),
-        n_index_backwards=("non_rollover_backwards", "sum"),
         n_index_rollover=("flag_index_rollover", "sum"),
-        n_recon_mismatch=("flag_recon_mismatch", "sum"),
-        n_bad_months_number=("flag_bad_months_number", "sum"),
-        zero_count=("is_zero", "sum"),
-        total_rows=("cons", "size"),
         max_coeff=("counter_coefficient", "max"),
     )
 
@@ -98,6 +92,16 @@ def _compute_invoice_summaries(
     ir["is_stat1_pos"] = (ir["statue_clean"] == "1") & (ir["cons_total"] > 0)
     ir["is_rem8"] = ir["remarque_clean"] == "8"
 
+    # Longest run of consecutive remark-8 (estimated) readings on the same meter, in date order.
+    ir = ir.sort_values(
+        ["client_id", "counter_type", "counter_number", "invoice_date"], kind="stable"
+    )
+    meter = ir[["client_id", "counter_type", "counter_number"]]
+    new_meter = meter.ne(meter.shift()).any(axis=1)
+    run_id = (new_meter | ir["is_rem8"].ne(ir["is_rem8"].shift())).cumsum()
+    run_len = ir.groupby(run_id)["is_rem8"].transform("size").where(ir["is_rem8"], 0)
+    rem8_run_max = run_len.groupby(ir["client_id"], sort=False).max()
+
     statues_s = (
         ir[["client_id", "statue_clean"]]
         .drop_duplicates()
@@ -119,10 +123,7 @@ def _compute_invoice_summaries(
         .groupby("client_id", sort=False)["tarif_clean"]
         .agg(list)
     )
-    code_counts = ir.groupby("client_id", sort=False).agg(
-        stat1_pos=("is_stat1_pos", "sum"),
-        rem8_count=("is_rem8", "sum"),
-    )
+    code_counts = ir.groupby("client_id", sort=False).agg(stat1_pos=("is_stat1_pos", "sum"))
 
     out: dict[str, dict] = {}
     for cid, row in dq.iterrows():
@@ -144,15 +145,10 @@ def _compute_invoice_summaries(
 
         first_dt = pd.Timestamp(row["first_invoice"]).strftime("%Y-%m-%d")
         last_dt = pd.Timestamp(row["last_invoice"]).strftime("%Y-%m-%d")
-        total_rows = max(1, int(row["total_rows"]))
         out[cid_str] = {
             "first_invoice": first_dt,
             "last_invoice": last_dt,
-            "n_index_backwards": int(row["n_index_backwards"]),
             "n_index_rollover": int(row["n_index_rollover"]),
-            "n_recon_mismatch": int(row["n_recon_mismatch"]),
-            "n_bad_months_number": int(row["n_bad_months_number"]),
-            "zero_share": float(row["zero_count"]) / total_rows,
             "max_coeff": float(row["max_coeff"]),
             "h1_median": m1,
             "h2_median": m2,
@@ -163,7 +159,7 @@ def _compute_invoice_summaries(
                 "tarif_type": tarifs_s.get(cid, []),
             },
             "stat1_pos": int(code_counts.at[cid, "stat1_pos"]) if cid in code_counts.index else 0,
-            "rem8_count": int(code_counts.at[cid, "rem8_count"]) if cid in code_counts.index else 0,
+            "rem8_run_max": int(rem8_run_max.get(cid, 0)),
         }
     return out
 
@@ -191,8 +187,9 @@ def _match_typologies(rec: dict) -> list[str]:
     # TYP-03: Internal Register / Index Rollback (backwards reading or reconciliation mismatches)
     if rec["n_index_backwards"] > 0 or rec["n_recon_mismatch"] >= 2:
         matched.append("TYP-03")
-    # TYP-04: Meter-Reader Collusion & Under-Reporting (low variance with remark 6/9)
-    if "9" in remarques and mean_c > 20.0 and 0.0 < std_c < 0.35 * mean_c:
+    # TYP-04: Meter-Reader Collusion & Under-Reporting (playbook: unusually low variance under
+    # routine remark 6 readings, plus a switch to remark 9 "not read")
+    if {"6", "9"} <= remarques and mean_c > 20.0 and 0.0 < std_c < 0.35 * mean_c:
         matched.append("TYP-04")
     # TYP-05: Unauthorised Self-Reconnection (consumption under counter_statue 1)
     if rec["stat1_pos"] > 0:
@@ -203,8 +200,9 @@ def _match_typologies(rec: dict) -> list[str]:
     # TYP-07: Tariff Misclassification (high consumption in category 11)
     if rec["has_elec"] == 1 and rec["client_catg"] == "11" and (mean_c > 550.0 or lvl2 > 0.55):
         matched.append("TYP-07")
-    # TYP-08: Estimated Reading Abuse (repeated remark 8)
-    if rec["rem8_count"] >= 5:
+    # TYP-08: Estimated Reading Abuse (SOP-v2025-4.1: three consecutive remark-8 readings on the
+    # same meter)
+    if rec["rem8_run_max"] >= 3:
         matched.append("TYP-08")
     # TYP-09: Catch-Up Billing After Intermittent Tampering (extreme max-to-min spike ratio)
     if max_c / (min_c + 1.0) > 30.0 and max_c > 3.0 * (med_c + 1.0):
@@ -224,14 +222,7 @@ def _match_typologies(rec: dict) -> list[str]:
     if rec["has_elec"] == 1 and (rec["tenure_years"] or 0.0) > 5.0 and mean_c < 15.0:
         matched.append("TYP-12")
 
-    if not matched:
-        if m1 is not None and m2 is not None and m2 < m1:
-            matched.append("TYP-02")
-        elif max_c > 2.5 * (med_c + 1.0):
-            matched.append("TYP-09")
-        else:
-            matched.append("TYP-01")
-
+    # No rule matched: the card carries no typology rather than a guessed one.
     return matched[:3]
 
 
@@ -315,7 +306,7 @@ def format_case_card_text(card: dict) -> str:
     statues = ", ".join(cs["counter_statue"]) or "none"
     remarques = ", ".join(cs["reading_remarque"]) or "none"
     tarifs = ", ".join(cs["tarif_type"]) or "none"
-    typs = ", ".join(card["matched_typologies"])
+    typs = ", ".join(card["matched_typologies"]) or "none (no typology rule matched)"
 
     lines = [
         f"[{card['id']}] Region {card['region']}, District {card['district']} | "
@@ -385,12 +376,8 @@ def build_case_cards(
         "client_id",
         "invoice_date",
         "counter_coefficient",
-        "cons",
         "cons_pm",
-        "flag_index_backwards",
         "flag_index_rollover",
-        "flag_recon_mismatch",
-        "flag_bad_months_number",
         "flag_partial_year",
     ]
     if (
@@ -404,6 +391,9 @@ def build_case_cards(
         interim_dir / "invoice.parquet",
         columns=[
             "client_id",
+            "invoice_date",
+            "counter_number",
+            "counter_type",
             "counter_statue",
             "reading_remarque",
             "tarif_type",
@@ -451,6 +441,10 @@ def build_case_cards(
                 "cons_pm_mean_elec",
                 "cons_pm_mean_gaz",
                 "has_missing_months",
+                "n_index_backwards",
+                "n_recon_mismatch",
+                "n_bad_months_number",
+                "zero_share",
             ]
         ],
         on="client_id",
@@ -495,6 +489,10 @@ def build_case_cards(
                 None if pd.isna(row["cons_pm_mean_gaz"]) else float(row["cons_pm_mean_gaz"])
             ),
             "has_missing_months": int(row["has_missing_months"]),
+            "n_index_backwards": int(row["n_index_backwards"]),
+            "n_recon_mismatch": int(row["n_recon_mismatch"]),
+            "n_bad_months_number": int(row["n_bad_months_number"]),
+            "zero_share": float(row["zero_share"]),
             **s,
         }
         rec["matched_typologies"] = _match_typologies(rec)

@@ -28,3 +28,5 @@ Python-Generated Cases:                             │     (~420 total chunks)
                                                                 │
                                                                 ▼
                                                    [Grounded Inspector Brief]
+
+The metadata pre-filter keeps precedent case cards from the training split only and, when retrieving for a client, always drops that client's own card (`CASE-<client_id>`). Retrieval quality is measured with `python3 -m src.llm.retrieval_eval` (see `docs/llm_stack.md`); with 25 benchmark queries one query is 0.04 of recall.

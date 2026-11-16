@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 from types import SimpleNamespace
 
+import pandas as pd
+
 from src.llm.query_rewriter import (
     DEFAULT_MODEL,
     DEFAULT_OUTPUT_PATH,
@@ -20,6 +22,12 @@ def test_select_sample_clients_and_formatting():
     clients = select_sample_clients(n_clients=5)
     assert len(clients) == 5
     assert len(set(clients)) == 5
+    assert clients == select_sample_clients(n_clients=5)
+
+    # 3 fraud + 2 non-fraud, labels joined from the client table.
+    labels = pd.read_parquet("data/interim/client.parquet", columns=["client_id", "target"])
+    targets = labels.set_index("client_id").loc[clients, "target"].tolist()
+    assert sorted(targets) == [0, 0, 1, 1, 1]
 
     snap = get_client_snapshot(clients[0])
     formatted = format_snapshot_for_rewriter(snap)
@@ -72,7 +80,8 @@ def test_five_client_rewriter_eval_artifact():
 
     for item in records:
         assert "client_id" in item
-        assert item.get("model") == "gemini-3.8-flash"
+        # The saved run records whichever model id produced it.
+        assert isinstance(item.get("model"), str) and item["model"]
         queries = item.get("queries", [])
         assert isinstance(queries, list) and len(queries) == 3
         assert all(isinstance(q, str) and len(q.strip()) > 0 for q in queries)

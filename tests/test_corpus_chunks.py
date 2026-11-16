@@ -94,4 +94,7 @@ def test_case_cards_non_leakage_and_observed_only():
         assert card["split"] == "train"
         assert card["target"] == 1
         assert card["n_invoices"] > 0
-        assert card["matched_typologies"], f"{cid} has no matched typologies"
+        # A card may match no rule; it then carries no typology instead of a guessed one.
+        typs = card["matched_typologies"]
+        assert len(typs) <= 3
+        assert all(t in {f"TYP-{i:02d}" for i in range(1, 13)} for t in typs), typs

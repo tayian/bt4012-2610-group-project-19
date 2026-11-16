@@ -1,6 +1,7 @@
 # Query rewriter: turns a client risk snapshot into 3 short search queries for RAG retrieval.
 #
-# Uses the Section 14.4 system prompt and Gemini structured JSON output (default: gemini-3.8-flash).
+# Uses the Section 14.4 system prompt and Gemini structured JSON output (model: GEMINI_MODEL,
+# default gemini-2.5-flash).
 
 from __future__ import annotations
 
@@ -9,9 +10,19 @@ import os
 from pathlib import Path
 from typing import Any
 
+from src.llm.retrieval import client_filters
 from src.llm.snapshot import SNAPSHOT_CONFIG, get_client_snapshot
 
-DEFAULT_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv()
+except ImportError:
+    pass
+
+# Project standard: GEMINI_MODEL from .env (see .env.example), else gemini-2.5-flash.
+DEFAULT_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+SAMPLE_SEED = 4012
 
 QUERY_REWRITER_SYSTEM_PROMPT = (
     "You turn a utility-fraud risk snapshot into exactly 3 short search queries. "
@@ -24,7 +35,7 @@ DEFAULT_OUTPUT_PATH = Path("results/tables/query_rewriter_eval.json")
 
 
 def format_snapshot_for_rewriter(snapshot: dict[str, Any]) -> str:
-    """Serialize the relevant fields of a client snapshot for the query rewriter LLM."""
+    # Serialize the relevant fields of a client snapshot for the query rewriter LLM.
     compact = {
         "client_id": snapshot.get("client_id"),
         "alert_date": snapshot.get("alert_date"),
@@ -42,7 +53,7 @@ def format_snapshot_for_rewriter(snapshot: dict[str, Any]) -> str:
 
 
 def fallback_queries_from_snapshot(snapshot: dict[str, Any]) -> list[str]:
-    """Deterministic rule-based fallback returning 3 search queries from a client snapshot."""
+    # Deterministic rule-based fallback returning 3 search queries from a client snapshot.
     codes_seen = snapshot.get("codes_seen", {}) or {}
     statues = [str(c) for c in codes_seen.get("counter_statue", []) if str(c) != "0"]
     remarques = [str(c) for c in codes_seen.get("reading_remarque", []) if str(c) != "6"]
@@ -74,12 +85,12 @@ def fallback_queries_from_snapshot(snapshot: dict[str, Any]) -> list[str]:
     # Query 3: forensic / data-quality / billing interval pattern
     benford = float(snapshot.get("benford_mad") or 0.0)
     round_share = float(snapshot.get("round_reading_share") or 0.0)
+    # n_index_backwards already excludes exact meter rollovers.
     n_backwards = int(snapshot.get("n_index_backwards") or 0)
-    n_rollover = int(snapshot.get("n_index_rollover") or 0)
     n_recon = int(snapshot.get("n_recon_mismatch") or 0)
     has_missing = int(snapshot.get("has_missing_months") or 0)
 
-    if (n_backwards - n_rollover) > 0 or n_recon > 0:
+    if n_backwards > 0 or n_recon > 0:
         q3 = "backwards meter index reading reconciliation gap index rollback tampering"
     elif benford > 0.015 or round_share > 0.40:
         q3 = "Benford MAD non-conformity round reading share meter reader collusion estimated reading"
@@ -117,7 +128,7 @@ def rewrite_snapshot_to_queries(
     allow_fallback: bool = False,
     max_retries: int = 4,
 ) -> list[str]:
-    """Turn a client risk snapshot into 3 short search queries using Gemini."""
+    # Turn a client risk snapshot into 3 short search queries using Gemini.
     import time
 
     if client is None:
@@ -167,21 +178,27 @@ def rewrite_snapshot_to_queries(
     raise last_err
 
 
-def select_sample_clients(n_clients: int = 5) -> list[str]:
-    """Select n_clients high-risk training clients from the OOF score table for testing."""
+def select_sample_clients(n_clients: int = 5, seed: int = SAMPLE_SEED) -> list[str]:
+    # Deterministic sample of training clients with OOF scores: about 3/5 fraud and 2/5
+    # non-fraud, each class split into equal score bands with one client drawn per band, so
+    # the sample covers high and low ranks rather than only the top of the list.
+    import numpy as np
     import pandas as pd
 
-    oof_path = Path(SNAPSHOT_CONFIG["oof_path"])
-    oof_df = pd.read_parquet(oof_path)
-    score_col = "score" if "score" in oof_df.columns else "y_score"
-    label_col = "y_true" if "y_true" in oof_df.columns else "target"
-    if label_col in oof_df.columns:
-        fraud_top = oof_df[oof_df[label_col] == 1].sort_values(
-            [score_col, "client_id"], ascending=[False, True]
-        )
-    else:
-        fraud_top = oof_df.sort_values([score_col, "client_id"], ascending=[False, True])
-    return fraud_top["client_id"].head(n_clients).astype(str).tolist()
+    oof = pd.read_parquet(Path(SNAPSHOT_CONFIG["oof_path"]), columns=["client_id", "score"])
+    labels = pd.read_parquet(
+        Path(SNAPSHOT_CONFIG["interim_client_path"]), columns=["client_id", "target"]
+    )
+    df = oof.merge(labels, on="client_id", how="inner", validate="one_to_one")
+    df = df.dropna(subset=["target"]).sort_values(["score", "client_id"], kind="stable")
+    rng = np.random.default_rng(seed)
+    n_fraud = max(1, round(0.6 * n_clients))
+    picks: list[str] = []
+    for target, n in ((1, n_fraud), (0, n_clients - n_fraud)):
+        ids = df.loc[df["target"] == target, "client_id"].astype(str).to_numpy()
+        for band in np.array_split(ids, n) if n > 0 else []:
+            picks.append(str(rng.choice(band)))
+    return picks
 
 
 def evaluate_rewriter_on_clients(
@@ -192,7 +209,7 @@ def evaluate_rewriter_on_clients(
     client: Any | None = None,
     allow_fallback: bool = False,
 ) -> list[dict[str, Any]]:
-    """Run the query rewriter on 5 clients and verify downstream retrieval on each query."""
+    # Run the query rewriter on 5 clients and verify downstream retrieval on each query.
     from src.llm.retrieval import get_retriever
 
     selected_ids = (
@@ -209,10 +226,7 @@ def evaluate_rewriter_on_clients(
             client=client,
             allow_fallback=allow_fallback,
         )
-        filters = {
-            "alert_date": snapshot.get("alert_date"),
-            "counter_type": snapshot.get("profile", {}).get("counter_type"),
-        }
+        filters = client_filters(snapshot)
         retrieved_per_query = []
         for q in queries:
             top_chunks = retriever.retrieve(

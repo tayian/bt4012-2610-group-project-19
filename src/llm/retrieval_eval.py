@@ -2,7 +2,9 @@
 #
 # Writes Recall@3, Recall@5, and MRR for:
 #   dense, bm25, hybrid, hybrid + rerank
-# to results/tables/retrieval_eval.csv.
+# to results/tables/retrieval_eval.csv, and the rank of the gold chunk for every query and
+# method (blank = not in the top 5) to results/tables/retrieval_eval_by_query.csv. With 25
+# queries one query moves overall recall by 0.04.
 
 from __future__ import annotations
 
@@ -17,6 +19,7 @@ from src.llm.retrieval import HybridRetriever
 
 QUERIES_PATH = Path("data/corpus/retrieval_queries.json")
 OUT_PATH = Path("results/tables/retrieval_eval.csv")
+BY_QUERY_PATH = Path("results/tables/retrieval_eval_by_query.csv")
 
 EVAL_METHODS = (
     ("dense", "dense"),
@@ -44,6 +47,7 @@ def evaluate_retrieval(
     queries_path: Path = QUERIES_PATH,
     chunks_path: Path | None = None,
     out_path: Path = OUT_PATH,
+    by_query_path: Path | None = BY_QUERY_PATH,
     top_k: int = 5,
     candidate_k: int = 20,
 ) -> pd.DataFrame:
@@ -57,6 +61,7 @@ def evaluate_retrieval(
     }
 
     rows: list[dict] = []
+    hits: list[dict] = []
     for display_name, method_key in EVAL_METHODS:
         ranked: dict[str, list[str]] = {}
         for q in queries:
@@ -68,6 +73,15 @@ def evaluate_retrieval(
                 method=method_key,
             )
             ranked[q["id"]] = [c["id"] for c in res]
+            gold_ranks = [r for r, cid in enumerate(ranked[q["id"]], 1) if cid in gold_all[q["id"]]]
+            hits.append(
+                {
+                    "query_id": q["id"],
+                    "category": q["category"],
+                    "method": display_name,
+                    "gold_rank": min(gold_ranks) if gold_ranks else None,
+                }
+            )
 
         overall = retrieval_metrics(ranked, gold_all)
         row: dict[str, float | int | str] = {
@@ -87,6 +101,10 @@ def evaluate_retrieval(
     df = pd.DataFrame(rows)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(out_path, index=False)
+    if by_query_path is not None:
+        by_query = pd.DataFrame(hits)
+        by_query["gold_rank"] = by_query["gold_rank"].astype("Int64")
+        by_query.to_csv(by_query_path, index=False)
     return df
 
 
@@ -97,17 +115,19 @@ def main():
     parser.add_argument("--queries", type=Path, default=QUERIES_PATH)
     parser.add_argument("--chunks", type=Path, default=None)
     parser.add_argument("--out", type=Path, default=OUT_PATH)
+    parser.add_argument("--by-query-out", type=Path, default=BY_QUERY_PATH)
     args = parser.parse_args()
     try:
         df = evaluate_retrieval(
             queries_path=args.queries,
             chunks_path=args.chunks,
             out_path=args.out,
+            by_query_path=args.by_query_out,
         )
     except (ValueError, OSError, KeyError) as exc:
         parser.exit(2, f"retrieval_eval: {exc}\n")
     print(df.to_string(index=False))
-    print(f"Wrote {args.out}")
+    print(f"Wrote {args.out} and {args.by_query_out}")
 
 
 if __name__ == "__main__":

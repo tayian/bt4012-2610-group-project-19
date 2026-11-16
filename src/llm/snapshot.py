@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 
-import math
 from pathlib import Path
 from typing import Any
 
@@ -28,8 +27,6 @@ SNAPSHOT_CONFIG: dict[str, Any] = {
     "model_version": "M3_v0",
 }
 
-BENFORD_EXPECTED = np.array([math.log10(1.0 + 1.0 / d) for d in range(1, 10)], dtype=np.float64)
-
 KEY_FEATURE_NAMES = (
     "cons_pm_mean",
     "cons_pm_median",
@@ -48,41 +45,33 @@ KEY_FEATURE_NAMES = (
     "days_since_last_invoice_mean",
     "days_since_last_invoice_max",
     "tenure_years",
+    "yoy_drop_max",
+    "slope_last3y",
+    "sudden_spike_share",
+    "zero_run_max",
+    "zero_share",
+    "robust_z_max",
+    "n_index_backwards",
+    "n_recon_mismatch",
+    "n_bad_months_number",
+    "benford_mad",
+    "round_reading_share",
 )
 
+# Signal features also reported at the top level of the snapshot (read from features_v1, with
+# the definitions in docs/feature_list.md; NaN stays None).
+SIGNAL_FLOATS = ("benford_mad", "round_reading_share")
+SIGNAL_COUNTS = ("n_index_backwards", "n_recon_mismatch", "n_bad_months_number")
 
-def compute_benford_and_rounding(
-    cons_values: np.ndarray, cons_pm_values: np.ndarray
-) -> tuple[float, float]:
-    # Compute first-digit Benford MAD on positive cons_pm (fallback to cons) and
-    # round_reading_share (share of positive cons ending in 0 or 5).
-    pos_pm = cons_pm_values[np.isfinite(cons_pm_values) & (cons_pm_values > 0)]
-    if len(pos_pm) == 0:
-        pos_pm = cons_values[np.isfinite(cons_values) & (cons_values > 0)]
 
-    if len(pos_pm) == 0:
-        benford_mad = 0.0
-    else:
-        # Extract leading significant digit 1..9: floor(x / 10^floor(log10(x)))
-        exponents = np.floor(np.log10(pos_pm))
-        leading = np.floor(pos_pm / np.power(10.0, exponents) + 1e-12).astype(int)
-        leading = np.clip(leading, 1, 9)
-        counts = np.bincount(leading, minlength=10)[1:10].astype(np.float64)
-        obs = counts / len(pos_pm)
-        benford_mad = float(np.mean(np.abs(obs - BENFORD_EXPECTED)))
-
-    pos_cons = cons_values[np.isfinite(cons_values) & (cons_values > 0)]
-    if len(pos_cons) == 0:
-        round_share = 0.0
-    else:
-        int_cons = np.rint(pos_cons).astype(np.int64)
-        round_share = float(np.mean((int_cons % 5) == 0))
-
-    return round(benford_mad, 4), round(round_share, 4)
+def _clean(value: Any, ndigits: int = 4) -> float | None:
+    if value is None or pd.isna(value):
+        return None
+    return round(float(value), ndigits)
 
 
 class SnapshotStore:
-    """Cached loader for client snapshots with training-only feature percentiles."""
+    # Cached loader for client snapshots with training-only feature percentiles.
 
     def __init__(self, config: dict[str, Any] | None = None):
         self.config = {**SNAPSHOT_CONFIG, **(config or {})}
@@ -190,40 +179,20 @@ class SnapshotStore:
         pct = 100.0 * (left + right) / (2.0 * len(arr))
         return round(float(pct), 1)
 
-    def _invoice_metrics(self, client_id: str, has_missing_months: int) -> dict[str, Any]:
+    def _invoice_metrics(self, client_id: str) -> dict[str, Any]:
+        # Facts that are not model features: exact meter rollovers, the largest
+        # reconciliation gap and the codes seen on the client's invoices.
         clean_path = Path(self.config["interim_invoice_clean_path"])
         raw_path = Path(self.config["interim_invoice_raw_path"])
 
-        clean_cols = [
-            "client_id",
-            "cons",
-            "cons_pm",
-            "recon_gap",
-            "flag_index_backwards",
-            "flag_index_rollover",
-            "flag_recon_mismatch",
-            "flag_bad_months_number",
-        ]
         inv_c = pd.read_parquet(
             clean_path,
-            columns=clean_cols,
+            columns=["client_id", "recon_gap", "flag_index_rollover"],
             filters=[("client_id", "==", client_id)],
         )
-
-        if len(inv_c) == 0:
-            benford_mad, round_share = 0.0, 0.0
-            n_backwards = n_rollover = n_recon = n_bad_months = 0
-            max_recon_gap = 0.0
-        else:
-            cons_arr = inv_c["cons"].to_numpy(dtype=np.float64, na_value=np.nan)
-            cons_pm_arr = inv_c["cons_pm"].to_numpy(dtype=np.float64, na_value=np.nan)
-            benford_mad, round_share = compute_benford_and_rounding(cons_arr, cons_pm_arr)
-            non_rollover_backwards = inv_c["flag_index_backwards"] & (~inv_c["flag_index_rollover"])
-            n_backwards = int(non_rollover_backwards.sum())
-            n_rollover = int(inv_c["flag_index_rollover"].sum())
-            n_recon = int(inv_c["flag_recon_mismatch"].sum())
-            n_bad_months = int(inv_c["flag_bad_months_number"].sum())
-            max_recon_gap = round(float(inv_c["recon_gap"].max() or 0.0), 2)
+        n_rollover = int(inv_c["flag_index_rollover"].sum())
+        max_gap = inv_c["recon_gap"].max() if len(inv_c) else 0.0
+        max_recon_gap = round(float(0.0 if pd.isna(max_gap) else max_gap), 2)
 
         codes_seen = {"counter_statue": [], "reading_remarque": [], "tarif_type": []}
         if raw_path.is_file():
@@ -239,13 +208,7 @@ class SnapshotStore:
                     )
 
         return {
-            "benford_mad": benford_mad,
-            "round_reading_share": round_share,
-            "n_index_backwards": n_backwards,
             "n_index_rollover": n_rollover,
-            "n_recon_mismatch": n_recon,
-            "n_bad_months_number": n_bad_months,
-            "has_missing_months": int(has_missing_months),
             "max_recon_gap": max_recon_gap,
             "codes_seen": codes_seen,
         }
@@ -302,15 +265,13 @@ class SnapshotStore:
             if fname not in feature_names and fname in row:
                 feature_names.append(fname)
 
+        # A missing feature (e.g. benford_mad with < 20 positive readings) is kept as None.
         key_features: dict[str, dict[str, float | None]] = {}
         for fname in feature_names:
             if fname not in row:
                 continue
-            raw_val = row[fname]
-            if raw_val is None or pd.isna(raw_val):
-                continue
-            val = round(float(raw_val), 4)
-            pct = self._train_percentile(fname, float(raw_val))
+            val = _clean(row[fname])
+            pct = None if val is None else self._train_percentile(fname, float(row[fname]))
             key_features[fname] = {"value": val, "train_pct": pct}
 
         oof_info = self._oof_by_id.get(cid)
@@ -322,8 +283,19 @@ class SnapshotStore:
             else str(self.config["model_version"])
         )
 
-        has_missing = int(row.get("has_missing_months", 0) or 0)
-        inv_stats = self._invoice_metrics(cid, has_missing_months=has_missing)
+        inv_stats = self._invoice_metrics(cid)
+        signals: dict[str, Any] = {f: _clean(row.get(f)) for f in SIGNAL_FLOATS}
+        for f in SIGNAL_COUNTS:
+            v = row.get(f)
+            signals[f] = None if v is None or pd.isna(v) else int(v)
+        counts = {
+            "n_index_backwards": signals["n_index_backwards"],
+            "n_index_rollover": inv_stats["n_index_rollover"],
+            "n_recon_mismatch": signals["n_recon_mismatch"],
+            "n_bad_months_number": signals["n_bad_months_number"],
+            "has_missing_months": int(row.get("has_missing_months", 0) or 0),
+            "max_recon_gap": inv_stats["max_recon_gap"],
+        }
 
         return {
             "client_id": cid,
@@ -335,22 +307,10 @@ class SnapshotStore:
             "profile": profile,
             "key_features": key_features,
             "shap_top5": shap_list,
-            "benford_mad": inv_stats["benford_mad"],
-            "round_reading_share": inv_stats["round_reading_share"],
-            "n_index_backwards": inv_stats["n_index_backwards"],
-            "n_index_rollover": inv_stats["n_index_rollover"],
-            "n_recon_mismatch": inv_stats["n_recon_mismatch"],
-            "n_bad_months_number": inv_stats["n_bad_months_number"],
-            "has_missing_months": inv_stats["has_missing_months"],
-            "max_recon_gap": inv_stats["max_recon_gap"],
-            "invalid_reading_counts": {
-                "n_index_backwards": inv_stats["n_index_backwards"],
-                "n_index_rollover": inv_stats["n_index_rollover"],
-                "n_recon_mismatch": inv_stats["n_recon_mismatch"],
-                "n_bad_months_number": inv_stats["n_bad_months_number"],
-                "has_missing_months": inv_stats["has_missing_months"],
-                "max_recon_gap": inv_stats["max_recon_gap"],
-            },
+            "benford_mad": signals["benford_mad"],
+            "round_reading_share": signals["round_reading_share"],
+            **counts,
+            "invalid_reading_counts": counts,
             "codes_seen": inv_stats["codes_seen"],
         }
 

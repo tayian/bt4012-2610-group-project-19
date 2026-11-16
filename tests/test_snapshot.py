@@ -1,10 +1,10 @@
 # Unit tests for src/llm/snapshot.py and get_client_snapshot(client_id).
 
-import numpy as np
+import pandas as pd
 
 from src.llm.faithfulness import _flatten_numbers
 from src.llm.retrieval import get_client_snapshot
-from src.llm.snapshot import SNAPSHOT_CONFIG, compute_benford_and_rounding
+from src.llm.snapshot import KEY_FEATURE_NAMES, SNAPSHOT_CONFIG
 
 
 def test_snapshot_config_centralized():
@@ -21,14 +21,22 @@ def test_snapshot_config_centralized():
     assert required_keys.issubset(set(SNAPSHOT_CONFIG.keys()))
 
 
-def test_benford_and_rounding_math():
-    # Generate synthetic Benford-distributed numbers -> MAD should be small.
-    digits = np.repeat(np.arange(1, 10), [301, 176, 125, 97, 79, 67, 58, 51, 46])
-    cons_pm = digits.astype(np.float64) * 10.0
-    cons = np.array([10, 15, 22, 33, 44], dtype=np.float64)  # 2 of 5 end in 0 or 5 -> 0.4
-    mad, round_share = compute_benford_and_rounding(cons, cons_pm)
-    assert mad < 0.002
-    assert abs(round_share - 0.4) < 1e-6
+def test_signals_read_from_features_v1_and_nan_kept_missing():
+    f1 = pd.read_parquet(SNAPSHOT_CONFIG["features_v1_path"]).set_index("client_id")
+    row = f1.loc["train_Client_100109"]
+    snap = get_client_snapshot("train_Client_100109")
+    assert snap["benford_mad"] == round(float(row["benford_mad"]), 4)
+    assert snap["round_reading_share"] == round(float(row["round_reading_share"]), 4)
+    for k in ("n_index_backwards", "n_recon_mismatch", "n_bad_months_number"):
+        assert snap[k] == int(row[k])
+    for k in ("yoy_drop_max", "zero_run_max", "n_index_backwards", "benford_mad"):
+        assert k in KEY_FEATURE_NAMES and k in snap["key_features"]
+
+    # benford_mad is NaN with fewer than 20 positive readings: reported as missing, not 0.
+    cid = f1.index[f1["benford_mad"].isna()][0]
+    snap = get_client_snapshot(cid)
+    assert snap["benford_mad"] is None
+    assert snap["key_features"]["benford_mad"] == {"value": None, "train_pct": None}
 
 
 def test_get_client_snapshot_structure_and_values():

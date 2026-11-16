@@ -2,6 +2,7 @@
 
 from src.llm.retrieval import (
     HybridRetriever,
+    client_filters,
     filter_chunks,
     load_chunks,
     retrieve,
@@ -36,6 +37,30 @@ def test_load_and_filter_chunks_temporal_and_counter_type():
     cid = any_case["client_id"]
     filtered_cases = filter_chunks(chunks, {"doc": "case", "exclude_client_id": cid})
     assert all(c["client_id"] != cid for c in filtered_cases)
+
+    # A case chunk without a split is dropped, not treated as train.
+    no_split = {k: v for k, v in any_case.items() if k != "split"}
+    assert filter_chunks([no_split], {}) == []
+
+
+def test_client_never_retrieves_own_case_card():
+    chunks = load_chunks()
+    case = next(c for c in chunks if c["doc"] == "case")
+    cid = case["client_id"]
+    # The client's own card text is the best possible match for a query about it.
+    query = case["text"]
+    snapshot = {"client_id": cid, "alert_date": "2025-06-01", "profile": {}}
+    for method in ("bm25", "hybrid"):
+        ids = [c["id"] for c in retrieve(query, client_id=cid, top_k=20, method=method)]
+        assert f"CASE-{cid}" not in ids
+        ids = [
+            c["id"]
+            for c in retrieve(query, filters=client_filters(snapshot), top_k=20, method=method)
+        ]
+        assert f"CASE-{cid}" not in ids
+    # Without the exclusion the card is found, so the test above is not vacuous.
+    ids = [c["id"] for c in retrieve(query, top_k=5, method="bm25")]
+    assert f"CASE-{cid}" in ids
 
 
 def test_bm25_and_rrf_offline():

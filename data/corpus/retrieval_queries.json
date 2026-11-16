@@ -72,107 +72,106 @@
   {
     "id": "Q11",
     "category": "exact_code",
-    "query": "CODE-counter_statue-46 counter_statue = 46",
+    "query": "what does meter status 46 mean on an electricity bill",
     "filters": {"valid_on": "2025-06-01"},
     "gold_ids": ["CODE-counter_statue-46"]
   },
   {
     "id": "Q12",
     "category": "exact_code",
-    "query": "CODE-counter_statue-A counter_statue = A",
+    "query": "a meter status recorded as the letter A, is that a real status code",
     "filters": {"valid_on": "2025-06-01"},
     "gold_ids": ["CODE-counter_statue-A"]
   },
   {
     "id": "Q13",
     "category": "exact_code",
-    "query": "CODE-reading_remarque-7 reading_remarque = 7",
+    "query": "what does reading remark 7 stand for",
     "filters": {"valid_on": "2025-06-01"},
     "gold_ids": ["CODE-reading_remarque-7"]
   },
   {
     "id": "Q14",
     "category": "exact_code",
-    "query": "CODE-reading_remarque-203 reading_remarque = 203",
+    "query": "how should I treat a reading remark of 203 on an invoice",
     "filters": {"valid_on": "2025-06-01"},
     "gold_ids": ["CODE-reading_remarque-203"]
   },
   {
     "id": "Q15",
     "category": "exact_code",
-    "query": "CODE-tarif_type-14 tarif_type = 14",
+    "query": "what kind of customer is on electricity tariff type 14",
     "filters": {"valid_on": "2025-06-01"},
     "gold_ids": ["CODE-tarif_type-14"]
   },
   {
     "id": "Q16",
     "category": "exact_code",
-    "query": "CODE-tarif_type-45 tarif_type = 45",
+    "query": "meaning of gas tariff type 45 and how often those customers commit fraud",
     "filters": {"valid_on": "2025-06-01"},
     "gold_ids": ["CODE-tarif_type-45"]
   },
   {
     "id": "Q17",
     "category": "exact_code",
-    "query": "CODE-counter_code-204 counter_code = 204",
+    "query": "what does meter code 204 tell me about the installation",
     "filters": {"valid_on": "2025-06-01"},
     "gold_ids": ["CODE-counter_code-204"]
   },
   {
     "id": "Q18",
     "category": "exact_code",
-    "query": "CODE-counter_code-407 counter_code = 407",
+    "query": "is meter code 407 linked to more fraud than usual",
     "filters": {"valid_on": "2025-06-01"},
     "gold_ids": ["CODE-counter_code-407"]
   },
   {
     "id": "Q19",
     "category": "exact_code",
-    "query": "CODE-client_catg-51 client_catg = 51",
+    "query": "what is customer category 51 and is it a high-risk group",
     "filters": {"valid_on": "2025-06-01"},
     "gold_ids": ["CODE-client_catg-51"]
   },
   {
     "id": "Q20",
     "category": "exact_code",
-    "query": "SOP-v2025-2.3 recon_gap > 50 kWh",
+    "query": "current rule when the kWh billed and the change in the meter index disagree by more than 50 on one bill",
     "filters": {"valid_on": "2025-06-01"},
     "gold_ids": ["SOP-v2025-2.3"]
   },
   {
     "id": "Q21",
     "category": "mixed",
-    "query": "acute year-on-year consumption drop exceeding 50% across two consecutive billing periods yoy_drop_max >= 0.50 urgent forensic site inspection within 14 days",
+    "query": "under the current procedure, a household's monthly usage has fallen by more than half compared with last year for two bills in a row; how quickly must we visit",
     "filters": {"valid_on": "2025-06-01"},
     "gold_ids": ["SOP-v2025-2.1"]
   },
   {
     "id": "Q22",
     "category": "mixed",
-    "query": "historical 2023 inspection rule for year-on-year drop in cons_pm exceeding 70% across three consecutive billing periods dispatch within 30 days",
+    "query": "what did the older 2023 procedure require when usage fell by over seventy percent versus the previous year on three bills running",
     "filters": {"valid_on": "2024-06-01"},
     "gold_ids": ["SOP-v2023-2.1"]
   },
   {
     "id": "Q23",
     "category": "mixed",
-    "query": "negative counter index progression new_index < old_index flag_index_backwards without flag_index_rollover immediate emergency meter seizure and laboratory autopsy",
+    "query": "the latest meter reading is lower than the one before and it is not the counter wrapping past its maximum; can the officer remove the meter on the spot",
     "filters": {"valid_on": "2025-06-01"},
     "gold_ids": ["SOP-v2025-3.1"]
   },
   {
     "id": "Q24",
     "category": "mixed",
-    "query": "Benford's Law first-digit deviation benford_mad > 0.015 with round_reading_share > 0.40 internal supervisory audit of assigned meter reader route",
+    "query": "the leading digits of a customer's readings look unnatural and many readings end in 0 or 5; should the meter reader's route be audited",
     "filters": {"valid_on": "2025-06-01"},
     "gold_ids": ["SOP-v2025-5.1"]
   },
   {
     "id": "Q25",
     "category": "mixed",
-    "query": "large electricity accounts metered through current and voltage transformers CT PT with counter_coefficient > 1 and shorted secondary terminals",
+    "query": "big electricity customer metered via a transformer with a multiplier above one, and its recorded usage suddenly halved",
     "filters": {"valid_on": "2025-06-01", "counter_type": "ELEC"},
     "gold_ids": ["TYP-11"]
   }
 ]
-

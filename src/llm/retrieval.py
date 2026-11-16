@@ -2,7 +2,8 @@
 #
 # Pipeline:
 #   1. Metadata hard-filtering (jurisdiction, counter_type, temporal [valid_from, valid_to),
-#      doc/section/field/value/region/client_catg, and train-only split for precedent cases).
+#      doc/section/field/value/region/client_catg, train-only split for precedent cases, and
+#      the client's own case card excluded; client_filters builds this for one client).
 #   2. Sparse retrieval: BM25Okapi top-20 over tokenized filtered chunks.
 #   3. Dense retrieval: sentence-transformers/all-MiniLM-L6-v2 cosine similarity top-20.
 #   4. Reciprocal Rank Fusion (RRF, k=60) combining dense top-20 and BM25 top-20 -> top-5.
@@ -141,8 +142,9 @@ def filter_chunks(chunks: list[dict], filters: dict[str, Any] | None = None) -> 
         if jurisdiction and c.get("jurisdiction", "TN") != jurisdiction:
             continue
 
-        # 2. Non-leakage check on precedent case cards: strictly train split only.
-        if c.get("doc") == "case" and c.get("split", "train") != "train":
+        # 2. Non-leakage check on precedent case cards: strictly train split only (a card
+        # without a split is dropped, not assumed to be train).
+        if c.get("doc") == "case" and c.get("split") != "train":
             continue
 
         # 3. Exclude the target client itself from precedent cases.
@@ -192,7 +194,7 @@ def filter_chunks(chunks: list[dict], filters: dict[str, Any] | None = None) -> 
 
 
 class HybridRetriever:
-    """In-memory hybrid retriever over chunks.jsonl with cached dense embeddings and lazy reranker."""
+    # In-memory hybrid retriever over chunks.jsonl with cached dense embeddings and lazy reranker.
 
     def __init__(
         self,
@@ -357,6 +359,18 @@ def get_retriever(chunks_path: Path | str | None = None) -> HybridRetriever:
     return _DEFAULT_RETRIEVER
 
 
+def client_filters(snapshot: dict[str, Any], **extra: Any) -> dict[str, Any]:
+    # Filters for retrieval about one client: its alert date and meter type, and never its
+    # own precedent case card.
+    filters = {
+        "alert_date": snapshot.get("alert_date"),
+        "counter_type": (snapshot.get("profile") or {}).get("counter_type"),
+        "exclude_client_id": snapshot.get("client_id"),
+    }
+    filters.update(extra)
+    return filters
+
+
 def retrieve(
     query: str,
     filters: dict[str, Any] | None = None,
@@ -364,7 +378,11 @@ def retrieve(
     candidate_k: int = DEFAULT_CANDIDATE_K,
     method: str = "hybrid",
     chunks_path: Path | str | None = None,
+    client_id: str | None = None,
 ) -> list[dict]:
+    # With client_id set, that client's own case card is always excluded.
+    if client_id is not None:
+        filters = {**(filters or {}), "exclude_client_id": str(client_id)}
     retriever = get_retriever(chunks_path=chunks_path)
     return retriever.retrieve(
         query=query,
