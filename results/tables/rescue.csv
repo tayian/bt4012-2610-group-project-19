@@ -1,8 +1,15 @@
-group,n,share_of_all_frauds,share_of_missed,random_baseline,m3_version,anomaly_version
-frauds missed by M3 top 10%,3373,0.5572443416487692,,,v0,v0
-rescued by M5 top 10%,226,,0.06700266824785057,0.1,v0,v0
-rescued by M6 top 10%,509,,0.15090423954936258,0.1,v0,v0
-rescued by M7 top 10%,731,,0.21672101986362288,0.1,v0,v0
-rescued by M4 top 10%,566,,0.167803142603024,0.1,v0,v0
-rescued by M5 or M6,673,,0.1995256448265639,0.18999999999999995,v0,v0
-non-frauds outside M3 top 10% flagged by M5 or M6,16900,,0.1794321873739197,0.18999999999999995,v0,v0
+group,n,share_of_all_frauds,share_of_missed,random_baseline,m3_version,anomaly_version,share_of_nonfrauds
+frauds missed by M3 top 10%,3373,0.5572443416487692,,,v0,v0,
+rescued by M5 top 10%,191,,0.0566261488289356,0.1,v0,v0,
+rescued by M6 top 10%,501,,0.148532463682182,0.1,v0,v0,
+rescued by M7 top 10%,731,,0.2167210198636228,0.1,v0,v0,
+rescued by M4 top 10%,566,,0.167803142603024,0.1,v0,v0,
+rescued by M5 or M6,641,,0.1900385413578416,0.1899999999999999,v0,v0,
+non-frauds outside M3 top 10% flagged by M5 or M6,17257,,,0.1899999999999999,v0,v0,0.1832225596160788
+frauds missed by M3 top 10%,3131,0.5172641665289939,,,tuned_v1,v1,
+rescued by M5 top 10%,169,,0.053976365378473334,0.1,tuned_v1,v1,
+rescued by M6 top 10%,452,,0.1443628233791121,0.1,tuned_v1,v1,
+rescued by M7 top 10%,514,,0.1641648035771319,0.1,tuned_v1,v1,
+rescued by M4 top 10%,417,,0.13318428617055253,0.1,tuned_v1,v1,
+rescued by M5 or M6,565,,0.18045352922389013,0.18999999999999995,tuned_v1,v1,
+non-frauds outside M3 top 10% flagged by M5 or M6,17096,,,0.18999999999999995,tuned_v1,v1,0.1810479942389969
