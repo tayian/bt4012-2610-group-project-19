@@ -1,0 +1,7 @@
+statistic,value
+positive invoices,3204769.0
+share with tariff level 1 full (level 2+ > 0),0.16506805950756512
+median positive invoices per client,27.0
+share of clients below the F7 minimum of 20,0.39155850307910944
+expected MAD of a perfect Benford sample of the median size,0.0451963516059055
+expected MAD of a perfect Benford sample of 20,0.05251341512370205

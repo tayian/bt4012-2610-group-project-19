@@ -225,13 +225,20 @@ def validity_features(inv, key):
     return out
 
 
+def leading_digits(values, n_digits=1):
+    # First n_digits digits of positive whole numbers (cons and new_index are integer counts),
+    # in exact integer arithmetic. Values with fewer digits are returned unchanged.
+    v = np.asarray(values).astype(np.int64)
+    width = np.searchsorted(10 ** np.arange(1, 19), v, side="right") + 1
+    return v // 10 ** np.maximum(width - n_digits, 0)
+
+
 def digit_features(inv, key):
     # F7: first-digit Benford deviation of cons, and the share of round meter readings.
     cons = inv["cons"].to_numpy(np.float64)
     positive = cons > 0
     first = np.zeros(len(cons), dtype=np.int64)
-    p = cons[positive]
-    first[positive] = (p // 10 ** np.floor(np.log10(p))).astype(np.int64)
+    first[positive] = leading_digits(cons[positive])
     counts = (
         pd.crosstab(key.to_numpy()[positive], first[positive])
         .reindex(columns=range(1, 10), fill_value=0)

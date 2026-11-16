@@ -1,0 +1,3 @@
+test,n,chi2,dof,p_value,mad,nigrini_band,district,class
+first digit,695286,26214.98880770893,8,0.0,0.02008149762480323,nonconformity,63,Non-fraud
+first two digits,680602,28867.216265619114,89,0.0,0.0020186849073054102,marginal,63,Non-fraud
