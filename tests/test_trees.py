@@ -199,10 +199,10 @@ class TreeTests(unittest.TestCase):
             patch.object(study, "_log"),
         ):
             result = study.tree_study("v0")
-        # Three variants x five folds; the augmented fits see twice the frauds, so the
-        # recomputed scale_pos_weight halves.
-        self.assertEqual(len(result), 15)
-        np.testing.assert_allclose(records, [3.0] * 10 + [1.5] * 5)
+        # Five variants x five folds; the three augmented variants see twice the frauds, so
+        # their recomputed scale_pos_weight halves.
+        self.assertEqual(len(result), 25)
+        np.testing.assert_allclose(records, [3.0] * 10 + [1.5] * 15)
 
     def test_heldout_changes_do_not_affect_training_predictions(self):
         self.train()

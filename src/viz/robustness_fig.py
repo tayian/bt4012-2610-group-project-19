@@ -17,6 +17,8 @@ ORDER = [
     "M3",
     "M3 without consumption features",
     "M3 + adv. augmentation",
+    "M3 + aug. uniform only",
+    "M3 + aug. smooth only",
     "M7",
     "M7 + PGD adv. training",
     "M7 + mimicry augmentation",
@@ -24,6 +26,8 @@ ORDER = [
 SHORT = {
     "M3 without consumption features": "M3\nno consumption",
     "M3 + adv. augmentation": "M3\n+ augmentation",
+    "M3 + aug. uniform only": "M3 + aug.\nuniform only",
+    "M3 + aug. smooth only": "M3 + aug.\nsmooth only",
     "M7 + PGD adv. training": "M7\n+ PGD training",
     "M7 + mimicry augmentation": "M7\n+ mimicry aug.",
 }
@@ -48,13 +52,12 @@ def main():
     models = [m for m in ORDER if m in mean.index]
     fig, ax = plt.subplots(figsize=(11, 4.2))
     width = 0.2
-    for j, (attack, label, color) in enumerate(ATTACKS):
-        if attack not in mean:
-            continue
+    present = [row for row in ATTACKS if row[0] in mean]
+    for j, (attack, label, color) in enumerate(present):
         xs, ys, es = [], [], []
         for i, m in enumerate(models):
             if pd.notna(mean.loc[m, attack]):
-                xs.append(i + (j - 1.5) * width)
+                xs.append(i + (j - (len(present) - 1) / 2) * width)
                 ys.append(mean.loc[m, attack])
                 es.append(std.loc[m, attack])
         ax.bar(xs, ys, width, yerr=es, color=color, label=label, capsize=2)

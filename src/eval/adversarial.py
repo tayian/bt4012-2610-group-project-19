@@ -79,11 +79,21 @@ def build_features(fv, inv, cli):
 
 # Invoice attacks
 def _scale_levels(inv, factor):
-    # Lower the four consumption levels and recompute cons and cons_pm the way clean.py does
-    # (cons_pm = cons / months_valid, missing where the billing period is impossible).
+    # Lower each invoice's total to ceil(cons x factor) and recompute cons and cons_pm the way
+    # clean.py does (cons_pm = cons / months_valid, missing where the billing period is
+    # impossible). The units removed come off the highest tariff level first, as they would on
+    # a real bill: scaling every level by the same factor instead leaves level 2+ consumption
+    # while level 1 is below its band limit, a split no real invoice has and that a defence
+    # trained on such copies learns to spot.
     out = inv.copy()
-    for level in LEVELS:
-        out[level] = np.ceil(out[level].to_numpy() * factor).astype(np.int64)
+    levels = out[LEVELS].to_numpy(np.int64)
+    total = levels.sum(axis=1)
+    remove = total - np.ceil(total * factor).astype(np.int64)
+    for j in range(len(LEVELS) - 1, -1, -1):
+        cut = np.minimum(levels[:, j], remove)
+        levels[:, j] -= cut
+        remove -= cut
+    out[LEVELS] = levels
     out["cons"] = out[LEVELS].sum(axis=1)
     out["cons_pm"] = out["cons"] / out["months_valid"]
     return out
@@ -186,35 +196,50 @@ def _log(rows, study, fv):
 
 
 # Trees (M3)
+# Augmented M3 variants -> the attacks their training copies use. The single-attack variants
+# are the held-out-attack check: a defence counts as robust only if it also holds against the
+# attack it was not trained on.
+AUGMENTED = {
+    "M3 + adv. augmentation": ("uniform", "smooth"),
+    "M3 + aug. uniform only": ("uniform",),
+    "M3 + aug. smooth only": ("smooth",),
+}
+
+
 def tree_study(fv="v0"):
     # M3 as is, M3 without the consumption group (which group carries the vulnerability), and
-    # M3 with adversarial augmentation: each training-fold fraud gets one attacked copy
-    # (uniform or smooth at random, 1:1), label 1. fit_m3 recomputes scale_pos_weight after
-    # augmentation. Only training-fold frauds are augmented, so the held-out fold stays unseen.
+    # M3 with adversarial augmentation: each training-fold fraud gets one attacked copy (an
+    # attack drawn at random from the variant's list), label 1. fit_m3 recomputes
+    # scale_pos_weight after augmentation. Only training-fold frauds are augmented, so the
+    # held-out fold stays unseen. On v1 every variant uses the tuned M3 settings
+    # (results/tables/M3_tuned_params_v1.json), the model inside the final fusion.
+    import json
+
     from src.models.trees import fit_m3
 
     ids, X, y, folds = load_train(fv)
     att = attacked_inputs(fv)
     consumption = [c for c in X.columns if c.startswith(CONSUMPTION_PREFIX)]
+    tuned = Path(f"results/tables/M3_tuned_params_{fv}.json")
+    params = json.loads(tuned.read_text()) if fv != "v0" and tuned.exists() else {}
     rng = np.random.default_rng(SEED)
     rows = []
-    for name in ("M3", "M3 without consumption features", "M3 + adv. augmentation"):
+    names = ["M3", "M3 without consumption features", *AUGMENTED]
+    for name in names:
         cols = [c for c in X.columns if c not in consumption] if "without" in name else list(X)
         for k in range(5):
             tr, va = folds != k, folds == k
             Xtr, ytr = X.loc[tr, cols], y[tr]
-            if "augmentation" in name:
+            if name in AUGMENTED:
                 fr = ids[tr][ytr == 1]
-                pick = rng.integers(0, 2, len(fr))
+                kinds = AUGMENTED[name]
+                pick = rng.integers(0, len(kinds), len(fr))
                 copies = pd.concat(
-                    [
-                        att["uniform"][0].loc[fr[pick == 0], cols],
-                        att["smooth"][0].loc[fr[pick == 1], cols],
-                    ]
+                    [att[a][0].loc[fr[pick == i], cols] for i, a in enumerate(kinds)]
                 ).astype(Xtr.dtypes.to_dict())
                 Xtr = pd.concat([Xtr, copies], ignore_index=True)
                 ytr = np.concatenate([ytr, np.ones(len(copies), ytr.dtype)])
-            m = fit_m3(Xtr, ytr)
+            m = fit_m3(Xtr, ytr, **params)
             Xva, yv = X.loc[va, cols], y[va]
             fr_pos, fr_ids = np.flatnonzero(yv == 1), ids[va][yv == 1]
             r = {"model": name, "fold": k, "clean": recall_at(yv, m.predict_proba(Xva)[:, 1])}
