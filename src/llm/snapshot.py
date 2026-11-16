@@ -1,9 +1,8 @@
 # Client snapshot builder for RAG query rewriting and Inspector Brief generation.
 #
 # All upstream file paths are centralized in SNAPSHOT_CONFIG so they can be swapped
-# in one place. Risk scores come from the final model M10 (logistic-regression stack of tuned
-# LightGBM and the wide-and-deep CNN, out-of-fold on training clients); SHAP drivers are those
-# of its tuned LightGBM component (see docs/decisions.md).
+# in one place. Risk scores come from the final model, tuned LightGBM on features_v3
+# (out-of-fold on training clients), and the SHAP drivers are that model's (docs/decisions.md 9).
 
 from __future__ import annotations
 
@@ -17,16 +16,16 @@ from src.data.split import read_clients, read_splits
 
 SNAPSHOT_CONFIG: dict[str, Any] = {
     "features_v0_path": Path("data/processed/features_v0.parquet"),
-    "features_v1_path": Path("data/processed/features_v1.parquet"),
-    "oof_path": Path("results/oof/M10_v1.parquet"),
-    "shap_path": Path("results/shap_top5_v1.parquet"),
+    "features_v1_path": Path("data/processed/features_v3.parquet"),
+    "oof_path": Path("results/oof/M3_tuned_v3.parquet"),
+    "shap_path": Path("results/shap_top5_v3.parquet"),
     "interim_client_path": Path("data/interim/client.parquet"),
     "interim_invoice_clean_path": Path("data/interim/invoice_clean.parquet"),
     "interim_invoice_raw_path": Path("data/interim/invoice.parquet"),
     "splits_dir": Path("data/splits"),
     "raw_clients_path": Path("data/raw/client_train.csv"),
     "default_alert_date": "2025-06-01",
-    "model_version": "M10_v1",
+    "model_version": "M3_tuned_v3",
 }
 
 KEY_FEATURE_NAMES = (

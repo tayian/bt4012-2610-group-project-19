@@ -104,7 +104,7 @@ def test_get_risk_score():
     out = agent.get_risk_score(CID)
     assert 0 <= out["risk_score"] <= 1 and 0 <= out["risk_rank_pct"] <= 100
     assert out["risk_tier"] == briefs.risk_tier(out["risk_rank_pct"])
-    assert out["model_version"].startswith("M10")
+    assert out["model_version"].startswith("M3_tuned_v3")
     assert "not a verified probability" in out["note"]
 
 
@@ -220,7 +220,7 @@ def test_run_single_logs_brief(tmp_path):
     rec = agent.run_single(CID, fake, "m", log_dir=str(tmp_path), retriever=StubRetriever())
     assert rec["brief"]["client_id"] == CID and rec["n_tool_calls"] == 2
     assert rec["evidence_ids"][0] == FX["evidence"][0]["id"]
-    assert rec["llm_model"] == "m" and rec["model_version"].startswith("M10")
+    assert rec["llm_model"] == "m" and rec["model_version"].startswith("M3_tuned_v3")
     assert (tmp_path / "single" / f"{CID}.json").is_file()
     assert agent._done("single", CID, str(tmp_path), "m")
     assert not agent._done("single", CID, str(tmp_path), "other-model")

@@ -205,7 +205,7 @@ No API key is needed for the tests. `tests/test_briefs.py` and `tests/test_agent
 | `src/llm/briefs.py` | Brief writer (14.4 prompt plus deployment rules, 14.5 schema as a Pydantic `response_schema`) and the three-run comparison. `python run.py briefs`. |
 | `src/llm/agent.py` | The six 14.7 tools with JSON schemas, the single agent and the multi-agent workflow. `python run.py agents`. |
 | `src/llm/faithfulness.py` | Adds `make_gemini_judge` (an independent fact-checker prompt that scores all of a brief's points in one call, with a disk cache). The Anthropic judge is unchanged. Citations written as `[SNAPSHOT, TYP-09]` are now split into separate IDs. |
-| `src/llm/snapshot.py` | Points at the final model: `results/oof/M10_v1.parquet`, `model_version = "M10_v1"`. SHAP drivers stay `shap_top5_v1` (tuned LightGBM, a component of M10). |
+| `src/llm/snapshot.py` | Points at the final model: `results/oof/M3_tuned_v3.parquet`, `model_version = "M3_tuned_v3"`, SHAP drivers `shap_top5_v3`, features from `features_v3`. |
 
 **Clients.** The 30 training clients with the highest M10 out-of-fold scores. These scores range from 0.310 to 0.314, and 19 of the 30 clients are labelled fraud. The LLM never sees the label.
 
