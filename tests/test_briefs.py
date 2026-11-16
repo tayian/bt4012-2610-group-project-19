@@ -99,7 +99,7 @@ def test_top_clients_are_highest_oof_scores():
     oof = pd.read_parquet(SNAPSHOT_CONFIG["oof_path"]).set_index("client_id")["score"]
     assert len(ids) == 5 and len(set(ids)) == 5
     assert oof.loc[ids].min() >= oof.drop(ids).max()
-    assert str(SNAPSHOT_CONFIG["oof_path"]).endswith("M10_v1.parquet")
+    assert str(SNAPSHOT_CONFIG["oof_path"]).endswith("M3_tuned_v3.parquet")
 
 
 def test_write_brief_uses_schema_and_parses():

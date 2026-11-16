@@ -6,10 +6,12 @@
 #   rank average   the mean of the ranks
 #   LR stacker     logistic regression on the ranks, fitted on four folds and scored on the
 #                  fifth, so every stacked score is still out-of-fold
-# The ablation adds one model group at a time to the reference model (tuned M3 on v1).
+# The ablation adds one model group at a time to the reference model (tuned M3 on VERSION).
+# The tabular models (M3, M9, M7wd) use the final feature table; the sequence, graph and
+# anomaly models keep their v1 runs, since their inputs do not include the F12 features.
 #
 #   python3 -m src.models.fusion cv      -> results/tables/fusion_ablation.csv,
-#                                           results/oof/M10_v1.parquet + its main_results row
+#                                           results/oof/M10_<VERSION>.parquet + its main_results row
 #   python3 -m src.models.fusion test    -> results/tables/test_results.csv (bootstrap 95% CIs),
 #                                           results/tables/test_fusion_gain.csv,
 #                                           results/final_scores.parquet, configs/final.json
@@ -31,11 +33,12 @@ from src.eval.oof import write_frames
 from src.models.common import save_run
 
 SEED = 4012
-# Model name -> OOF/test file stem. M3_tuned on v1 is the reference for every ablation.
+VERSION = "v3"
+# Model name -> OOF/test file stem. Tuned M3 is the reference for every ablation.
 FILES = {
-    "M3_tuned": "M3_tuned_v1",
-    "M9": "M9_v1",
-    "M7wd": "M7wd_v1",
+    "M3_tuned": f"M3_tuned_{VERSION}",
+    "M9": f"M9_{VERSION}",
+    "M7wd": f"M7wd_{VERSION}",
     "M7": "M7_v1",
     "M4": "M4focal_v1",
     "M8sage": "M8sage_v2",
@@ -56,9 +59,13 @@ ABLATION = [
     ["M3_tuned", "M9", "M7wd", "M7", "M4"],
     list(FILES),
 ]
-# The final model: the smallest set whose stacked gain over M3 is positive in every fold.
-FINAL = ["M3_tuned", "M7wd"]
+# The final model: the smallest set whose stacked gain over M3 is positive in every fold. On v1
+# that was M3_tuned + M7wd; on v3 no stack qualifies, so the final model is tuned M3 alone.
+# STACK is still scored on the test set as the runner-up, so the report can show the gap.
+FINAL = ["M3_tuned"]
+STACK = ["M3_tuned", "M7wd"]
 TEST_MODELS = ["M1", "M3", "M3_tuned", "M9", "M7wd"]
+FINAL_NAME = "M10" if len(FINAL) > 1 else FINAL[0]
 
 
 def load_oof(models):
@@ -117,15 +124,15 @@ def run_cv():
     table = pd.DataFrame(rows)
     write_frames({Path("results/tables/fusion_ablation.csv"): table})
     print(table.round(4).to_string(index=False))
-    scores = stack_oof(ranks, y, folds, FINAL)
+    scores = stack_oof(ranks, y, folds, STACK)
     save_run(
         frame["client_id"].to_numpy(),
         folds,
         y,
         scores,
         "M10",
-        "v1",
-        run_id="M10_lr_stack_" + "+".join(FINAL) + "_train_cv",
+        VERSION,
+        run_id="M10_lr_stack_" + "+".join(STACK) + "_train_cv",
         combiner="lr_stack_on_fold_ranks",
     )
 
@@ -133,7 +140,7 @@ def run_cv():
 def test_ranks(models):
     frame = None
     for name in models:
-        o = pd.read_parquet(f"results/test/{name}_v1.parquet")[["client_id", "score"]]
+        o = pd.read_parquet(f"results/test/{name}_{VERSION}.parquet")[["client_id", "score"]]
         o = o.rename(columns={"score": name}).assign(client_id=lambda d: d.client_id.astype(str))
         frame = o if frame is None else frame.merge(o, on="client_id", validate="one_to_one")
     cli = pd.read_parquet("data/interim/client.parquet")[["client_id", "target"]]
@@ -175,20 +182,19 @@ def paired_gain(y, a, b, n_boot=1000):
 
 
 def run_test():
-    frame, ranks = load_oof(FINAL)
-    y_tr = frame["target"].to_numpy()
-    fit = stacker().fit(ranks[FINAL], y_tr)
+    frame, ranks = load_oof(STACK)
+    fit = stacker().fit(ranks[STACK], frame["target"].to_numpy())
     test = test_ranks(TEST_MODELS)
     y = test["target"].to_numpy()
-    test_rank = test[FINAL].rank(pct=True)
-    test["M10"] = fit.predict_proba(test_rank)[:, 1]
+    test["M10"] = fit.predict_proba(test[STACK].rank(pct=True))[:, 1]
     rows = [metric_row(name, y, test[name].to_numpy()) for name in TEST_MODELS + ["M10"]]
     table = pd.DataFrame(rows)
+    table["final"] = table["model"].eq(FINAL_NAME)
     point, lo, hi, share = paired_gain(y, test["M10"].to_numpy(), test["M3_tuned"].to_numpy())
     gain = pd.DataFrame(
         [
             {
-                "comparison": "M10 - M3_tuned",
+                "comparison": "M10 stack - M3_tuned",
                 "pr_auc_gain": point,
                 "lo": lo,
                 "hi": hi,
@@ -196,25 +202,36 @@ def run_test():
             }
         ]
     )
-    oof = pd.read_parquet("results/oof/M10_v1.parquet")[["client_id", "score"]]
+    final_version = f"{FINAL_NAME}_{VERSION}"
+    oof = pd.read_parquet(
+        f"results/oof/{FILES[FINAL_NAME] if FINAL_NAME in FILES else final_version}.parquet"
+    )
     final = pd.concat(
         [
-            oof.assign(split="train_oof"),
-            test[["client_id", "M10"]].rename(columns={"M10": "score"}).assign(split="test"),
+            oof[["client_id", "score"]].assign(split="train_oof"),
+            test[["client_id", FINAL_NAME]]
+            .rename(columns={FINAL_NAME: "score"})
+            .assign(split="test"),
         ],
         ignore_index=True,
     )
     final["client_id"] = final["client_id"].astype(str)
     final["rank_pct"] = final.groupby("split")["score"].rank(pct=True, ascending=False)
-    final["model_version"] = "M10_v1"
+    final["model_version"] = final_version
     config = {
-        "model_version": "M10_v1",
-        "combiner": "logistic regression on percentile ranks",
+        "model_version": final_version,
         "models": {name: FILES[name] for name in FINAL},
-        "coefficients": dict(zip(FINAL, fit.coef_[0].round(6).tolist())),
-        "intercept": float(fit.intercept_[0]),
-        "m3_params": "results/tables/M3_tuned_params_v1.json",
-        "features": "data/processed/features_v1.parquet",
+        "selection": "smallest stack with a positive CV gain over tuned M3 in every fold; "
+        "none qualified on v3, so tuned M3 alone"
+        if len(FINAL) == 1
+        else "LR stack on percentile ranks",
+        "m3_params": f"results/tables/M3_tuned_params_{VERSION}.json",
+        "features": f"data/processed/features_{VERSION}.parquet",
+        "runner_up_stack": {
+            "models": STACK,
+            "coefficients": dict(zip(STACK, fit.coef_[0].round(6).tolist())),
+            "intercept": float(fit.intercept_[0]),
+        },
         "seed": SEED,
     }
     Path("configs").mkdir(exist_ok=True)

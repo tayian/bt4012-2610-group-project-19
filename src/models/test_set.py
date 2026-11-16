@@ -1,7 +1,7 @@
 # Fit each final-table model once on all training clients and score the held-out test clients.
 #
 # This is the only place the test set is used. Every model keeps the settings it had in 5-fold
-# CV (the tuned M3 reads results/tables/M3_tuned_params_v1.json), is refitted on the 108,394
+# CV (the tuned M3 reads results/tables/M3_tuned_params_<version>.json), is refitted on the 108,394
 # training clients, and scores the 27,099 test clients once. Writes
 # results/test/<model>_<version>.parquet with the OOF columns (fold = -1).
 #
@@ -116,7 +116,7 @@ def run_shap(fv="v1", n_jobs=4, batch_size=4096):
 def main():
     p = argparse.ArgumentParser(description="Refit the final-table models and score the test set.")
     p.add_argument("step", choices=["trees", "widedeep", "shap"])
-    p.add_argument("--features", default="v1")
+    p.add_argument("--features", default="v3")
     p.add_argument("--n-jobs", type=int, default=4)
     a = p.parse_args()
     if a.step == "trees":
