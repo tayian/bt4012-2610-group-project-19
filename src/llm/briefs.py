@@ -184,8 +184,8 @@ def brief_snapshot(snapshot: dict[str, Any]) -> dict[str, Any]:
     snap = dict(snapshot)
     snap["risk_tier"] = risk_tier(snapshot.get("risk_rank_pct"))
     snap["risk_note"] = (
-        "risk_score is the out-of-fold score of the final model (tuned LightGBM, trained with "
-        "class weighting, so scores sit well above the 5.6% fraud rate). It is a model score "
+        "risk_score is the out-of-fold score of the final model (a logistic stack of tuned "
+        "LightGBM and a wide-and-deep network; it averages the 5.6% fraud rate). It is a model score "
         "for ranking, not a verified probability of fraud. risk_rank_pct is the percentile among training clients "
         "(higher = riskier). Tier: high = top 1% of clients, medium = top 5% (the monthly "
         "inspection budget), low = the rest."

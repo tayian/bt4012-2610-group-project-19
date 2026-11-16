@@ -116,7 +116,7 @@ def run_shap(fv="v1", n_jobs=4, batch_size=4096):
 def main():
     p = argparse.ArgumentParser(description="Refit the final-table models and score the test set.")
     p.add_argument("step", choices=["trees", "widedeep", "shap"])
-    p.add_argument("--features", default="v3")
+    p.add_argument("--features", default="v4")
     p.add_argument("--n-jobs", type=int, default=4)
     a = p.parse_args()
     if a.step == "trees":

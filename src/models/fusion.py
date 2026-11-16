@@ -33,7 +33,7 @@ from src.eval.oof import write_frames
 from src.models.common import save_run
 
 SEED = 4012
-VERSION = "v3"
+VERSION = "v4"
 # Model name -> OOF/test file stem. Tuned M3 is the reference for every ablation.
 FILES = {
     "M3_tuned": f"M3_tuned_{VERSION}",
@@ -60,9 +60,9 @@ ABLATION = [
     list(FILES),
 ]
 # The final model: the smallest set whose stacked gain over M3 is positive in every fold. On v1
-# that was M3_tuned + M7wd; on v3 no stack qualifies, so the final model is tuned M3 alone.
-# STACK is still scored on the test set as the runner-up, so the report can show the gap.
-FINAL = ["M3_tuned"]
+# v1 and on v4 that is M3_tuned + M7wd; on the leaky v3 no stack qualified.
+# STACK is the stack scored on the test set (equal to FINAL when the stack is adopted).
+FINAL = ["M3_tuned", "M7wd"]
 STACK = ["M3_tuned", "M7wd"]
 TEST_MODELS = ["M1", "M3", "M3_tuned", "M9", "M7wd"]
 FINAL_NAME = "M10" if len(FINAL) > 1 else FINAL[0]

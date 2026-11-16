@@ -14,17 +14,30 @@
 #   bands      mean consumption per month in tariff levels 1 to 4 and the share of invoices
 #              that reach level 3 or 4
 # Only invoice fields are used (no labels, no inspector-written columns), so F12 needs no
-# fold handling. "Last N years" is relative to each client's own last invoice, so clients
+# fold handling.
+#
+# features_v4 = v1 + F12 without CHANGE_SENSITIVE: the counts of meters, meter codes and
+# tariffs, the most common meter code, the largest meter index and the history dates. These
+# move when STEG replaces a meter or changes a tariff, and meter replacements cluster in
+# 2013-2019 and late in fraud clients' histories, which is what a replacement after a detected
+# fraud would look like (docs/decisions.md 8). Built from invoices up to 2012 only, they add
+# 0.016 PR-AUC; on the full history, 0.067. So v4 is the final table and v3 is kept only as
+# the leakage comparison, as features_v1_with_inspection is for F9. "Last N years" is relative to each client's own last invoice, so clients
 # whose billing stopped early are compared with themselves.
 #
 #   python3 -m src.features.meter_tariff
-#     -> data/processed/meter_tariff.parquet, data/processed/features_v3.parquet
+#     -> data/processed/meter_tariff.parquet, data/processed/features_v3.parquet,
+#        data/processed/features_v4.parquet
 #   python3 -m src.features.meter_tariff --audit
 #     -> results/tables/f12_ablation.csv      tuned M3 on folds 0 and 1: v1, v3, v1 plus each
 #                                             F12 group and v3 minus each group
 #        results/tables/f12_change_timing.csv when meter-code, meter-number and tariff changes
 #                                             happen in a client's history, by class
-# The timing table is the leakage check: meter replacements and tariff changes could follow a
+#        results/tables/f12_change_year.csv   fraud rate by the calendar year of the last change
+#   python3 -m src.features.meter_tariff --pre-cutoff
+#     -> results/tables/f12_pre_cutoff.csv  v1, v3 and v4 built from the full history and from
+#                                           invoices up to 2012 only, tuned M3 on 5 folds
+# The timing table is the first leakage check: meter replacements and tariff changes could follow a
 # detected fraud, and labels have no date. If they did, fraud clients' changes would cluster
 # at the end of their history; the table shows whether they do.
 
@@ -104,6 +117,19 @@ def build(inv):
     return out[COLUMNS].rename_axis("client_id").reset_index()
 
 
+CHANGE_SENSITIVE = [
+    "first_invoice_year",
+    "last_invoice_year",
+    "active_years",
+    "n_tarif_types",
+    "n_counter_codes",
+    "counter_code_mode",
+    "n_counter_numbers_elec",
+    "n_counter_numbers_gaz",
+    "new_index_max",
+]
+SAFE = [c for c in COLUMNS if c not in CHANGE_SENSITIVE]
+
 GROUPS = {
     "recency": COLUMNS[:9],
     "tariff": COLUMNS[9:17],
@@ -139,6 +165,30 @@ def change_timing(inv, labels):
                     "median_position_in_history": e["position"].median(),
                     "share_in_last_year": (e["years_before_last"] < 1).mean(),
                     "share_in_last_2_years": (e["years_before_last"] < 2).mean(),
+                }
+            )
+    return pd.DataFrame(rows)
+
+
+def change_year(inv, labels):
+    # Fraud rate of clients by the calendar year of their last change of each field, and of
+    # clients with no change. Replacements after a detected fraud would show up as a jump in
+    # the fraud rate in the years when frauds were being detected.
+    inv = inv.sort_values(["client_id", "counter_type", "invoice_date"])
+    target = labels.set_index("client_id")["target"]
+    rows = []
+    for field in ("counter_code", "counter_number", "tarif_type"):
+        previous = inv.groupby(["client_id", "counter_type"])[field].shift()
+        changed = previous.notna() & (previous != inv[field])
+        year = inv.loc[changed].groupby("client_id")["invoice_date"].max().dt.year
+        year = year.reindex(target.index).astype("Int64").astype(str).replace("<NA>", "no change")
+        for value, t in target.groupby(year):
+            rows.append(
+                {
+                    "field": field,
+                    "last_change_year": value,
+                    "clients": len(t),
+                    "fraud_rate": t.mean(),
                 }
             )
     return pd.DataFrame(rows)
@@ -195,24 +245,98 @@ def audit(n_jobs=4):
     labels["client_id"] = labels["client_id"].astype(str)
     labels = labels[labels["client_id"].isin(train)]
     timing = change_timing(inv[inv["client_id"].isin(train)], labels)
+    years = change_year(inv[inv["client_id"].isin(train)], labels)
     write_frames(
         {
             Path("results/tables/f12_ablation.csv"): ablation,
             Path("results/tables/f12_change_timing.csv"): timing,
+            Path("results/tables/f12_change_year.csv"): years,
         }
     )
     print(ablation.round(4).to_string(index=False))
     print(timing.round(3).to_string(index=False))
 
 
+def pre_cutoff(cutoff="2012-12-31", n_jobs=4):
+    # Tuned M3 on v1, v3 and v4, each built from the full history and from invoices dated up to
+    # the cutoff. Meter replacements surge from 2013, so a feature group whose gain mostly
+    # disappears before the cutoff draws its signal from that later period.
+    import json
+
+    from sklearn.metrics import average_precision_score
+
+    from src.eval.oof import write_frames
+    from src.eval.time_robustness import history_up_to
+    from src.features import aggregate
+    from src.features.behavioural import build_features
+    from src.models.test_set import load_split
+    from src.models.trees import fit_m3
+
+    inv = pd.read_parquet("data/interim/invoice_clean.parquet")
+    clients = pd.read_parquet("data/interim/client.parquet", columns=aggregate.PROFILE_COLUMNS)
+    early, _, _ = history_up_to(inv, cutoff)
+    early["client_id"] = early["client_id"].astype(str)
+    v1e = build_features(early, clients)
+    v1e["client_id"] = v1e["client_id"].astype(str)
+    v3e = v1e.merge(build(early), on="client_id", how="left").set_index("client_id")
+    (ids, X, y), _ = load_split("v3")
+    folds = pd.read_csv("data/splits/folds.csv", dtype={"client_id": "string"})
+    folds = folds.set_index("client_id")["fold"].loc[ids].to_numpy()
+    has_history = pd.Index(ids).isin(early["client_id"].unique())
+    v3e = v3e.reindex(ids.astype(str))[list(X.columns)]
+    for c in X.columns:
+        v3e[c] = v3e[c].astype(X[c].dtype if not pd.api.types.is_numeric_dtype(X[c]) else float)
+    v3e.index = X.index
+    v1 = [c for c in X.columns if c not in COLUMNS]
+    v4 = [c for c in X.columns if c not in CHANGE_SENSITIVE]
+    params = {
+        v: json.loads(Path(f"results/tables/M3_tuned_params_{v}.json").read_text())
+        for v in ("v1", "v3", "v4")
+    }
+    rows = []
+    for history, table in (("full history", X), (f"invoices <= {cutoff}", v3e)):
+        for name, cols in (("v1", v1), ("v3", list(X.columns)), ("v4", v4)):
+            scores = np.zeros(len(y))
+            for k in range(5):
+                m = fit_m3(
+                    table.loc[folds != k, cols], y[folds != k], **params[name], n_jobs=n_jobs
+                )
+                scores[folds == k] = m.predict_proba(table.loc[folds == k, cols])[:, 1]
+            for scope, mask in (
+                ("all", np.ones(len(y), bool)),
+                ("history before cutoff", has_history),
+            ):
+                values = [
+                    average_precision_score(y[(folds == k) & mask], scores[(folds == k) & mask])
+                    for k in range(5)
+                ]
+                rows.append(
+                    {
+                        "features": name,
+                        "history": history,
+                        "clients": scope,
+                        "pr_auc_mean": np.mean(values),
+                        "pr_auc_std": np.std(values, ddof=1),
+                    }
+                )
+            print(f"{name} on {history} done", flush=True)
+    table = pd.DataFrame(rows)
+    write_frames({Path("results/tables/f12_pre_cutoff.csv"): table})
+    print(table.round(4).to_string(index=False))
+
+
 def main():
     p = argparse.ArgumentParser(description="Build F12 and features_v3 (v1 + F12).")
     p.add_argument("--processed", type=Path, default=Path("data/processed"))
     p.add_argument("--audit", action="store_true", help="write the F12 ablation and timing check")
+    p.add_argument("--pre-cutoff", action="store_true", help="write the pre-2013 leakage check")
     p.add_argument("--n-jobs", type=int, default=4)
     a = p.parse_args()
     if a.audit:
         audit(a.n_jobs)
+        return
+    if a.pre_cutoff:
+        pre_cutoff(n_jobs=a.n_jobs)
         return
     inv = pd.read_parquet("data/interim/invoice_clean.parquet")
     inv["client_id"] = inv["client_id"].astype(str)
@@ -222,7 +346,12 @@ def main():
     v3 = v1.merge(f12, on="client_id", how="left", validate="one_to_one")
     f12.to_parquet(a.processed / "meter_tariff.parquet", index=False)
     v3.to_parquet(a.processed / "features_v3.parquet", index=False)
-    print(f"F12: {len(COLUMNS)} features for {len(f12)} clients; features_v3 has {v3.shape[1] - 1}")
+    v4 = v3.drop(columns=CHANGE_SENSITIVE)
+    v4.to_parquet(a.processed / "features_v4.parquet", index=False)
+    print(
+        f"F12: {len(COLUMNS)} features for {len(f12)} clients; features_v3 has {v3.shape[1] - 1}, "
+        f"features_v4 {v4.shape[1] - 1}"
+    )
 
 
 if __name__ == "__main__":
