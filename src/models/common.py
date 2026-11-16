@@ -81,7 +81,9 @@ class TabularPrep:
         return np.clip(np.hstack(parts), -10, 10).astype(np.float32)
 
 
-def save_run(ids, folds, y, scores, model, feature_version, run_id, oof_name=None, **meta):
+def save_run(
+    ids, folds, y, scores, model, feature_version, run_id, oof_name=None, probabilities=True, **meta
+):
     # Write one model's OOF scores and its row of results/tables/main_results.csv together.
     #
     # Metrics come from the shared src.eval.metrics.budget_metrics (tie-aware, with Brier and
@@ -96,6 +98,9 @@ def save_run(ids, folds, y, scores, model, feature_version, run_id, oof_name=Non
     if not np.isfinite(scores).all():
         raise ValueError(f"{run_id}: every training client needs a finite OOF score.")
     table = pd.DataFrame([budget_metrics(y[folds == k], scores[folds == k]) for k in range(5)])
+    if not probabilities:
+        # Anomaly scores in [0, 1] are not fraud probabilities, so no Brier score.
+        table["brier"] = np.nan
     row = {
         "model": model,
         "feature_version": feature_version,

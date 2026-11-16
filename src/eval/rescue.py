@@ -1,6 +1,6 @@
 # Unsupervised rescue analysis: among true frauds that M3 ranks BELOW its top 10%, what share
-# do M5 (isolation forest) or M6 (autoencoder) rank in their own top 10%? This number
-# justifies parallel (not series) fusion.
+# do M5 (isolation forest) or M6 (autoencoder) rank in their own top 10%? Rescue rates well
+# above the random baseline would justify running them in parallel with M3 in the fusion.
 #
 # Ranks are computed within each CV fold (OOF scores are only comparable inside the fold that
 # produced them). A random scorer would "rescue" ~10% per model and ~19% for "M5 or M6", so
@@ -76,7 +76,8 @@ def rescue(m3_v, an_v, extra=("M7", "M4")):
         {
             "group": "non-frauds outside M3 top 10% flagged by M5 or M6",
             "n": int(hb.sum()),
-            "share_of_missed": hb.mean(),
+            # A share of these non-frauds, not of missed frauds: its own column.
+            "share_of_nonfrauds": hb.mean(),
             "random_baseline": 1 - (1 - TOP) ** 2,
         }
     )

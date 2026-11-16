@@ -71,8 +71,6 @@ def build_sequence(inv: pd.DataFrame, client_ids=None, T=T):
 
     anchor = np.full(len(client_ids), -1, np.int64)
     np.maximum.at(anchor, cid, ym)
-    first = np.full(len(client_ids), np.iinfo(np.int64).max, np.int64)
-    np.minimum.at(first, cid, ym - m + 1)
 
     # explode each invoice into the months it covers
     rep = np.repeat(np.arange(len(m)), m)

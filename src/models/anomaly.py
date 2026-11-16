@@ -1,7 +1,9 @@
 # Unsupervised anomaly scorers, out-of-fold (run on v0 and v1).
 #
-# M5 Isolation forest: features (target never used), 300 trees, contamination 'auto', fitted
-#    on the training fold, scored on the held-out fold.
+# M5 Isolation forest: consumption and billing features (target never used), 300 trees,
+#    contamination 'auto', fitted on the training fold, scored on the held-out fold. Profile
+#    columns are left out: rare categories and missing-value patterns are "anomalous" without
+#    saying anything about fraud.
 # M6 Autoencoder: 120-month total cons_pm sequence (log1p) flattened + consumption and billing
 #    features; Dense in-64-16-64-in; trained on NON-FRAUD training-fold clients only; score =
 #    reconstruction MSE on the held-out fold.
@@ -33,10 +35,17 @@ CONSUMPTION_BILLING_PREFIX = (
     "slope_last3y",
     "sudden_spike",
     "zero_",
+    "robust_z",
+    "n_robust_z",
 )
 
 
+def behaviour_columns(X):
+    return [c for c in X.columns if c.startswith(CONSUMPTION_BILLING_PREFIX)]
+
+
 def m5_iforest(X, folds):
+    X = X[behaviour_columns(X)]
     s = np.zeros(len(X))
     for k in range(5):
         tr, va = folds != k, folds == k
@@ -67,13 +76,14 @@ def total_seq(ids):
 
 
 def m6_autoencoder(ids, X, y, folds, epochs=25):
-    cols = [c for c in X.columns if c.startswith(CONSUMPTION_BILLING_PREFIX)]
+    cols = behaviour_columns(X)
     seq = total_seq(ids)
     s = np.zeros(len(y))
     for k in range(5):
         set_seed()
         tr, va = folds != k, folds == k
-        prep = TabularPrep().fit(X.loc[tr, cols])
+        # Scaling is fitted on the same non-fraud clients the autoencoder learns from.
+        prep = TabularPrep().fit(X.loc[tr & (y == 0), cols])
         Z = np.hstack([seq, prep.transform(X[cols]) / 3]).astype(np.float32)
         honest = np.where(tr & (y == 0))[0]
         rng = np.random.default_rng(SEED)
@@ -113,7 +123,7 @@ def m6_autoencoder(ids, X, y, folds, epochs=25):
 
 def main():
     p = argparse.ArgumentParser(description="Score the isolation forest (M5) and autoencoder (M6).")
-    p.add_argument("--features", default="v1", choices=["v0", "v1"])
+    p.add_argument("--features", default="v1", choices=["v0", "v1", "v2"])
     a = p.parse_args()
     ids, X, y, folds = load_train(a.features)
     # Anomaly scores are not probabilities, so their Brier score is left empty.
@@ -125,6 +135,7 @@ def main():
         "M5",
         a.features,
         run_id=f"M5_features_{a.features}_iforest300_train_cv",
+        probabilities=False,
         n_estimators=300,
         preprocessing="fold_fitted_log1p_impute_standardise_unsupervised",
     )
@@ -136,6 +147,7 @@ def main():
         "M6",
         a.features,
         run_id=f"M6_features_{a.features}_autoencoder_nonfraud_train_cv",
+        probabilities=False,
         preprocessing="seq120_plus_F2_F3_trained_on_nonfraud_training_clients",
     )
 

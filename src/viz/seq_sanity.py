@@ -19,7 +19,7 @@ def main():
     pos = pd.Series(np.arange(len(ids)), index=ids)
     y = cli.loc[tr, "target"].values
     rng = np.random.default_rng(SEED)
-    # pick clients with at least 60 observed ELEC months so lines are readable
+    # pick clients with at least 60 observed months (any invoice type) so lines are readable
     tr_idx = pos[tr].values
     obs = (seq[tr_idx, :, 2] == 0).sum(1)
     elig = obs >= 60

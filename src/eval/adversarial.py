@@ -45,7 +45,18 @@ from src.models.common import SEED, TabularPrep, load_train
 
 BUDGET = 0.30
 TOP = 0.05
-CONSUMPTION_PREFIX = ("cons_pm", "share_level")  # the F2 consumption group
+# Features an attacker moves by lowering declared consumption: F2, and in v1 also the F4/F5
+# trajectory and self-deviation groups.
+CONSUMPTION_PREFIX = (
+    "cons_pm",
+    "share_level",
+    "yoy_drop",
+    "slope_last3y",
+    "sudden_spike",
+    "zero_",
+    "robust_z",
+    "n_robust_z",
+)
 BY_FOLD = Path("results/tables/robustness_by_fold.csv")
 SUMMARY = Path("results/tables/robustness.csv")
 

@@ -14,7 +14,7 @@
 |---|---|---|
 | Periodicity via 2-D reshape (week × day) | Conv1D kernel 12 (yearly), plus the wide-and-deep variant M7wd: a 10 × 12 year × month grid with Conv2D, calendar-aligned so each column is one calendar month | Our data is monthly bills, not daily reads; the period that matters is the year (seasonal heating/cooling) |
 | Interpolate missing days | Explicit **mask channel**, months without an invoice stay 0 | Gaps in billing are themselves a fraud signal (F3); interpolating would hide them |
-| Wide branch on raw series | Static branch on the engineered feature store (Dense 64) | Our tabular features (meter status, reconciliation) carry signal a raw series cannot |
+| Wide branch on raw series | Static branch on the engineered feature store (Dense 64) | Our tabular features (profile, billing gaps, trajectory and, in v1, reconciliation) carry signal a raw series cannot |
 | MAP@k | precision@k and recall@k at 1/5/10% budgets | Same idea: only the top of the ranked list gets inspected |
 | Three-sigma outlier cap | log1p transform | Consumption is heavy-tailed (99.9th pct ≈ 8,000/month) |
 
