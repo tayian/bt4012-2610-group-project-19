@@ -1,7 +1,8 @@
 # Client snapshot builder for RAG query rewriting and Inspector Brief generation.
 #
 # All upstream file paths are centralized in SNAPSHOT_CONFIG so they can be swapped
-# in one place when moving from features_v1 / M3_v0 / shap_top5_v0 to the final frozen model.
+# in one place. They point at the current reference model (tuned M3 on features_v1, see
+# docs/decisions.md) and move to the final frozen model once it exists.
 
 from __future__ import annotations
 
@@ -16,15 +17,15 @@ from src.data.split import read_clients, read_splits
 SNAPSHOT_CONFIG: dict[str, Any] = {
     "features_v0_path": Path("data/processed/features_v0.parquet"),
     "features_v1_path": Path("data/processed/features_v1.parquet"),
-    "oof_path": Path("results/oof/M3_v0.parquet"),
-    "shap_path": Path("results/shap_top5_v0.parquet"),
+    "oof_path": Path("results/oof/M3_tuned_v1.parquet"),
+    "shap_path": Path("results/shap_top5_v1.parquet"),
     "interim_client_path": Path("data/interim/client.parquet"),
     "interim_invoice_clean_path": Path("data/interim/invoice_clean.parquet"),
     "interim_invoice_raw_path": Path("data/interim/invoice.parquet"),
     "splits_dir": Path("data/splits"),
     "raw_clients_path": Path("data/raw/client_train.csv"),
     "default_alert_date": "2025-06-01",
-    "model_version": "M3_v0",
+    "model_version": "M3_tuned_v1",
 }
 
 KEY_FEATURE_NAMES = (

@@ -6,8 +6,12 @@
 #   results/tables/M3_tuning_<version>.csv            every trial and its CV PR-AUC
 #   results/tables/M3_tuned_params_<version>.json     the selected LightGBM parameters
 # As with any search, the selected CV score is slightly optimistic; the test set stays unused.
+# --params refits saved parameters on another feature table (e.g. the v1 choice on v2) without
+# searching again.
 
+import json
 from functools import partial
+from pathlib import Path
 
 import optuna
 import pandas as pd
@@ -53,13 +57,23 @@ def run(ctx, n_trials=30, n_jobs=4):
     return best
 
 
+def refit(ctx, params, n_jobs=4):
+    oof, row, _ = evaluate(ctx, partial(model_fn, **params, n_jobs=n_jobs), "M3_tuned", params)
+    publish(ctx, oof, row, "M3_tuned")
+    print(f"M3_tuned on {ctx.feature_set}: PR-AUC {row['pr_auc_mean']:.4f}", flush=True)
+
+
 def main():
     p = parser("Tune M3 LightGBM with Optuna on the saved folds.")
     p.add_argument("--trials", type=int, default=30)
     p.add_argument("--n-jobs", type=int, default=4)
+    p.add_argument("--params", type=Path, help="refit these saved parameters instead of searching")
     args = p.parse_args()
     try:
-        run(get_context(args), args.trials, args.n_jobs)
+        if args.params:
+            refit(get_context(args), json.loads(args.params.read_text()), args.n_jobs)
+        else:
+            run(get_context(args), args.trials, args.n_jobs)
     except (ValueError, OSError) as exc:
         p.exit(2, f"tune: {exc}\n")
 
