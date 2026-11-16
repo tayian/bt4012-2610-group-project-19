@@ -510,7 +510,7 @@ def commands(s):
                 [PY, "-m", "src.eval.adversarial", "trees", "--features", VERSION],
                 [PY, "-m", "src.viz.robustness_fig", "--features", VERSION],
             ],
-            "Attack the final model's features and test the tree defences (v3 rows)",
+            "Attack the final model's features and test the tree defences (final-table rows)",
         ),
         "test": ([], [[PY, "-m", "pytest", "-q", "tests"]], "Run every test"),
         "test-rag": (

@@ -1,0 +1,22 @@
+{
+  "model_version": "M10_v4",
+  "models": {
+    "M3_tuned": "M3_tuned_v4",
+    "M7wd": "M7wd_v4"
+  },
+  "selection": "LR stack on percentile ranks",
+  "m3_params": "results/tables/M3_tuned_params_v4.json",
+  "features": "data/processed/features_v4.parquet",
+  "runner_up_stack": {
+    "models": [
+      "M3_tuned",
+      "M7wd"
+    ],
+    "coefficients": {
+      "M3_tuned": 4.688078,
+      "M7wd": 1.894737
+    },
+    "intercept": -7.340352701555673
+  },
+  "seed": 4012
+}

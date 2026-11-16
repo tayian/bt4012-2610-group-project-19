@@ -133,6 +133,21 @@ More detail on the data folder is in [data/README.md](data/README.md).
 
 The full rules are in [docs/eval_protocol.md](docs/eval_protocol.md).
 
+## Results
+
+The final model (M10) stacks tuned LightGBM and a wide-and-deep network on `features_v4`. That
+table is the leak-free feature set: meter and tariff features a post-detection meter
+replacement would move are excluded (docs/decisions.md, section 8).
+
+| Model | CV PR-AUC (5 folds) | Test PR-AUC [95% CI] | Test recall in top 5% |
+|---|---|---|---|
+| M1 logistic regression | not run on v4 | 0.193 [0.179, 0.210] | 0.209 |
+| M3 tuned LightGBM | 0.300 +/- 0.011 | 0.294 [0.272, 0.318] | 0.316 |
+| **M10 final stack** | **0.306 +/- 0.011** | **0.294 [0.272, 0.318]** | **0.316** |
+
+The fraud base rate is 5.6%, so the final model is about 5x better than random. The test set was
+scored once. Every decision behind these numbers is in [docs/decisions.md](docs/decisions.md).
+
 ## Configuration
 
 API keys live in a local `.env` file, which is never committed. `.env.example` is the template:
