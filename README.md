@@ -79,6 +79,33 @@ matching rerun. The routine `all` command runs the core pipeline, SHAP and tests
 See [docs/model_experiments.md](docs/model_experiments.md) for the commands, output names
 and evaluation rules.
 
+## Final model, evaluation and Inspector Briefs
+
+These steps build the final model and everything reported about it, in order. Each runs the
+steps it depends on. The test set is scored once, by `test-set`; the LLM steps need a Gemini
+key in `.env`, and their responses are cached in `results/`, so a rerun on the same model makes
+no API calls.
+
+| Command | What it does |
+|---|---|
+| `python run.py features-v3` | Builds the F12 meter, tariff and recency features, `features_v3` (v1 + F12, the leakage comparison) and `features_v4` (the final table, without the features a meter replacement moves) |
+| `python run.py features-v3-audit` | F12 ablation, meter-change timing, the pre-2013 leakage check and `meter_change_year.png` (about 1.5 h) |
+| `python run.py time-robustness` | Tuned M3 on invoices up to 2016 against the full history |
+| `python run.py tune` | Tunes LightGBM (M3) with Optuna on `features_v4`, 30 trials (about an hour) |
+| `python run.py catboost` | CatBoost (M9) on `features_v4` |
+| `python run.py fusion` | Fusion ablation and the M10 stacker's out-of-fold scores (needs the model OOF files) |
+| `python run.py robustness-final` | Consumption-hiding attacks on the final feature table, with defences |
+| `python run.py test-set` | Refits on all training clients and scores the held-out test set once (`test_results.csv`) |
+| `python run.py responsible` | Fairness of inspection allocation, calibration by district, SHAP stability |
+| `python run.py budget-figures` | Precision against inspection budget, net recovery and the cost-model table |
+| `python run.py benford`, `python run.py eda-figures` | Benford tests and the remaining EDA figures |
+| `python run.py corpus` | The 300 precedent case cards and the RAG `chunks.jsonl` |
+| `python run.py retrieval-eval` | Dense, BM25, hybrid and reranked retrieval on the 25-query benchmark |
+| `python run.py query-rewriter` | Query rewriter (snapshot to 3 search queries) on 5 clients |
+| `python run.py briefs` | Inspector Briefs for the top 30 clients: no evidence, hybrid and filtered hybrid (`three_run_eval.csv`) |
+| `python run.py agents` | Single agent against multi-agent on the same 30 clients (`agent_comparison.csv`) |
+| `python run.py test-briefs`, `python run.py test-llm` | Brief and agent tests with the LLM mocked; a live check of the Gemini key |
+
 ## Other commands
 
 | Command | What it does |
