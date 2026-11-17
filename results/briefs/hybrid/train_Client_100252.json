@@ -1,0 +1,84 @@
+{
+  "client_id": "train_Client_100252",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:26:05",
+  "queries": [
+    "investigate high number of meters n_counters 4",
+    "analyze consumption surge ratio_last1y_lifetime 1.5678",
+    "review meter reading remark codes 6 8 9"
+  ],
+  "evidence_ids": [
+    "CODE-reading_remarque-9",
+    "CODE-tarif_type-14",
+    "TYP-06",
+    "CODE-counter_statue-1",
+    "CODE-reading_remarque-6"
+  ],
+  "brief": {
+    "client_id": "train_Client_100252",
+    "risk_score": 0.3192,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client has 4 counters and 77 invoices, which are the primary drivers of the high risk score according to the model's SHAP analysis.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client's history includes counter_statue '1', which is associated with disconnected or cut-off service; consumption recorded under this status may indicate self-reconnection.",
+        "citations": [
+          "SNAPSHOT",
+          "CODE-counter_statue-1"
+        ]
+      },
+      {
+        "point": "The client has a has_missing_months flag of 1, which is a data signature associated with irregular billing and potential meter issues.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-06"
+        ]
+      },
+      {
+        "point": "The client's history includes reading_remarque '9', which is often used for inaccessible meters, though its high frequency in the general population limits its diagnostic value.",
+        "citations": [
+          "SNAPSHOT",
+          "CODE-reading_remarque-9"
+        ]
+      },
+      {
+        "point": "The ratio_last1y_lifetime of 1.5678 is a significant feature contributing to the model's risk assessment.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify the physical status of all 4 counters.",
+      "Inspect meter seams, terminal covers, and windows for signs of tampering or inserted objects.",
+      "Confirm the service-order history to validate the counter_statue '1' status.",
+      "Check for unauthorized reconnections or bypasses."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "CODE-counter_statue-1",
+        "action": "Confirm the account's real service-order history before assuming self-reconnection."
+      },
+      {
+        "rule_id": "TYP-06",
+        "action": "Inspect seams, terminal covers, and windows for seal damage or inserted objects."
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "The model identifies high risk based on structural features like the number of counters and invoices, but the specific fraud mechanism is unclear. The presence of status codes like '1' and '9' are common and do not confirm fraud without verifying the service history and reader logs."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_100252\",\n  \"risk_score\": 0.3192,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client has 4 counters and 77 invoices, which are the primary drivers of the high risk score according to the model's SHAP analysis.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client's history includes counter_statue '1', which is associated with disconnected or cut-off service; consumption recorded under this status may indicate self-reconnection.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"CODE-counter_statue-1\"\n      ]\n    },\n    {\n      \"point\": \"The client has a has_missing_months flag of 1, which is a data signature associated with irregular billing and potential meter issues.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-06\"\n      ]\n    },\n    {\n      \"point\": \"The client's history includes reading_remarque '9', which is often used for inaccessible meters, though its high frequency in the general population limits its diagnostic value.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"CODE-reading_remarque-9\"\n      ]\n    },\n    {\n      \"point\": \"The ratio_last1y_lifetime of 1.5678 is a significant feature contributing to the model's risk assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the physical status of all 4 counters.\",\n    \"Inspect meter seams, terminal covers, and windows for signs of tampering or inserted objects.\",\n    \"Confirm the service-order history to validate the counter_statue '1' status.\",\n    \"Check for unauthorized reconnections or bypasses.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"CODE-counter_statue-1\",\n      \"action\": \"Confirm the account's real service-order history before assuming self-reconnection.\"\n    },\n    {\n      \"rule_id\": \"TYP-06\",\n      \"action\": \"Inspect seams, terminal covers, and windows for seal damage or inserted objects.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The model identifies high risk based on structural features like the number of counters and invoices, but the specific fraud mechanism is unclear. The presence of status codes like '1' and '9' are common and do not confirm fraud without verifying the service history and reader logs.\"\n}",
+  "usage": {
+    "input_tokens": 4016,
+    "output_tokens": 1867
+  },
+  "error": null
+}

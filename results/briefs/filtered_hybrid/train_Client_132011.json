@@ -1,0 +1,74 @@
+{
+  "client_id": "train_Client_132011",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:29:42",
+  "queries": [
+    "investigate multiple meters account with counter_statue 0 and 5",
+    "review consumption spike with reading_remarque 6 8 9",
+    "analyze sudden consumption increase ratio_last1y_lifetime"
+  ],
+  "evidence_ids": [
+    "CODE-counter_statue-1",
+    "CODE-counter_statue-5",
+    "CASE-train_Client_82827",
+    "SOP-v2025-2.1",
+    "CODE-counter_statue-0"
+  ],
+  "brief": {
+    "client_id": "train_Client_132011",
+    "risk_score": 0.3199,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client's maximum year-on-year consumption drop is 0.6013, which exceeds the 50% threshold for suspected meter tampering defined in the SOP.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-2.1"
+        ]
+      },
+      {
+        "point": "The account history includes 'counter_statue' code 5, which is historically associated with a 10.42% fraud rate, significantly higher than the 5.58% base rate.",
+        "citations": [
+          "SNAPSHOT",
+          "CODE-counter_statue-5"
+        ]
+      },
+      {
+        "point": "The client exhibits a high ratio of last-year consumption to lifetime consumption (2.1254) and maintains 3 counters, both of which are top-contributing features to the model's risk assessment.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account record contains missing months, which may impact the reliability of consumption trend analysis.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify meter integrity for signs of tampering",
+      "Check for bypass connections",
+      "Validate current meter readings against invoice history"
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-2.1",
+        "action": "Urgent Forensic Site Inspection (Level 2)"
+      }
+    ],
+    "similar_cases": [
+      "CASE-train_Client_82827"
+    ],
+    "uncertainty": "While the risk score is high and the consumption drop triggers SOP-v2025-2.1, the specific cause of the anomaly remains unverified. The association with counter_statue 5 is statistical and not definitive proof of fraud."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_132011\",\n  \"risk_score\": 0.3199,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client's maximum year-on-year consumption drop is 0.6013, which exceeds the 50% threshold for suspected meter tampering defined in the SOP.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.1\"\n      ]\n    },\n    {\n      \"point\": \"The account history includes 'counter_statue' code 5, which is historically associated with a 10.42% fraud rate, significantly higher than the 5.58% base rate.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"CODE-counter_statue-5\"\n      ]\n    },\n    {\n      \"point\": \"The client exhibits a high ratio of last-year consumption to lifetime consumption (2.1254) and maintains 3 counters, both of which are top-contributing features to the model's risk assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account record contains missing months, which may impact the reliability of consumption trend analysis.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify meter integrity for signs of tampering\",\n    \"Check for bypass connections\",\n    \"Validate current meter readings against invoice history\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-2.1\",\n      \"action\": \"Urgent Forensic Site Inspection (Level 2)\"\n    }\n  ],\n  \"similar_cases\": [\n    \"CASE-train_Client_82827\"\n  ],\n  \"uncertainty\": \"While the risk score is high and the consumption drop triggers SOP-v2025-2.1, the specific cause of the anomaly remains unverified. The association with counter_statue 5 is statistical and not definitive proof of fraud.\"\n}",
+  "usage": {
+    "input_tokens": 3735,
+    "output_tokens": 2000
+  },
+  "error": null
+}

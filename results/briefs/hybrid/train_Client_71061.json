@@ -1,0 +1,79 @@
+{
+  "client_id": "train_Client_71061",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:24:23",
+  "queries": [
+    "investigate multiple meter accounts for single client with high n_counters",
+    "analyze consumption patterns for zero consumption sequences with zero_run_max 5",
+    "review meter status codes 0 and 5 with reading remark codes 6 8 9"
+  ],
+  "evidence_ids": [
+    "TYP-04",
+    "SOP-v2025-2.2",
+    "CODE-reading_remarque-6",
+    "TYP-09",
+    "SOP-v2023-2.2"
+  ],
+  "brief": {
+    "client_id": "train_Client_71061",
+    "risk_score": 0.3197,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client has a zero_run_max of 5.0, which exceeds the threshold of 2 consecutive zero-consumption invoices defined in SOP-v2025-2.2 and the 4 consecutive invoices defined in SOP-v2023-2.2, necessitating immediate physical inspection.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-2.2",
+          "SOP-v2023-2.2"
+        ]
+      },
+      {
+        "point": "The client's benford_mad value of 0.0355 exceeds the 0.015 threshold for first-digit nonconformity, which is a data signature associated with potential under-reporting or manipulation.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-04"
+        ]
+      },
+      {
+        "point": "The client exhibits high consumption volatility, with cons_pm_skew of 3.7915 and cons_pm_kurt of 20.3714, which serve as proxies for intermittent tampering patterns.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "The client profile includes 4 counters and 80 invoices, which are identified as significant features contributing to the high risk score.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify premise occupancy",
+      "Inspect for unauthorized neutral disconnection, direct bypass, or meter jamming",
+      "Inspect terminal screws and conductors for clip marks or scratches",
+      "Test the casing with a Gaussmeter for residual magnetism"
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-2.2",
+        "action": "Priority Inspection & Service Verification"
+      },
+      {
+        "rule_id": "SOP-v2023-2.2",
+        "action": "Occupancy Verification & Meter Seal Audit"
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the zero_run_max of 5.0 strongly triggers SOP requirements, the round_reading_share of 0.25 is below the threshold of 0.40, suggesting that while there is evidence of zero-consumption, there is less evidence of specific meter-reader collusion via rounding bias."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_71061\",\n  \"risk_score\": 0.3197,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client has a zero_run_max of 5.0, which exceeds the threshold of 2 consecutive zero-consumption invoices defined in SOP-v2025-2.2 and the 4 consecutive invoices defined in SOP-v2023-2.2, necessitating immediate physical inspection.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.2\",\n        \"SOP-v2023-2.2\"\n      ]\n    },\n    {\n      \"point\": \"The client's benford_mad value of 0.0355 exceeds the 0.015 threshold for first-digit nonconformity, which is a data signature associated with potential under-reporting or manipulation.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-04\"\n      ]\n    },\n    {\n      \"point\": \"The client exhibits high consumption volatility, with cons_pm_skew of 3.7915 and cons_pm_kurt of 20.3714, which serve as proxies for intermittent tampering patterns.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The client profile includes 4 counters and 80 invoices, which are identified as significant features contributing to the high risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify premise occupancy\",\n    \"Inspect for unauthorized neutral disconnection, direct bypass, or meter jamming\",\n    \"Inspect terminal screws and conductors for clip marks or scratches\",\n    \"Test the casing with a Gaussmeter for residual magnetism\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-2.2\",\n      \"action\": \"Priority Inspection & Service Verification\"\n    },\n    {\n      \"rule_id\": \"SOP-v2023-2.2\",\n      \"action\": \"Occupancy Verification & Meter Seal Audit\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the zero_run_max of 5.0 strongly triggers SOP requirements, the round_reading_share of 0.25 is below the threshold of 0.40, suggesting that while there is evidence of zero-consumption, there is less evidence of specific meter-reader collusion via rounding bias.\"\n}",
+  "usage": {
+    "input_tokens": 4112,
+    "output_tokens": 2269
+  },
+  "error": null
+}

@@ -1,0 +1,55 @@
+{
+  "client_id": "train_Client_71061",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:19:49",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_71061",
+    "risk_score": 0.3197,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client has 4 counters, which is the primary driver of the risk score (SHAP rank 1).",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has a high volume of 80 invoices, which is a significant contributor to the risk model (SHAP rank 2).",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Consumption data shows high irregularity, with skewness at 3.7915 (96.6th percentile) and kurtosis at 20.3714 (97.3rd percentile).",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client record indicates the presence of missing months, which may impact billing accuracy.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify the status and physical condition of all 4 counters",
+      "Investigate the cause of missing billing months",
+      "Check for potential meter bypass or tampering given the high consumption volatility"
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "The risk score is heavily influenced by structural features (counter count, invoice volume) and statistical consumption anomalies rather than explicit fraud indicators like index reversals or recon mismatches. The lack of specific fraud codes makes the nature of the risk ambiguous."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_71061\",\n  \"risk_score\": 0.3197,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client has 4 counters, which is the primary driver of the risk score (SHAP rank 1).\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has a high volume of 80 invoices, which is a significant contributor to the risk model (SHAP rank 2).\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Consumption data shows high irregularity, with skewness at 3.7915 (96.6th percentile) and kurtosis at 20.3714 (97.3rd percentile).\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client record indicates the presence of missing months, which may impact billing accuracy.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the status and physical condition of all 4 counters\",\n    \"Investigate the cause of missing billing months\",\n    \"Check for potential meter bypass or tampering given the high consumption volatility\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The risk score is heavily influenced by structural features (counter count, invoice volume) and statistical consumption anomalies rather than explicit fraud indicators like index reversals or recon mismatches. The lack of specific fraud codes makes the nature of the risk ambiguous.\"\n}",
+  "usage": {
+    "input_tokens": 2355,
+    "output_tokens": 1629
+  },
+  "error": null
+}

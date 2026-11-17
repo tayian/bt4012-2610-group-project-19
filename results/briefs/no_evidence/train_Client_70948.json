@@ -1,0 +1,55 @@
+{
+  "client_id": "train_Client_70948",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:22:01",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_70948",
+    "risk_score": 0.3188,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client possesses 4 counters, which is the primary driver of the risk score according to SHAP analysis.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has a long tenure of 35.17 years, which is a significant factor in the model's risk assessment.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "A maximum year-over-year consumption drop of 1.0 was recorded, placing the client in the 93.2 percentile for this metric.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client record indicates the presence of missing months, which may warrant further investigation into billing continuity.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect all 4 counters for physical tampering or bypass devices.",
+      "Verify current meter readings against historical consumption patterns.",
+      "Investigate the cause of missing months in the billing history."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "The model's high risk score is heavily influenced by structural profile features (number of counters, tenure) rather than explicit fraud indicators like index reversals or recon mismatches, which are absent. The primary anomaly is the year-over-year consumption drop."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_70948\",\n  \"risk_score\": 0.3188,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client possesses 4 counters, which is the primary driver of the risk score according to SHAP analysis.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has a long tenure of 35.17 years, which is a significant factor in the model's risk assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"A maximum year-over-year consumption drop of 1.0 was recorded, placing the client in the 93.2 percentile for this metric.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client record indicates the presence of missing months, which may warrant further investigation into billing continuity.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect all 4 counters for physical tampering or bypass devices.\",\n    \"Verify current meter readings against historical consumption patterns.\",\n    \"Investigate the cause of missing months in the billing history.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The model's high risk score is heavily influenced by structural profile features (number of counters, tenure) rather than explicit fraud indicators like index reversals or recon mismatches, which are absent. The primary anomaly is the year-over-year consumption drop.\"\n}",
+  "usage": {
+    "input_tokens": 2353,
+    "output_tokens": 1659
+  },
+  "error": null
+}

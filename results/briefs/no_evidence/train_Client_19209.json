@@ -1,0 +1,55 @@
+{
+  "client_id": "train_Client_19209",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:21:20",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_19209",
+    "risk_score": 0.319,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client has 3 counters and 138 invoices, placing them in the 91.5th and 99.8th percentiles for these metrics respectively.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Consumption data shows significant volatility, with a mean consumption of 628.5148 (96.7th percentile) and a maximum consumption of 4033.0 (98.6th percentile).",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "There is a recorded reconciliation mismatch (n_recon_mismatch = 1) and a maximum reconciliation gap of 1564.0.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Historical usage patterns indicate a maximum zero-consumption run of 21.0 months (97.4th percentile) and a maximum year-over-year drop of 1.0 (93.2th percentile).",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect all 3 counters for physical tampering or bypass devices.",
+      "Verify the accuracy of current meter readings against the historical reconciliation gap of 1564.0.",
+      "Investigate the cause of the 21-month zero-consumption run to determine if it aligns with property vacancy or meter failure."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "While the model identifies high risk based on consumption volatility and reconciliation mismatches, there is no direct evidence of meter tampering provided in the snapshot; physical inspection is necessary to confirm the cause of the anomalies."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_19209\",\n  \"risk_score\": 0.319,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client has 3 counters and 138 invoices, placing them in the 91.5th and 99.8th percentiles for these metrics respectively.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Consumption data shows significant volatility, with a mean consumption of 628.5148 (96.7th percentile) and a maximum consumption of 4033.0 (98.6th percentile).\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"There is a recorded reconciliation mismatch (n_recon_mismatch = 1) and a maximum reconciliation gap of 1564.0.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Historical usage patterns indicate a maximum zero-consumption run of 21.0 months (97.4th percentile) and a maximum year-over-year drop of 1.0 (93.2th percentile).\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect all 3 counters for physical tampering or bypass devices.\",\n    \"Verify the accuracy of current meter readings against the historical reconciliation gap of 1564.0.\",\n    \"Investigate the cause of the 21-month zero-consumption run to determine if it aligns with property vacancy or meter failure.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the model identifies high risk based on consumption volatility and reconciliation mismatches, there is no direct evidence of meter tampering provided in the snapshot; physical inspection is necessary to confirm the cause of the anomalies.\"\n}",
+  "usage": {
+    "input_tokens": 2432,
+    "output_tokens": 1446
+  },
+  "error": null
+}

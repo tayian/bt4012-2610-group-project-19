@@ -1,0 +1,69 @@
+{
+  "client_id": "train_Client_45260",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:30:04",
+  "queries": [
+    "investigate multiple meter accounts for single client with high invoice volume",
+    "analyze consumption skew and high kurtosis for potential meter tampering",
+    "review meter reading remarks 6, 8, and 9 for billing irregularities"
+  ],
+  "evidence_ids": [
+    "TYP-09",
+    "TYP-11",
+    "TYP-08",
+    "CODE-reading_remarque-9",
+    "TYP-04"
+  ],
+  "brief": {
+    "client_id": "train_Client_45260",
+    "risk_score": 0.3196,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client has a high number of counters (3.0) and invoices (79.0), ranking in the 91.5th and 95.5th percentiles respectively, which are the primary drivers of the model's risk assessment.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The benford_mad value of 0.0362 exceeds the 0.015 threshold, a data signature often associated with potential meter tampering or reading irregularities.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-04",
+          "TYP-08"
+        ]
+      },
+      {
+        "point": "Consumption volatility is elevated, with cons_pm_skew (2.3658) and cons_pm_kurt (6.7334) in the 88th and 87th percentiles, which are proxies for intermittent tampering patterns.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "The presence of reading_remarque 9 in the client history warrants caution, as its assumed meaning of 'inaccessible' is often unreliable due to its high frequency in the dataset.",
+        "citations": [
+          "SNAPSHOT",
+          "CODE-reading_remarque-9"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify physical accessibility of all 3 meters to confirm if 'not read' remarks are accurate.",
+      "Compare current dial readings against the last billed index to calculate any unbilled balance.",
+      "Inspect seals and terminals for signs of tampering, bypasses, or clip marks."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "The model's high risk score is heavily influenced by the account's complexity (number of counters and invoices), which may be legitimate for this client category. The benford_mad metric is noisy at the individual client level and should not be considered definitive proof of fraud."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_45260\",\n  \"risk_score\": 0.3196,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client has a high number of counters (3.0) and invoices (79.0), ranking in the 91.5th and 95.5th percentiles respectively, which are the primary drivers of the model's risk assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The benford_mad value of 0.0362 exceeds the 0.015 threshold, a data signature often associated with potential meter tampering or reading irregularities.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-04\",\n        \"TYP-08\"\n      ]\n    },\n    {\n      \"point\": \"Consumption volatility is elevated, with cons_pm_skew (2.3658) and cons_pm_kurt (6.7334) in the 88th and 87th percentiles, which are proxies for intermittent tampering patterns.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The presence of reading_remarque 9 in the client history warrants caution, as its assumed meaning of 'inaccessible' is often unreliable due to its high frequency in the dataset.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"CODE-reading_remarque-9\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify physical accessibility of all 3 meters to confirm if 'not read' remarks are accurate.\",\n    \"Compare current dial readings against the last billed index to calculate any unbilled balance.\",\n    \"Inspect seals and terminals for signs of tampering, bypasses, or clip marks.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The model's high risk score is heavily influenced by the account's complexity (number of counters and invoices), which may be legitimate for this client category. The benford_mad metric is noisy at the individual client level and should not be considered definitive proof of fraud.\"\n}",
+  "usage": {
+    "input_tokens": 4844,
+    "output_tokens": 2279
+  },
+  "error": null
+}

@@ -1,0 +1,74 @@
+{
+  "client_id": "train_Client_127199",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:28:10",
+  "queries": [
+    "investigate high number of counters 4 and meter status codes 0 1 5",
+    "analyze consumption volatility with high skew and robust z-score 24.10",
+    "review billing irregularities and reading remark codes 6 8 9"
+  ],
+  "evidence_ids": [
+    "CODE-counter_statue-5",
+    "TYP-09",
+    "SOP-v2025-4.1",
+    "TYP-06",
+    "CODE-tarif_type-14"
+  ],
+  "brief": {
+    "client_id": "train_Client_127199",
+    "risk_score": 0.3186,
+    "risk_rank_pct": 99.97,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client's history includes counter_statue code 5, which is historically associated with a 10.42% fraud rate, significantly higher than the 5.58% base rate, and indicates a suspected anomaly or meter defect.",
+        "citations": [
+          "CODE-counter_statue-5",
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Consumption data exhibits extreme volatility, with cons_pm_skew (4.6731) and cons_pm_kurt (26.4175) both in the 98th percentile, consistent with the intermittent tampering pattern of alternating low and high consumption periods.",
+        "citations": [
+          "TYP-09",
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has 4 counters, which is the primary feature driving the model's risk assessment (SHAP rank 1).",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The presence of reading_remarque code 8 indicates estimated billing; if these occur for three consecutive cycles, a mandatory physical inspection is required.",
+        "citations": [
+          "SOP-v2025-4.1",
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect terminal screws and conductors for clip marks, scratches, or insulation damage from temporary jumpers.",
+      "Test the casing with a Gaussmeter for residual magnetism from a recently removed magnet.",
+      "Inspect seams, terminal covers, and windows for inserted objects, pinholes, or seal damage.",
+      "Switch on a high-draw appliance and observe the meter disc or diaphragm to verify if it is jammed."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-4.1",
+        "action": "Mandatory physical inspection within 10 business days if three consecutive estimated readings are confirmed."
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "The high risk score is heavily influenced by structural features such as the number of counters (4) and regional factors, which may reflect complex legitimate usage rather than fraud. While the consumption skew and status code 5 are indicators of potential tampering, they are not definitive proof of illicit activity."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_127199\",\n  \"risk_score\": 0.3186,\n  \"risk_rank_pct\": 99.97,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client's history includes counter_statue code 5, which is historically associated with a 10.42% fraud rate, significantly higher than the 5.58% base rate, and indicates a suspected anomaly or meter defect.\",\n      \"citations\": [\n        \"CODE-counter_statue-5\",\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Consumption data exhibits extreme volatility, with cons_pm_skew (4.6731) and cons_pm_kurt (26.4175) both in the 98th percentile, consistent with the intermittent tampering pattern of alternating low and high consumption periods.\",\n      \"citations\": [\n        \"TYP-09\",\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has 4 counters, which is the primary feature driving the model's risk assessment (SHAP rank 1).\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The presence of reading_remarque code 8 indicates estimated billing; if these occur for three consecutive cycles, a mandatory physical inspection is required.\",\n      \"citations\": [\n        \"SOP-v2025-4.1\",\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect terminal screws and conductors for clip marks, scratches, or insulation damage from temporary jumpers.\",\n    \"Test the casing with a Gaussmeter for residual magnetism from a recently removed magnet.\",\n    \"Inspect seams, terminal covers, and windows for inserted objects, pinholes, or seal damage.\",\n    \"Switch on a high-draw appliance and observe the meter disc or diaphragm to verify if it is jammed.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-4.1\",\n      \"action\": \"Mandatory physical inspection within 10 business days if three consecutive estimated readings are confirmed.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The high risk score is heavily influenced by structural features such as the number of counters (4) and regional factors, which may reflect complex legitimate usage rather than fraud. While the consumption skew and status code 5 are indicators of potential tampering, they are not definitive proof of illicit activity.\"\n}",
+  "usage": {
+    "input_tokens": 4063,
+    "output_tokens": 1747
+  },
+  "error": null
+}

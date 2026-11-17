@@ -1,0 +1,71 @@
+{
+  "client_id": "train_Client_5167",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:32:49",
+  "queries": [
+    "investigate multiple meter accounts for single client",
+    "review consumption history for meter remark codes 6, 8, 9",
+    "verify meter status code 0 for potential tampering"
+  ],
+  "evidence_ids": [
+    "CODE-reading_remarque-9",
+    "TYP-11",
+    "SOP-v2025-3.2",
+    "TYP-04",
+    "CASE-train_Client_40190"
+  ],
+  "brief": {
+    "client_id": "train_Client_5167",
+    "risk_score": 0.3188,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client is in the 99.98th percentile of risk, with the number of counters (2.0) and total invoices (37.0) identified as the primary drivers of the model's high-risk assessment.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The presence of reading_remarque codes 6, 8, and 9, combined with missing months, mirrors patterns observed in confirmed fraud cases involving potential meter-reader collusion or accessibility issues.",
+        "citations": [
+          "SNAPSHOT",
+          "CASE-train_Client_40190",
+          "CODE-reading_remarque-9"
+        ]
+      },
+      {
+        "point": "A benford_mad value of 0.051 indicates a deviation from expected digit distribution, which is a recognized data signature for potential consumption manipulation.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-04"
+        ]
+      },
+      {
+        "point": "The client has a long tenure of 22.85 years, providing a significant historical baseline to investigate the consumption irregularities flagged by the model.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify physical meter readings against the last billed index to calculate the unbilled balance.",
+      "Inspect meter accessibility and seal integrity, specifically checking for signs of tampering or bypass.",
+      "Compare current consumption patterns with historical data to identify potential under-reporting.",
+      "Verify the status of both counters to ensure they are functioning correctly and are not subject to unauthorized modification."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [
+      "CASE-train_Client_40190"
+    ],
+    "uncertainty": "While the model flags high risk, the counter_statue is 0 (normal), suggesting no active meter defect flags. The reliance on reading_remarque 9 is ambiguous due to its high frequency in the general population, and the model's reliance on n_counters and n_invoices may be correlated with the client's long tenure rather than active fraud."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_5167\",\n  \"risk_score\": 0.3188,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client is in the 99.98th percentile of risk, with the number of counters (2.0) and total invoices (37.0) identified as the primary drivers of the model's high-risk assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The presence of reading_remarque codes 6, 8, and 9, combined with missing months, mirrors patterns observed in confirmed fraud cases involving potential meter-reader collusion or accessibility issues.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"CASE-train_Client_40190\",\n        \"CODE-reading_remarque-9\"\n      ]\n    },\n    {\n      \"point\": \"A benford_mad value of 0.051 indicates a deviation from expected digit distribution, which is a recognized data signature for potential consumption manipulation.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-04\"\n      ]\n    },\n    {\n      \"point\": \"The client has a long tenure of 22.85 years, providing a significant historical baseline to investigate the consumption irregularities flagged by the model.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify physical meter readings against the last billed index to calculate the unbilled balance.\",\n    \"Inspect meter accessibility and seal integrity, specifically checking for signs of tampering or bypass.\",\n    \"Compare current consumption patterns with historical data to identify potential under-reporting.\",\n    \"Verify the status of both counters to ensure they are functioning correctly and are not subject to unauthorized modification.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [\n    \"CASE-train_Client_40190\"\n  ],\n  \"uncertainty\": \"While the model flags high risk, the counter_statue is 0 (normal), suggesting no active meter defect flags. The reliance on reading_remarque 9 is ambiguous due to its high frequency in the general population, and the model's reliance on n_counters and n_invoices may be correlated with the client's long tenure rather than active fraud.\"\n}",
+  "usage": {
+    "input_tokens": 4291,
+    "output_tokens": 2172
+  },
+  "error": null
+}

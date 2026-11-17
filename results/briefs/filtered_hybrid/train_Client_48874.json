@@ -1,0 +1,73 @@
+{
+  "client_id": "train_Client_48874",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:32:58",
+  "queries": [
+    "high consumption variability and volatility analysis",
+    "investigate meter status codes 0 1 5 for potential tampering",
+    "review reading remark codes 6 8 9 for billing irregularities"
+  ],
+  "evidence_ids": [
+    "TYP-11",
+    "TYP-08",
+    "TYP-06",
+    "SOP-v2025-4.1",
+    "TYP-09"
+  ],
+  "brief": {
+    "client_id": "train_Client_48874",
+    "risk_score": 0.3186,
+    "risk_rank_pct": 99.97,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The account exhibits `has_missing_months` and includes `reading_remarque` code 8, which is consistent with estimated reading patterns that can be used to mask consumption or tampering.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-08"
+        ]
+      },
+      {
+        "point": "The client shows high consumption in upper bands, with `level_4_pm_mean` at 239.5344 (98.2 percentile) and `level_3_pm_mean` at 91.8917 (98.1 percentile), which warrants inspection for potential CT/PT tampering common in large accounts.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-11"
+        ]
+      },
+      {
+        "point": "The model identifies `client_catg` (51) and `n_counters` (2) as the primary features driving the risk score, suggesting the account's specific configuration is a significant factor in the fraud alert.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The presence of estimated readings (`reading_remarque 8`) necessitates a review to ensure the account has not exceeded the three-cycle limit for estimated billing.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-4.1"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify meter accessibility and document any obstructions preventing physical reads.",
+      "Inspect CT/PT enclosures and terminal blocks for signs of tampering or unauthorized modifications.",
+      "Check for seal damage or evidence of bypass/jumper usage."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-4.1",
+        "action": "Verify if estimated readings exceed three consecutive cycles and perform mandatory physical inspection."
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the risk score is high, the client shows high consumption in upper bands rather than the typical drop-off associated with some tampering methods; the alert may be driven by the account's specific category and configuration rather than active theft."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_48874\",\n  \"risk_score\": 0.3186,\n  \"risk_rank_pct\": 99.97,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The account exhibits `has_missing_months` and includes `reading_remarque` code 8, which is consistent with estimated reading patterns that can be used to mask consumption or tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-08\"\n      ]\n    },\n    {\n      \"point\": \"The client shows high consumption in upper bands, with `level_4_pm_mean` at 239.5344 (98.2 percentile) and `level_3_pm_mean` at 91.8917 (98.1 percentile), which warrants inspection for potential CT/PT tampering common in large accounts.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-11\"\n      ]\n    },\n    {\n      \"point\": \"The model identifies `client_catg` (51) and `n_counters` (2) as the primary features driving the risk score, suggesting the account's specific configuration is a significant factor in the fraud alert.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The presence of estimated readings (`reading_remarque 8`) necessitates a review to ensure the account has not exceeded the three-cycle limit for estimated billing.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-4.1\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify meter accessibility and document any obstructions preventing physical reads.\",\n    \"Inspect CT/PT enclosures and terminal blocks for signs of tampering or unauthorized modifications.\",\n    \"Check for seal damage or evidence of bypass/jumper usage.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-4.1\",\n      \"action\": \"Verify if estimated readings exceed three consecutive cycles and perform mandatory physical inspection.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the risk score is high, the client shows high consumption in upper bands rather than the typical drop-off associated with some tampering methods; the alert may be driven by the account's specific category and configuration rather than active theft.\"\n}",
+  "usage": {
+    "input_tokens": 4695,
+    "output_tokens": 2184
+  },
+  "error": null
+}

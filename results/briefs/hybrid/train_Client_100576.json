@@ -1,0 +1,77 @@
+{
+  "client_id": "train_Client_100576",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:27:29",
+  "queries": [
+    "investigate account with 5 meters for potential meter tampering",
+    "analyze consumption history for zero consumption patterns and zero_run_max 28",
+    "review reading_remarque codes 6, 8, and 9 for meter status 0 and 5"
+  ],
+  "evidence_ids": [
+    "TYP-11",
+    "SOP-v2025-2.2",
+    "CODE-reading_remarque-9",
+    "SOP-v2023-3.2",
+    "CODE-counter_statue-1"
+  ],
+  "brief": {
+    "client_id": "train_Client_100576",
+    "risk_score": 0.3188,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The account contains a 'counter_statue' code of 5, which mandates a technical site inspection to verify meter operational status and seal integrity.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2023-3.2"
+        ]
+      },
+      {
+        "point": "The client has a 'zero_run_max' of 28.0, significantly exceeding the threshold of 2 consecutive zero-consumption invoices, triggering a priority inspection requirement.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-2.2"
+        ]
+      },
+      {
+        "point": "The account has 5 counters, placing it in the 99.7th percentile of clients, suggesting a complex metering setup that requires careful verification.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has 118 invoices, indicating a long-standing account history, which is in the 99.5th percentile.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify meter operational status",
+      "Inspect for seal tampering",
+      "Inspect for unauthorized neutral disconnection",
+      "Inspect for direct bypass or meter jamming"
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2023-3.2",
+        "action": "Routine Technical Site Inspection"
+      },
+      {
+        "rule_id": "SOP-v2025-2.2",
+        "action": "Priority Inspection & Service Verification"
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the high zero-consumption run and counter status 5 strongly suggest potential issues, the 'reading_remarque' code 9 is present, which is common and may not indicate obstruction. The complexity of 5 counters requires verifying if the zero consumption is isolated to specific meters or systemic."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_100576\",\n  \"risk_score\": 0.3188,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The account contains a 'counter_statue' code of 5, which mandates a technical site inspection to verify meter operational status and seal integrity.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2023-3.2\"\n      ]\n    },\n    {\n      \"point\": \"The client has a 'zero_run_max' of 28.0, significantly exceeding the threshold of 2 consecutive zero-consumption invoices, triggering a priority inspection requirement.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.2\"\n      ]\n    },\n    {\n      \"point\": \"The account has 5 counters, placing it in the 99.7th percentile of clients, suggesting a complex metering setup that requires careful verification.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has 118 invoices, indicating a long-standing account history, which is in the 99.5th percentile.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify meter operational status\",\n    \"Inspect for seal tampering\",\n    \"Inspect for unauthorized neutral disconnection\",\n    \"Inspect for direct bypass or meter jamming\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2023-3.2\",\n      \"action\": \"Routine Technical Site Inspection\"\n    },\n    {\n      \"rule_id\": \"SOP-v2025-2.2\",\n      \"action\": \"Priority Inspection & Service Verification\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the high zero-consumption run and counter status 5 strongly suggest potential issues, the 'reading_remarque' code 9 is present, which is common and may not indicate obstruction. The complexity of 5 counters requires verifying if the zero consumption is isolated to specific meters or systemic.\"\n}",
+  "usage": {
+    "input_tokens": 3916,
+    "output_tokens": 1853
+  },
+  "error": null
+}

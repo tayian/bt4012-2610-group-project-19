@@ -1,0 +1,78 @@
+{
+  "client_id": "train_Client_23526",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:23:39",
+  "queries": [
+    "investigate high consumption volatility and extreme usage spikes with robust z-score 15.4054",
+    "review account with multiple meters and high ratio of recent consumption to lifetime usage",
+    "audit meter reading remarks 6, 8, and 9 for potential tampering or estimation errors"
+  ],
+  "evidence_ids": [
+    "TYP-09",
+    "TYP-08",
+    "TYP-11",
+    "CODE-tarif_type-15",
+    "CODE-counter_statue-1"
+  ],
+  "brief": {
+    "client_id": "train_Client_23526",
+    "risk_score": 0.3203,
+    "risk_rank_pct": 100.0,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client exhibits high consumption volatility, with cons_pm_skew at 3.5231 (95.8th percentile) and cons_pm_kurt at 13.3181 (94.8th percentile), which are consistent with the intermittent tampering patterns described in the playbook.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "The ratio_last1y_lifetime is 2.9546, ranking in the 98.3rd percentile, suggesting a significant recent increase in consumption that may indicate the removal of a previous bypass or tampering device.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "The account history includes reading_remarque code 8, which is associated with estimated readings often used to mask tampering or prevent physical inspection of the meter.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-08"
+        ]
+      },
+      {
+        "point": "The robust_z_max value of 15.4054 (90.7th percentile) indicates extreme consumption outliers, supporting the need for an on-site inspection to verify meter integrity.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect terminal screws and conductors for clip marks or insulation damage [TYP-09].",
+      "Check for physical accessibility of the meter and document any obstructions [TYP-08].",
+      "Compare reader logs with the dial reading to assess unbilled consumption [TYP-08]."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "TYP-08",
+        "action": "Investigate estimated reading abuse and meter accessibility."
+      },
+      {
+        "rule_id": "TYP-09",
+        "action": "Inspect for signs of intermittent tampering and recent catch-up billing."
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While consumption metrics strongly suggest volatility and potential tampering, the specific cause (e.g., intermittent bypass vs. legitimate usage changes) remains unverified without physical inspection. The presence of multiple reading remarks (6, 8, 9) complicates the timeline of meter access."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_23526\",\n  \"risk_score\": 0.3203,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits high consumption volatility, with cons_pm_skew at 3.5231 (95.8th percentile) and cons_pm_kurt at 13.3181 (94.8th percentile), which are consistent with the intermittent tampering patterns described in the playbook.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The ratio_last1y_lifetime is 2.9546, ranking in the 98.3rd percentile, suggesting a significant recent increase in consumption that may indicate the removal of a previous bypass or tampering device.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The account history includes reading_remarque code 8, which is associated with estimated readings often used to mask tampering or prevent physical inspection of the meter.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-08\"\n      ]\n    },\n    {\n      \"point\": \"The robust_z_max value of 15.4054 (90.7th percentile) indicates extreme consumption outliers, supporting the need for an on-site inspection to verify meter integrity.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect terminal screws and conductors for clip marks or insulation damage [TYP-09].\",\n    \"Check for physical accessibility of the meter and document any obstructions [TYP-08].\",\n    \"Compare reader logs with the dial reading to assess unbilled consumption [TYP-08].\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"TYP-08\",\n      \"action\": \"Investigate estimated reading abuse and meter accessibility.\"\n    },\n    {\n      \"rule_id\": \"TYP-09\",\n      \"action\": \"Inspect for signs of intermittent tampering and recent catch-up billing.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While consumption metrics strongly suggest volatility and potential tampering, the specific cause (e.g., intermittent bypass vs. legitimate usage changes) remains unverified without physical inspection. The presence of multiple reading remarks (6, 8, 9) complicates the timeline of meter access.\"\n}",
+  "usage": {
+    "input_tokens": 4534,
+    "output_tokens": 2183
+  },
+  "error": null
+}

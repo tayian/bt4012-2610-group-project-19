@@ -1,0 +1,78 @@
+{
+  "client_id": "train_Client_48874",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:27:59",
+  "queries": [
+    "high consumption variability and volatility analysis",
+    "investigate meter status codes 0 1 5 for potential tampering",
+    "review reading remark codes 6 8 9 for billing irregularities"
+  ],
+  "evidence_ids": [
+    "TYP-08",
+    "TYP-09",
+    "SOP-v2023-3.2",
+    "SOP-v2025-4.1",
+    "TYP-11"
+  ],
+  "brief": {
+    "client_id": "train_Client_48874",
+    "risk_score": 0.3186,
+    "risk_rank_pct": 99.97,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The account record contains counter_statue code '5', which indicates a suspected anomaly or meter defect requiring validation.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2023-3.2"
+        ]
+      },
+      {
+        "point": "The billing history includes reading_remarque code '8', suggesting the use of estimated readings which may be used to obscure actual consumption.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-4.1",
+          "TYP-08"
+        ]
+      },
+      {
+        "point": "The client exhibits high consumption in upper billing bands, with share_level_3_plus at 0.475 and level_4_pm_mean at 239.5344, which are significant features in the risk model.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account has has_missing_months set to 1, which is consistent with the potential for estimated reading abuse.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-08"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify meter operational status and check for seal tampering as per SOP-v2023-3.2.",
+      "Inspect for physical access barriers that may have caused estimated readings.",
+      "Perform a CT ratio and burden test if the account is a large commercial user."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2023-3.2",
+        "action": "Execute technical site inspection within 30 days."
+      },
+      {
+        "rule_id": "SOP-v2025-4.1",
+        "action": "Verify if estimated readings are consecutive and initiate audit if required."
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "The evidence points to administrative flags (statue 5, remark 8) and high consumption patterns, but does not confirm specific tampering mechanisms like CT bypass or magnet use. The high consumption in upper bands is noted but requires verification against the client's actual business activity."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_48874\",\n  \"risk_score\": 0.3186,\n  \"risk_rank_pct\": 99.97,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The account record contains counter_statue code '5', which indicates a suspected anomaly or meter defect requiring validation.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2023-3.2\"\n      ]\n    },\n    {\n      \"point\": \"The billing history includes reading_remarque code '8', suggesting the use of estimated readings which may be used to obscure actual consumption.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-4.1\",\n        \"TYP-08\"\n      ]\n    },\n    {\n      \"point\": \"The client exhibits high consumption in upper billing bands, with share_level_3_plus at 0.475 and level_4_pm_mean at 239.5344, which are significant features in the risk model.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account has has_missing_months set to 1, which is consistent with the potential for estimated reading abuse.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-08\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify meter operational status and check for seal tampering as per SOP-v2023-3.2.\",\n    \"Inspect for physical access barriers that may have caused estimated readings.\",\n    \"Perform a CT ratio and burden test if the account is a large commercial user.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2023-3.2\",\n      \"action\": \"Execute technical site inspection within 30 days.\"\n    },\n    {\n      \"rule_id\": \"SOP-v2025-4.1\",\n      \"action\": \"Verify if estimated readings are consecutive and initiate audit if required.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The evidence points to administrative flags (statue 5, remark 8) and high consumption patterns, but does not confirm specific tampering mechanisms like CT bypass or magnet use. The high consumption in upper bands is noted but requires verification against the client's actual business activity.\"\n}",
+  "usage": {
+    "input_tokens": 4402,
+    "output_tokens": 2213
+  },
+  "error": null
+}

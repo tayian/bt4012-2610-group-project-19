@@ -1,0 +1,10 @@
+{
+  "queries": [
+    "investigate multiple meter accounts for client with counter_statue 0",
+    "review consumption anomalies and sudden spike share for long-tenure account",
+    "audit reading remarks 6, 8, and 9 for potential meter tampering"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4"
+}

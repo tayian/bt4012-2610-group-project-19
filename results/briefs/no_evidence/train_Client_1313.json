@@ -1,0 +1,61 @@
+{
+  "client_id": "train_Client_1313",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:20:22",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_1313",
+    "risk_score": 0.3195,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client operates 3 counters, which is the primary feature contributing to the risk score according to SHAP analysis [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has a long tenure of 31.15 years, which is identified as the second most significant factor in the risk model [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Consumption data shows high skewness (3.4228) and kurtosis (13.1063), placing the client in the 95.5th and 94.7th percentiles respectively, suggesting irregular usage patterns [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The ratio of consumption in the last two years compared to the lifetime average is 1.7108, which is in the 94.3rd percentile, indicating a significant recent change in consumption behavior [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account record indicates the presence of missing months, which may impact the accuracy of consumption tracking [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify the physical status and integrity of all 3 counters",
+      "Investigate the cause of missing months in the billing history",
+      "Compare current meter readings against the last recorded invoice data"
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "No specific SOP rules or precedent cases were provided in the evidence section to guide the inspection protocol."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_1313\",\n  \"risk_score\": 0.3195,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client operates 3 counters, which is the primary feature contributing to the risk score according to SHAP analysis [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has a long tenure of 31.15 years, which is identified as the second most significant factor in the risk model [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Consumption data shows high skewness (3.4228) and kurtosis (13.1063), placing the client in the 95.5th and 94.7th percentiles respectively, suggesting irregular usage patterns [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The ratio of consumption in the last two years compared to the lifetime average is 1.7108, which is in the 94.3rd percentile, indicating a significant recent change in consumption behavior [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account record indicates the presence of missing months, which may impact the accuracy of consumption tracking [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the physical status and integrity of all 3 counters\",\n    \"Investigate the cause of missing months in the billing history\",\n    \"Compare current meter readings against the last recorded invoice data\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"No specific SOP rules or precedent cases were provided in the evidence section to guide the inspection protocol.\"\n}",
+  "usage": {
+    "input_tokens": 2370,
+    "output_tokens": 1376
+  },
+  "error": null
+}

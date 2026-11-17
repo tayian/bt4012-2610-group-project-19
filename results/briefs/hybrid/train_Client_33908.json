@@ -1,0 +1,67 @@
+{
+  "client_id": "train_Client_33908",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:23:26",
+  "queries": [
+    "investigate multiple meter accounts for client with counter_statue 0",
+    "review consumption anomalies and sudden spike share for long-tenure account",
+    "audit reading remarks 6, 8, and 9 for potential meter tampering"
+  ],
+  "evidence_ids": [
+    "TYP-04",
+    "TYP-08",
+    "TYP-09",
+    "SOP-v2025-5.1",
+    "CODE-counter_statue-2"
+  ],
+  "brief": {
+    "client_id": "train_Client_33908",
+    "risk_score": 0.3208,
+    "risk_rank_pct": 100.0,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client exhibits a benford_mad of 0.039, which exceeds the 0.015 threshold for potential nonconformity, suggesting irregularities in consumption reporting.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client's history includes reading_remarque codes 6, 8, and 9; code 8 is specifically associated with estimated readings that can mask tampering or rising consumption.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-08"
+        ]
+      },
+      {
+        "point": "The client shows a sudden_spike_share of 0.2368, which is consistent with the volatile consumption patterns often seen in intermittent tampering or catch-up billing scenarios.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "The client has a high tenure of 33.232 years and 2 counters, which are significant features in the risk model, potentially indicating long-term billing irregularities.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect terminal screws and conductors for clip marks or insulation damage [TYP-09].",
+      "Verify physical accessibility of the meter and compare dial reading with billing records [TYP-08].",
+      "Perform an unannounced supervisory reading to compute the unbilled balance [TYP-04]."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "The round_reading_share of 0.2632 is below the 0.40 threshold defined in SOP-v2025-5.1, meaning the specific mandatory supervisory audit protocol is not strictly triggered, though the benford_mad anomaly remains notable."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_33908\",\n  \"risk_score\": 0.3208,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits a benford_mad of 0.039, which exceeds the 0.015 threshold for potential nonconformity, suggesting irregularities in consumption reporting.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client's history includes reading_remarque codes 6, 8, and 9; code 8 is specifically associated with estimated readings that can mask tampering or rising consumption.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-08\"\n      ]\n    },\n    {\n      \"point\": \"The client shows a sudden_spike_share of 0.2368, which is consistent with the volatile consumption patterns often seen in intermittent tampering or catch-up billing scenarios.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The client has a high tenure of 33.232 years and 2 counters, which are significant features in the risk model, potentially indicating long-term billing irregularities.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect terminal screws and conductors for clip marks or insulation damage [TYP-09].\",\n    \"Verify physical accessibility of the meter and compare dial reading with billing records [TYP-08].\",\n    \"Perform an unannounced supervisory reading to compute the unbilled balance [TYP-04].\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The round_reading_share of 0.2632 is below the 0.40 threshold defined in SOP-v2025-5.1, meaning the specific mandatory supervisory audit protocol is not strictly triggered, though the benford_mad anomaly remains notable.\"\n}",
+  "usage": {
+    "input_tokens": 4499,
+    "output_tokens": 2254
+  },
+  "error": null
+}

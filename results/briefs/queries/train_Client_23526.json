@@ -1,0 +1,10 @@
+{
+  "queries": [
+    "investigate high consumption volatility and extreme usage spikes with robust z-score 15.4054",
+    "review account with multiple meters and high ratio of recent consumption to lifetime usage",
+    "audit meter reading remarks 6, 8, and 9 for potential tampering or estimation errors"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4"
+}

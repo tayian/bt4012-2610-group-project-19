@@ -1,0 +1,55 @@
+{
+  "client_id": "train_Client_107034",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:19:32",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_107034",
+    "risk_score": 0.3201,
+    "risk_rank_pct": 100.0,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client has 3 counters, which is in the 91.5th percentile of the training population and is the primary driver of the risk score.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has 78 invoices, placing them in the 95.0th percentile, which significantly contributes to the risk assessment.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client's history includes missing months, which may indicate gaps in billing or meter reading.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client exhibits a round reading share of 0.2564, which is in the 62.9th percentile, suggesting potential manual estimation or non-standard reporting.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify the status and physical condition of all 3 counters.",
+      "Check for any unauthorized bypasses or tampering given the high invoice count.",
+      "Investigate the cause of missing months in the billing history."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "The risk score is driven primarily by high volume metrics (counters and invoices) rather than specific indicators of meter tampering like index reversals or recon mismatches, which are currently at zero."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_107034\",\n  \"risk_score\": 0.3201,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client has 3 counters, which is in the 91.5th percentile of the training population and is the primary driver of the risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has 78 invoices, placing them in the 95.0th percentile, which significantly contributes to the risk assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client's history includes missing months, which may indicate gaps in billing or meter reading.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client exhibits a round reading share of 0.2564, which is in the 62.9th percentile, suggesting potential manual estimation or non-standard reporting.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the status and physical condition of all 3 counters.\",\n    \"Check for any unauthorized bypasses or tampering given the high invoice count.\",\n    \"Investigate the cause of missing months in the billing history.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The risk score is driven primarily by high volume metrics (counters and invoices) rather than specific indicators of meter tampering like index reversals or recon mismatches, which are currently at zero.\"\n}",
+  "usage": {
+    "input_tokens": 2351,
+    "output_tokens": 1495
+  },
+  "error": null
+}

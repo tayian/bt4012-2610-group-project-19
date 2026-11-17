@@ -1,0 +1,10 @@
+{
+  "queries": [
+    "investigate multiple meter accounts for client with remark codes 6, 8, 9",
+    "analyze high consumption volatility and sudden spike share in long-tenure account",
+    "review meter status 0 for potential tampering or bypass"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4"
+}

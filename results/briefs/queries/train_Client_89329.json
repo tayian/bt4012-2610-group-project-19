@@ -1,0 +1,10 @@
+{
+  "queries": [
+    "investigate multiple meter accounts for single client ID",
+    "analyze consumption spike with ratio_last1y_lifetime anomaly",
+    "review meter reading remark codes 6, 8, and 9"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4"
+}

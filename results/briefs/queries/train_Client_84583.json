@@ -1,0 +1,10 @@
+{
+  "queries": [
+    "investigate multiple meter accounts for single client with counter_statue 0",
+    "review billing irregularities and consumption anomalies for reading_remarque 6 8 9",
+    "audit account for potential meter tampering or manipulation based on high consumption skew and Benford's law deviation"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4"
+}

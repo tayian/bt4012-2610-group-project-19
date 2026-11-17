@@ -1,0 +1,69 @@
+{
+  "client_id": "train_Client_5167",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:27:49",
+  "queries": [
+    "investigate multiple meter accounts for single client",
+    "review consumption history for meter remark codes 6, 8, 9",
+    "verify meter status code 0 for potential tampering"
+  ],
+  "evidence_ids": [
+    "CODE-reading_remarque-9",
+    "TYP-04",
+    "SOP-v2023-3.2",
+    "TYP-11",
+    "CASE-train_Client_40190"
+  ],
+  "brief": {
+    "client_id": "train_Client_5167",
+    "risk_score": 0.3188,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client is ranked in the 99.98th percentile of risk, with the model identifying the number of counters (2.0) and invoice history (37.0) as the primary drivers of the risk score.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client's history includes reading_remarque codes 6, 8, and 9. While code 9 is often assumed to indicate an inaccessible meter, its high frequency in the dataset suggests that this interpretation is not definitive and requires verification.",
+        "citations": [
+          "SNAPSHOT",
+          "CODE-reading_remarque-9"
+        ]
+      },
+      {
+        "point": "The client has missing months recorded in their history, which aligns with potential data gaps that can obscure consumption patterns.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client exhibits a profile similar to confirmed fraud cases, specifically regarding the combination of reading_remarque codes and tarif_type 11, as seen in precedent cases.",
+        "citations": [
+          "SNAPSHOT",
+          "CASE-train_Client_40190"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify the physical status and operational integrity of both meters.",
+      "Confirm meter accessibility to validate the frequency of reading_remarque 9.",
+      "Inspect for any signs of tampering or unauthorized bypasses."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [
+      "CASE-train_Client_40190"
+    ],
+    "uncertainty": "The high risk score is driven by structural features (n_counters, tenure) rather than specific, confirmed fraud indicators like reconciliation mismatches or index reversals. The ambiguity of reading_remarque 9 makes it difficult to confirm if the missing data is due to obstruction or administrative issues."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_5167\",\n  \"risk_score\": 0.3188,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client is ranked in the 99.98th percentile of risk, with the model identifying the number of counters (2.0) and invoice history (37.0) as the primary drivers of the risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client's history includes reading_remarque codes 6, 8, and 9. While code 9 is often assumed to indicate an inaccessible meter, its high frequency in the dataset suggests that this interpretation is not definitive and requires verification.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"CODE-reading_remarque-9\"\n      ]\n    },\n    {\n      \"point\": \"The client has missing months recorded in their history, which aligns with potential data gaps that can obscure consumption patterns.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client exhibits a profile similar to confirmed fraud cases, specifically regarding the combination of reading_remarque codes and tarif_type 11, as seen in precedent cases.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"CASE-train_Client_40190\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the physical status and operational integrity of both meters.\",\n    \"Confirm meter accessibility to validate the frequency of reading_remarque 9.\",\n    \"Inspect for any signs of tampering or unauthorized bypasses.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [\n    \"CASE-train_Client_40190\"\n  ],\n  \"uncertainty\": \"The high risk score is driven by structural features (n_counters, tenure) rather than specific, confirmed fraud indicators like reconciliation mismatches or index reversals. The ambiguity of reading_remarque 9 makes it difficult to confirm if the missing data is due to obstruction or administrative issues.\"\n}",
+  "usage": {
+    "input_tokens": 4290,
+    "output_tokens": 1835
+  },
+  "error": null
+}

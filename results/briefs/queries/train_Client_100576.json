@@ -1,0 +1,10 @@
+{
+  "queries": [
+    "investigate account with 5 meters for potential meter tampering",
+    "analyze consumption history for zero consumption patterns and zero_run_max 28",
+    "review reading_remarque codes 6, 8, and 9 for meter status 0 and 5"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4"
+}

@@ -1,0 +1,74 @@
+{
+  "client_id": "train_Client_122081",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:24:32",
+  "queries": [
+    "investigate multiple meter accounts for client with counter_statue 0 and 5",
+    "analyze consumption history for zero_run_max of 17 consecutive months",
+    "review reading_remarque codes 6, 8, and 9 for potential meter tampering"
+  ],
+  "evidence_ids": [
+    "TYP-04",
+    "SOP-v2025-2.1",
+    "CODE-reading_remarque-9",
+    "CODE-counter_statue-0",
+    "SOP-v2023-2.1"
+  ],
+  "brief": {
+    "client_id": "train_Client_122081",
+    "risk_score": 0.3196,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client exhibits a maximum year-on-year consumption drop of 1.0, which exceeds the 0.50 threshold for suspected meter bypass or magnetic tampering.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-2.1"
+        ]
+      },
+      {
+        "point": "The client's Benford's Law Mean Absolute Deviation (MAD) is 0.0511, which is significantly higher than the 0.015 threshold associated with potential data manipulation or meter-reader collusion.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-04"
+        ]
+      },
+      {
+        "point": "The client's invoice history includes 'reading_remarque' code 9, which is associated with inaccessible meters and requires verification of actual site accessibility.",
+        "citations": [
+          "SNAPSHOT",
+          "CODE-reading_remarque-9"
+        ]
+      },
+      {
+        "point": "The client has 3 counters and has recorded 2 index rollovers, which are factors that may complicate the interpretation of consumption patterns.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify physical accessibility of all 3 meters",
+      "Perform unannounced meter reading to calculate unbilled balance",
+      "Compare current meter index against last billed index to check for rollovers",
+      "Inspect for signs of magnetic tampering or bypass"
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-2.1",
+        "action": "Urgent Forensic Site Inspection (Level 2) required within 14 calendar days"
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the consumption drop and Benford's Law deviation are significant, the 'round_reading_share' of 0.2843 is below the 0.40 threshold for collusion, and the presence of index rollovers may partially explain some consumption anomalies."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_122081\",\n  \"risk_score\": 0.3196,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits a maximum year-on-year consumption drop of 1.0, which exceeds the 0.50 threshold for suspected meter bypass or magnetic tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.1\"\n      ]\n    },\n    {\n      \"point\": \"The client's Benford's Law Mean Absolute Deviation (MAD) is 0.0511, which is significantly higher than the 0.015 threshold associated with potential data manipulation or meter-reader collusion.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-04\"\n      ]\n    },\n    {\n      \"point\": \"The client's invoice history includes 'reading_remarque' code 9, which is associated with inaccessible meters and requires verification of actual site accessibility.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"CODE-reading_remarque-9\"\n      ]\n    },\n    {\n      \"point\": \"The client has 3 counters and has recorded 2 index rollovers, which are factors that may complicate the interpretation of consumption patterns.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify physical accessibility of all 3 meters\",\n    \"Perform unannounced meter reading to calculate unbilled balance\",\n    \"Compare current meter index against last billed index to check for rollovers\",\n    \"Inspect for signs of magnetic tampering or bypass\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-2.1\",\n      \"action\": \"Urgent Forensic Site Inspection (Level 2) required within 14 calendar days\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the consumption drop and Benford's Law deviation are significant, the 'round_reading_share' of 0.2843 is below the 0.40 threshold for collusion, and the presence of index rollovers may partially explain some consumption anomalies.\"\n}",
+  "usage": {
+    "input_tokens": 4033,
+    "output_tokens": 1981
+  },
+  "error": null
+}

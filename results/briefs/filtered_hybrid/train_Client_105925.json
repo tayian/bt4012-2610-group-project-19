@@ -1,0 +1,64 @@
+{
+  "client_id": "train_Client_105925",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:30:32",
+  "queries": [
+    "investigate multiple meters for single account with counter_statue 0",
+    "analyze high consumption skewness and robust_z_max outlier patterns",
+    "review reading_remarque 6 8 9 for potential meter tampering or estimation errors"
+  ],
+  "evidence_ids": [
+    "TYP-04",
+    "TYP-09",
+    "TYP-08",
+    "CODE-counter_statue-0",
+    "CODE-tarif_type-14"
+  ],
+  "brief": {
+    "client_id": "train_Client_105925",
+    "risk_score": 0.3195,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client's benford_mad value of 0.0776 significantly exceeds the 0.015 threshold, indicating a departure from expected consumption patterns often associated with non-technical loss.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-04",
+          "TYP-08"
+        ]
+      },
+      {
+        "point": "The consumption profile exhibits high skewness (3.3421) and kurtosis (14.7663), combined with a robust_z_max of 19.477, which are signatures of volatile consumption consistent with intermittent tampering or catch-up billing.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "The presence of reading_remarque codes 6, 8, and 9, alongside a flag for missing months, suggests potential avoidance of physical meter readings or reliance on estimated billing to mask consumption.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-08",
+          "TYP-04"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect the meter for physical accessibility to validate the necessity of estimated readings (code 8) and 'not read' remarks (code 9).",
+      "Examine terminal screws and conductors for evidence of temporary bypasses or tampering, given the high consumption volatility.",
+      "Calculate the unbilled balance by comparing the current physical dial reading against the last billed index."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "While the statistical indicators (Benford's Law, skewness, kurtosis) and reading remarks strongly suggest anomalies, there is no direct evidence of physical tampering or confirmed collusion provided in the snapshot."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_105925\",\n  \"risk_score\": 0.3195,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client's benford_mad value of 0.0776 significantly exceeds the 0.015 threshold, indicating a departure from expected consumption patterns often associated with non-technical loss.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-04\",\n        \"TYP-08\"\n      ]\n    },\n    {\n      \"point\": \"The consumption profile exhibits high skewness (3.3421) and kurtosis (14.7663), combined with a robust_z_max of 19.477, which are signatures of volatile consumption consistent with intermittent tampering or catch-up billing.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The presence of reading_remarque codes 6, 8, and 9, alongside a flag for missing months, suggests potential avoidance of physical meter readings or reliance on estimated billing to mask consumption.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-08\",\n        \"TYP-04\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect the meter for physical accessibility to validate the necessity of estimated readings (code 8) and 'not read' remarks (code 9).\",\n    \"Examine terminal screws and conductors for evidence of temporary bypasses or tampering, given the high consumption volatility.\",\n    \"Calculate the unbilled balance by comparing the current physical dial reading against the last billed index.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the statistical indicators (Benford's Law, skewness, kurtosis) and reading remarks strongly suggest anomalies, there is no direct evidence of physical tampering or confirmed collusion provided in the snapshot.\"\n}",
+  "usage": {
+    "input_tokens": 4470,
+    "output_tokens": 2194
+  },
+  "error": null
+}

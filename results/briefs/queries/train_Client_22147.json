@@ -1,0 +1,10 @@
+{
+  "queries": [
+    "investigate multiple meters account with high invoice volume and recent consumption spike",
+    "review account with reading remark codes 6, 8, and 9 for potential tampering",
+    "audit long-tenure account with sudden increase in consumption ratio compared to lifetime average"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4"
+}

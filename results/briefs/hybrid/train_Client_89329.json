@@ -1,0 +1,68 @@
+{
+  "client_id": "train_Client_89329",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:26:58",
+  "queries": [
+    "investigate multiple meter accounts for single client ID",
+    "analyze consumption spike with ratio_last1y_lifetime anomaly",
+    "review meter reading remark codes 6, 8, and 9"
+  ],
+  "evidence_ids": [
+    "TYP-04",
+    "TYP-09",
+    "CODE-reading_remarque-6",
+    "TYP-11",
+    "SOP-v2025-2.1"
+  ],
+  "brief": {
+    "client_id": "train_Client_89329",
+    "risk_score": 0.3189,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client exhibits high consumption volatility, with cons_pm_skew (2.9746) and cons_pm_kurt (14.4959) in the 93.4th and 95.4th percentiles, which aligns with data signatures for intermittent tampering or catch-up billing.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "The ratio_last1y_lifetime of 2.1676 is in the 95.9th percentile, indicating a significant recent increase in consumption relative to the account's historical lifetime average.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account complexity is high, with 3 counters and 73 invoices (91.5th and 91.7th percentiles), which increases the difficulty of monitoring for tampering in complex metering setups.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-11"
+        ]
+      },
+      {
+        "point": "The presence of reading_remarque codes 6, 8, and 9, combined with has_missing_months = 1, indicates potential gaps in reading consistency that require on-site verification.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect terminal screws and conductors for signs of temporary jumpers or bypass devices.",
+      "Verify the current meter index against the last billed index to calculate any unbilled balance.",
+      "Perform a CT ratio and burden test if the meter setup involves instrument transformers.",
+      "Check for residual magnetism on the meter casing."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "While the model flags the account as high risk, the specific fraud mechanism is ambiguous. The consumption volatility metrics suggest intermittent tampering (TYP-09), but the account does not meet the specific threshold for the Acute Year-on-Year Consumption Collapse SOP (SOP-v2025-2.1), and there is no clear evidence of Benford's Law violation to confirm reader collusion."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_89329\",\n  \"risk_score\": 0.3189,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits high consumption volatility, with cons_pm_skew (2.9746) and cons_pm_kurt (14.4959) in the 93.4th and 95.4th percentiles, which aligns with data signatures for intermittent tampering or catch-up billing.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The ratio_last1y_lifetime of 2.1676 is in the 95.9th percentile, indicating a significant recent increase in consumption relative to the account's historical lifetime average.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account complexity is high, with 3 counters and 73 invoices (91.5th and 91.7th percentiles), which increases the difficulty of monitoring for tampering in complex metering setups.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-11\"\n      ]\n    },\n    {\n      \"point\": \"The presence of reading_remarque codes 6, 8, and 9, combined with has_missing_months = 1, indicates potential gaps in reading consistency that require on-site verification.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect terminal screws and conductors for signs of temporary jumpers or bypass devices.\",\n    \"Verify the current meter index against the last billed index to calculate any unbilled balance.\",\n    \"Perform a CT ratio and burden test if the meter setup involves instrument transformers.\",\n    \"Check for residual magnetism on the meter casing.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the model flags the account as high risk, the specific fraud mechanism is ambiguous. The consumption volatility metrics suggest intermittent tampering (TYP-09), but the account does not meet the specific threshold for the Acute Year-on-Year Consumption Collapse SOP (SOP-v2025-2.1), and there is no clear evidence of Benford's Law violation to confirm reader collusion.\"\n}",
+  "usage": {
+    "input_tokens": 4494,
+    "output_tokens": 2083
+  },
+  "error": null
+}

@@ -1,0 +1,61 @@
+{
+  "client_id": "train_Client_5167",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:22:10",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_5167",
+    "risk_score": 0.3188,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client is classified in the high-risk tier with a risk rank percentile of 99.98.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The model identifies the number of counters (2.0) and the number of invoices (37.0) as the top two features contributing to the risk score.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has a long tenure of 22.85 years, which is a significant factor in the risk model's evaluation.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account history includes missing months and reading remarks 6, 8, and 9, which are noted in the client's profile.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client's region (372) is a key feature influencing the risk score calculation.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify the status and physical condition of the 2 counters.",
+      "Check for any unauthorized modifications or bypasses on the metering equipment.",
+      "Review the billing history against the physical meter readings to address the missing months and reading remarks."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "The risk score is driven by model features like region and tenure, but there is no direct evidence of tampering or specific fraud patterns (e.g., zero consumption runs or index reversals) in the provided data."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_5167\",\n  \"risk_score\": 0.3188,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client is classified in the high-risk tier with a risk rank percentile of 99.98.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The model identifies the number of counters (2.0) and the number of invoices (37.0) as the top two features contributing to the risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has a long tenure of 22.85 years, which is a significant factor in the risk model's evaluation.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account history includes missing months and reading remarks 6, 8, and 9, which are noted in the client's profile.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client's region (372) is a key feature influencing the risk score calculation.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the status and physical condition of the 2 counters.\",\n    \"Check for any unauthorized modifications or bypasses on the metering equipment.\",\n    \"Review the billing history against the physical meter readings to address the missing months and reading remarks.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The risk score is driven by model features like region and tenure, but there is no direct evidence of tampering or specific fraud patterns (e.g., zero consumption runs or index reversals) in the provided data.\"\n}",
+  "usage": {
+    "input_tokens": 2351,
+    "output_tokens": 1560
+  },
+  "error": null
+}

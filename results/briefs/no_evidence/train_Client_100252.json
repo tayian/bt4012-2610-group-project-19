@@ -1,0 +1,61 @@
+{
+  "client_id": "train_Client_100252",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:20:45",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_100252",
+    "risk_score": 0.3192,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client has 4 counters, which places them in the 98.3rd percentile for this feature and is the primary driver of the risk score.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has a high volume of invoices (77), placing them in the 94.4th percentile, which significantly contributes to the model's risk assessment.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The ratio of consumption in the last year compared to the lifetime consumption is 1.5678, which is in the 89.0th percentile, indicating a recent shift in usage patterns.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has a long tenure of 15.9 years, which is identified as a top 5 feature influencing the risk score.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client record contains missing months (has_missing_months: 1), which may indicate gaps in the billing or meter reading history.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify the physical status and reading accuracy of all 4 counters.",
+      "Inspect for potential meter bypass or tampering given the recent increase in consumption ratio.",
+      "Reconcile billing history to address the identified missing months."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "The model identifies high risk primarily due to the number of counters and invoice volume; however, there is no direct evidence of meter tampering or specific fraud codes in the provided snapshot."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_100252\",\n  \"risk_score\": 0.3192,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client has 4 counters, which places them in the 98.3rd percentile for this feature and is the primary driver of the risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has a high volume of invoices (77), placing them in the 94.4th percentile, which significantly contributes to the model's risk assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The ratio of consumption in the last year compared to the lifetime consumption is 1.5678, which is in the 89.0th percentile, indicating a recent shift in usage patterns.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has a long tenure of 15.9 years, which is identified as a top 5 feature influencing the risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client record contains missing months (has_missing_months: 1), which may indicate gaps in the billing or meter reading history.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the physical status and reading accuracy of all 4 counters.\",\n    \"Inspect for potential meter bypass or tampering given the recent increase in consumption ratio.\",\n    \"Reconcile billing history to address the identified missing months.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The model identifies high risk primarily due to the number of counters and invoice volume; however, there is no direct evidence of meter tampering or specific fraud codes in the provided snapshot.\"\n}",
+  "usage": {
+    "input_tokens": 2399,
+    "output_tokens": 1424
+  },
+  "error": null
+}

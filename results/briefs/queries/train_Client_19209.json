@@ -1,0 +1,10 @@
+{
+  "queries": [
+    "meter consumption volatility and sharp downward trend analysis",
+    "investigate meter reconciliation mismatch and missing billing months",
+    "review reading remark codes 6 8 9 for potential tampering"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4"
+}

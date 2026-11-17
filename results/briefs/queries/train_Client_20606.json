@@ -1,0 +1,10 @@
+{
+  "queries": [
+    "investigate multiple meter accounts for single client ID",
+    "analyze sudden consumption increase ratio last 1y lifetime",
+    "review meter status 0 5 and reading remark codes 6 8 9"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4"
+}

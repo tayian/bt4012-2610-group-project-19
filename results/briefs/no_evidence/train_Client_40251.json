@@ -1,0 +1,61 @@
+{
+  "client_id": "train_Client_40251",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:20:39",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_40251",
+    "risk_score": 0.3193,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client is ranked in the 99.99th percentile for risk, indicating a high priority for inspection [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has 2 counters, which is the primary feature driving the risk model's assessment (SHAP rank 1) [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Consumption data shows a sudden_spike_share of 0.2564 and a round_reading_share of 0.2564, which may indicate irregular reporting or manual meter manipulation [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The billing history contains reading remarks '6', '8', and '9', suggesting potential issues with the validity of recorded meter readings [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client record shows missing months in the billing history (has_missing_months: 1), which contributes to data gaps [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify the physical status and integrity of both counters",
+      "Inspect for potential bypasses or tampering given the sudden spike share",
+      "Validate meter readings against the remarks 6, 8, and 9 recorded in the system"
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "While the model identifies high risk based on counter count and consumption patterns, the specific cause of the sudden spike share and the impact of missing months require physical verification to confirm if these are indicative of fraud or administrative errors."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_40251\",\n  \"risk_score\": 0.3193,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client is ranked in the 99.99th percentile for risk, indicating a high priority for inspection [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has 2 counters, which is the primary feature driving the risk model's assessment (SHAP rank 1) [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Consumption data shows a sudden_spike_share of 0.2564 and a round_reading_share of 0.2564, which may indicate irregular reporting or manual meter manipulation [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The billing history contains reading remarks '6', '8', and '9', suggesting potential issues with the validity of recorded meter readings [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client record shows missing months in the billing history (has_missing_months: 1), which contributes to data gaps [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the physical status and integrity of both counters\",\n    \"Inspect for potential bypasses or tampering given the sudden spike share\",\n    \"Validate meter readings against the remarks 6, 8, and 9 recorded in the system\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the model identifies high risk based on counter count and consumption patterns, the specific cause of the sudden spike share and the impact of missing months require physical verification to confirm if these are indicative of fraud or administrative errors.\"\n}",
+  "usage": {
+    "input_tokens": 2333,
+    "output_tokens": 1451
+  },
+  "error": null
+}

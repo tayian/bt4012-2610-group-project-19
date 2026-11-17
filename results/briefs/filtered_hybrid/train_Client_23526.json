@@ -1,0 +1,68 @@
+{
+  "client_id": "train_Client_23526",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:29:19",
+  "queries": [
+    "investigate high consumption volatility and extreme usage spikes with robust z-score 15.4054",
+    "review account with multiple meters and high ratio of recent consumption to lifetime usage",
+    "audit meter reading remarks 6, 8, and 9 for potential tampering or estimation errors"
+  ],
+  "evidence_ids": [
+    "TYP-09",
+    "TYP-08",
+    "TYP-11",
+    "CODE-tarif_type-15",
+    "SOP-v2025-5.1"
+  ],
+  "brief": {
+    "client_id": "train_Client_23526",
+    "risk_score": 0.3203,
+    "risk_rank_pct": 100.0,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client exhibits high consumption volatility, with `cons_pm_skew` (3.5231) and `cons_pm_kurt` (13.3181) in the 95.8th and 94.8th percentiles respectively, and a `robust_z_max` of 15.4054 (90.7th percentile), which are indicators of potential intermittent tampering or irregular consumption patterns.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The presence of `reading_remarque` code '8' indicates the use of estimated readings, which is a known method for concealing actual consumption or tampering.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-08"
+        ]
+      },
+      {
+        "point": "The `ratio_last1y_lifetime` is 2.9546 (98.3rd percentile), indicating a significant recent increase in consumption relative to the 30.7-year tenure, which may suggest the removal of a bypass or tampering device.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "The account complexity, characterized by 3 counters and 69 invoices, is a primary driver of the risk model, with `n_counters` and `n_invoices` identified as top-ranking features.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect terminal screws and conductors for clip marks, scratches, or insulation damage from temporary jumpers.",
+      "Check whether the meter is physically accessible and document any obstructions that may have led to estimated readings.",
+      "Inspect CT enclosure and test terminal block for broken or replaced seals.",
+      "Compare reader logs with the dial reading to determine the duration of unbilled consumption."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "While the model flags high risk, the Benford's Law criteria for an automatic supervisory audit are not fully met because the `round_reading_share` (0.1594) is below the 0.40 threshold required by the SOP."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_23526\",\n  \"risk_score\": 0.3203,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits high consumption volatility, with `cons_pm_skew` (3.5231) and `cons_pm_kurt` (13.3181) in the 95.8th and 94.8th percentiles respectively, and a `robust_z_max` of 15.4054 (90.7th percentile), which are indicators of potential intermittent tampering or irregular consumption patterns.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The presence of `reading_remarque` code '8' indicates the use of estimated readings, which is a known method for concealing actual consumption or tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-08\"\n      ]\n    },\n    {\n      \"point\": \"The `ratio_last1y_lifetime` is 2.9546 (98.3rd percentile), indicating a significant recent increase in consumption relative to the 30.7-year tenure, which may suggest the removal of a bypass or tampering device.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The account complexity, characterized by 3 counters and 69 invoices, is a primary driver of the risk model, with `n_counters` and `n_invoices` identified as top-ranking features.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect terminal screws and conductors for clip marks, scratches, or insulation damage from temporary jumpers.\",\n    \"Check whether the meter is physically accessible and document any obstructions that may have led to estimated readings.\",\n    \"Inspect CT enclosure and test terminal block for broken or replaced seals.\",\n    \"Compare reader logs with the dial reading to determine the duration of unbilled consumption.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the model flags high risk, the Benford's Law criteria for an automatic supervisory audit are not fully met because the `round_reading_share` (0.1594) is below the 0.40 threshold required by the SOP.\"\n}",
+  "usage": {
+    "input_tokens": 4467,
+    "output_tokens": 2101
+  },
+  "error": null
+}

@@ -1,0 +1,72 @@
+{
+  "client_id": "train_Client_22147",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:28:26",
+  "queries": [
+    "investigate multiple meters account with high invoice volume and recent consumption spike",
+    "review account with reading remark codes 6, 8, and 9 for potential tampering",
+    "audit long-tenure account with sudden increase in consumption ratio compared to lifetime average"
+  ],
+  "evidence_ids": [
+    "TYP-11",
+    "SOP-v2025-2.1",
+    "CODE-counter_statue-1",
+    "SOP-v2025-5.1",
+    "TYP-09"
+  ],
+  "brief": {
+    "client_id": "train_Client_22147",
+    "risk_score": 0.3212,
+    "risk_rank_pct": 100.0,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client is ranked in the 100th percentile of risk, with a model score of 0.3212.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account history includes 3 counters and 78 invoices, which are the primary features contributing to the high risk score.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The ratio of consumption in the last year to lifetime consumption is 1.9551, suggesting a significant recent increase in usage.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account shows a Benford's Law mean absolute deviation of 0.0431, which exceeds the 0.015 threshold for potential audit, though the round reading share of 0.2051 does not meet the secondary criteria.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-5.1"
+        ]
+      },
+      {
+        "point": "The account has missing months (has_missing_months = 1), which may indicate irregularities in the billing cycle.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect terminal screws and conductors for signs of tampering",
+      "Verify the current meter readings against the historical consumption patterns",
+      "Check for physical damage or unauthorized modifications to the 3 counters"
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "While the risk score is high, the specific triggers for mandatory SOP actions (SOP-v2025-2.1 and SOP-v2025-5.1) are not fully met. The yoy_drop_max of 0.379 is below the 0.50 threshold, and the round_reading_share of 0.2051 is below the 0.40 threshold. The high risk is driven primarily by account volume (counters/invoices) and recent consumption shifts rather than specific known fraud patterns."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_22147\",\n  \"risk_score\": 0.3212,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client is ranked in the 100th percentile of risk, with a model score of 0.3212.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account history includes 3 counters and 78 invoices, which are the primary features contributing to the high risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The ratio of consumption in the last year to lifetime consumption is 1.9551, suggesting a significant recent increase in usage.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account shows a Benford's Law mean absolute deviation of 0.0431, which exceeds the 0.015 threshold for potential audit, though the round reading share of 0.2051 does not meet the secondary criteria.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-5.1\"\n      ]\n    },\n    {\n      \"point\": \"The account has missing months (has_missing_months = 1), which may indicate irregularities in the billing cycle.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect terminal screws and conductors for signs of tampering\",\n    \"Verify the current meter readings against the historical consumption patterns\",\n    \"Check for physical damage or unauthorized modifications to the 3 counters\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the risk score is high, the specific triggers for mandatory SOP actions (SOP-v2025-2.1 and SOP-v2025-5.1) are not fully met. The yoy_drop_max of 0.379 is below the 0.50 threshold, and the round_reading_share of 0.2051 is below the 0.40 threshold. The high risk is driven primarily by account volume (counters/invoices) and recent consumption shifts rather than specific known fraud patterns.\"\n}",
+  "usage": {
+    "input_tokens": 4201,
+    "output_tokens": 2190
+  },
+  "error": null
+}

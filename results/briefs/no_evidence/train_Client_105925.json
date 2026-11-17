@@ -1,0 +1,55 @@
+{
+  "client_id": "train_Client_105925",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:20:27",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_105925",
+    "risk_score": 0.3195,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client is ranked in the 99.99th percentile of risk, placing them in the high-risk tier for inspection [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Consumption data shows significant volatility, characterized by a high skew of 3.3421, kurtosis of 14.7663, and a robust Z-score maximum of 19.477 [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client's reading history includes remark codes 6, 8, and 9, and the account has a round reading share of 0.275 [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account has a long tenure of 33.46 years with 2 counters, but the billing history contains missing months [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect both counters for physical tampering or bypass mechanisms",
+      "Verify the accuracy of current meter readings against historical remark codes 6, 8, and 9",
+      "Investigate the cause of missing months in the billing history"
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "The risk score is driven by statistical anomalies in consumption patterns and specific reading remarks; however, there is no direct evidence of meter tampering or bypass in the provided snapshot."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_105925\",\n  \"risk_score\": 0.3195,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client is ranked in the 99.99th percentile of risk, placing them in the high-risk tier for inspection [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Consumption data shows significant volatility, characterized by a high skew of 3.3421, kurtosis of 14.7663, and a robust Z-score maximum of 19.477 [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client's reading history includes remark codes 6, 8, and 9, and the account has a round reading share of 0.275 [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account has a long tenure of 33.46 years with 2 counters, but the billing history contains missing months [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect both counters for physical tampering or bypass mechanisms\",\n    \"Verify the accuracy of current meter readings against historical remark codes 6, 8, and 9\",\n    \"Investigate the cause of missing months in the billing history\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The risk score is driven by statistical anomalies in consumption patterns and specific reading remarks; however, there is no direct evidence of meter tampering or bypass in the provided snapshot.\"\n}",
+  "usage": {
+    "input_tokens": 2325,
+    "output_tokens": 1410
+  },
+  "error": null
+}

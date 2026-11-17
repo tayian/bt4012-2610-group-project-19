@@ -1,0 +1,73 @@
+{
+  "client_id": "train_Client_70948",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:32:40",
+  "queries": [
+    "investigate multiple meter accounts for single client with counter_statue 0 1 5",
+    "review consumption history for sudden year over year drop and high consumption variance",
+    "audit billing records for reading_remarque 6 8 9 and missing billing months"
+  ],
+  "evidence_ids": [
+    "SOP-v2025-2.1",
+    "TYP-09",
+    "TYP-08",
+    "TYP-04",
+    "SOP-v2025-4.1"
+  ],
+  "brief": {
+    "client_id": "train_Client_70948",
+    "risk_score": 0.3188,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client exhibits a maximum year-on-year consumption drop of 1.0, which meets the threshold for suspected meter bypass or magnetic tampering under [SOP-v2025-2.1].",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-2.1"
+        ]
+      },
+      {
+        "point": "Billing history includes 'reading_remarque' code 8, indicating estimated readings which may be used to mask tampering or rising consumption as outlined in [TYP-08].",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-08"
+        ]
+      },
+      {
+        "point": "Consumption volatility is high, with a skewness of 2.5627 and kurtosis of 6.7076, consistent with the intermittent tampering patterns described in [TYP-09].",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "The client maintains 4 counters, placing them in the 98.3 percentile for counter density, which increases the complexity and risk profile of the installation [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Perform an urgent forensic site inspection to check for meter bypass or magnetic tampering [SOP-v2025-2.1].",
+      "Inspect terminal screws and conductors for signs of temporary jumpers or clip marks [TYP-09].",
+      "Verify meter accessibility and document any obstructions that may have led to estimated readings [TYP-08]."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-2.1",
+        "action": "Urgent Forensic Site Inspection (Level 2)"
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the consumption drop and volatility metrics are strong indicators, the specific duration of consecutive estimated readings (code 8) is not explicitly detailed in the snapshot, limiting the ability to confirm a violation of the three-cycle limit in [SOP-v2025-4.1]."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_70948\",\n  \"risk_score\": 0.3188,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits a maximum year-on-year consumption drop of 1.0, which meets the threshold for suspected meter bypass or magnetic tampering under [SOP-v2025-2.1].\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.1\"\n      ]\n    },\n    {\n      \"point\": \"Billing history includes 'reading_remarque' code 8, indicating estimated readings which may be used to mask tampering or rising consumption as outlined in [TYP-08].\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-08\"\n      ]\n    },\n    {\n      \"point\": \"Consumption volatility is high, with a skewness of 2.5627 and kurtosis of 6.7076, consistent with the intermittent tampering patterns described in [TYP-09].\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The client maintains 4 counters, placing them in the 98.3 percentile for counter density, which increases the complexity and risk profile of the installation [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Perform an urgent forensic site inspection to check for meter bypass or magnetic tampering [SOP-v2025-2.1].\",\n    \"Inspect terminal screws and conductors for signs of temporary jumpers or clip marks [TYP-09].\",\n    \"Verify meter accessibility and document any obstructions that may have led to estimated readings [TYP-08].\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-2.1\",\n      \"action\": \"Urgent Forensic Site Inspection (Level 2)\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the consumption drop and volatility metrics are strong indicators, the specific duration of consecutive estimated readings (code 8) is not explicitly detailed in the snapshot, limiting the ability to confirm a violation of the three-cycle limit in [SOP-v2025-4.1].\"\n}",
+  "usage": {
+    "input_tokens": 4414,
+    "output_tokens": 2174
+  },
+  "error": null
+}

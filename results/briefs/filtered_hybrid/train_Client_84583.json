@@ -1,0 +1,79 @@
+{
+  "client_id": "train_Client_84583",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:29:35",
+  "queries": [
+    "investigate multiple meter accounts for single client with counter_statue 0",
+    "review billing irregularities and consumption anomalies for reading_remarque 6 8 9",
+    "audit account for potential meter tampering or manipulation based on high consumption skew and Benford's law deviation"
+  ],
+  "evidence_ids": [
+    "TYP-04",
+    "TYP-08",
+    "SOP-v2025-4.1",
+    "SOP-v2025-5.1",
+    "CODE-counter_statue-2"
+  ],
+  "brief": {
+    "client_id": "train_Client_84583",
+    "risk_score": 0.3199,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client's benford_mad value of 0.0174 exceeds the 0.015 threshold for nonconformity, indicating potential irregularities in consumption data that require further investigation.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-5.1",
+          "TYP-08"
+        ]
+      },
+      {
+        "point": "The presence of reading_remarque code '8' indicates the use of estimated readings, which is a known mechanism for masking actual consumption or preventing physical meter access.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-08"
+        ]
+      },
+      {
+        "point": "The client has has_missing_months set to 1, which, when combined with estimated billing remarks, necessitates a physical inspection to confirm the meter's status and accessibility.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-08"
+        ]
+      },
+      {
+        "point": "The client operates with 2 counters, a feature identified as a primary contributor to the high risk score, requiring verification of both meter installations.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify physical accessibility of both meters and document any obstructions.",
+      "Record current dial readings and calculate the unbilled balance against the last billed index.",
+      "Inspect meter seals and terminals for evidence of tampering or bypass.",
+      "Verify if estimated billing periods correspond to actual property access issues."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-5.1",
+        "action": "Initiate internal supervisory audit due to Benford's Law nonconformity."
+      },
+      {
+        "rule_id": "SOP-v2025-4.1",
+        "action": "Perform mandatory physical inspection to address estimated billing usage."
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the benford_mad score triggers an audit, the round_reading_share is 0.1143, which is significantly below the 0.40 threshold typically associated with meter-reader collusion, suggesting the risk may stem from other factors such as customer-side access issues rather than reader fraud."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_84583\",\n  \"risk_score\": 0.3199,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client's benford_mad value of 0.0174 exceeds the 0.015 threshold for nonconformity, indicating potential irregularities in consumption data that require further investigation.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-5.1\",\n        \"TYP-08\"\n      ]\n    },\n    {\n      \"point\": \"The presence of reading_remarque code '8' indicates the use of estimated readings, which is a known mechanism for masking actual consumption or preventing physical meter access.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-08\"\n      ]\n    },\n    {\n      \"point\": \"The client has has_missing_months set to 1, which, when combined with estimated billing remarks, necessitates a physical inspection to confirm the meter's status and accessibility.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-08\"\n      ]\n    },\n    {\n      \"point\": \"The client operates with 2 counters, a feature identified as a primary contributor to the high risk score, requiring verification of both meter installations.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify physical accessibility of both meters and document any obstructions.\",\n    \"Record current dial readings and calculate the unbilled balance against the last billed index.\",\n    \"Inspect meter seals and terminals for evidence of tampering or bypass.\",\n    \"Verify if estimated billing periods correspond to actual property access issues.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-5.1\",\n      \"action\": \"Initiate internal supervisory audit due to Benford's Law nonconformity.\"\n    },\n    {\n      \"rule_id\": \"SOP-v2025-4.1\",\n      \"action\": \"Perform mandatory physical inspection to address estimated billing usage.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the benford_mad score triggers an audit, the round_reading_share is 0.1143, which is significantly below the 0.40 threshold typically associated with meter-reader collusion, suggesting the risk may stem from other factors such as customer-side access issues rather than reader fraud.\"\n}",
+  "usage": {
+    "input_tokens": 4169,
+    "output_tokens": 1749
+  },
+  "error": null
+}

@@ -1,0 +1,78 @@
+{
+  "client_id": "train_Client_88873",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:26:15",
+  "queries": [
+    "investigate multiple meter accounts with remark codes 6, 8, 9",
+    "analyze consumption spike with ratio_last1y_lifetime exceeding historical norms",
+    "review account with 3 counters and high invoice frequency for potential meter tampering"
+  ],
+  "evidence_ids": [
+    "CODE-reading_remarque-9",
+    "TYP-09",
+    "SOP-v2023-1.2",
+    "SOP-v2025-2.1",
+    "TYP-11"
+  ],
+  "brief": {
+    "client_id": "train_Client_88873",
+    "risk_score": 0.3191,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client exhibits a year-on-year consumption drop of 0.7302, which exceeds the 50% threshold for suspected meter bypass or tampering defined in the SOP.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-2.1"
+        ]
+      },
+      {
+        "point": "The account holds both electricity and natural gas contracts, necessitating a dual-meter inspection of all counters at the premises.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2023-1.2"
+        ]
+      },
+      {
+        "point": "The model identifies n_counters (3.0) and n_invoices (81.0) as top-ranking features contributing to the high risk score, indicating a complex account history that requires verification.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The ratio_last1y_lifetime of 2.1227 indicates a significant recent increase in consumption relative to the 17-year tenure, which warrants investigation for potential intermittent tampering or catch-up billing.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect CT enclosure and test terminal block for broken or replaced seals [TYP-11].",
+      "Perform dual-meter audit for both electricity and gas counters [SOP-v2023-1.2].",
+      "Test the casing with a Gaussmeter for residual magnetism [TYP-09].",
+      "Verify index progression and compare with historical reading logs [TYP-09]."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-2.1",
+        "action": "Urgent Forensic Site Inspection (Level 2) within 14 calendar days."
+      },
+      {
+        "rule_id": "SOP-v2023-1.2",
+        "action": "Dual-Counter Field Audit of both electricity and gas meters."
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the consumption drop is significant, the presence of reading_remarque codes 6, 8, and 9 is common and should not be treated as definitive evidence of obstruction per CODE-reading_remarque-9. The specific cause of the consumption volatility remains unverified until the physical inspection is completed."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_88873\",\n  \"risk_score\": 0.3191,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits a year-on-year consumption drop of 0.7302, which exceeds the 50% threshold for suspected meter bypass or tampering defined in the SOP.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.1\"\n      ]\n    },\n    {\n      \"point\": \"The account holds both electricity and natural gas contracts, necessitating a dual-meter inspection of all counters at the premises.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2023-1.2\"\n      ]\n    },\n    {\n      \"point\": \"The model identifies n_counters (3.0) and n_invoices (81.0) as top-ranking features contributing to the high risk score, indicating a complex account history that requires verification.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The ratio_last1y_lifetime of 2.1227 indicates a significant recent increase in consumption relative to the 17-year tenure, which warrants investigation for potential intermittent tampering or catch-up billing.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect CT enclosure and test terminal block for broken or replaced seals [TYP-11].\",\n    \"Perform dual-meter audit for both electricity and gas counters [SOP-v2023-1.2].\",\n    \"Test the casing with a Gaussmeter for residual magnetism [TYP-09].\",\n    \"Verify index progression and compare with historical reading logs [TYP-09].\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-2.1\",\n      \"action\": \"Urgent Forensic Site Inspection (Level 2) within 14 calendar days.\"\n    },\n    {\n      \"rule_id\": \"SOP-v2023-1.2\",\n      \"action\": \"Dual-Counter Field Audit of both electricity and gas meters.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the consumption drop is significant, the presence of reading_remarque codes 6, 8, and 9 is common and should not be treated as definitive evidence of obstruction per CODE-reading_remarque-9. The specific cause of the consumption volatility remains unverified until the physical inspection is completed.\"\n}",
+  "usage": {
+    "input_tokens": 4109,
+    "output_tokens": 1971
+  },
+  "error": null
+}

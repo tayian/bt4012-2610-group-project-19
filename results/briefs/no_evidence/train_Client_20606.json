@@ -1,0 +1,61 @@
+{
+  "client_id": "train_Client_20606",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:20:34",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_20606",
+    "risk_score": 0.3194,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client is classified in the high-risk tier with a risk rank percentile of 99.99.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The number of counters (3.0) is the primary driver of the risk score, ranking first in SHAP feature importance.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The ratio of consumption in the last year compared to lifetime consumption is 3.6193, placing the client in the 99.1st percentile of the training population for this metric.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has a long tenure of 26.58 years, which is a significant factor in the model's risk assessment.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Gas consumption mean is 0.0, which is in the 4.9th percentile of the training population, despite the client having both electricity and gas services.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify the status and functionality of all 3 counters",
+      "Inspect gas meter for potential bypass or inactivity given 0.0 mean consumption",
+      "Verify current consumption against historical usage patterns"
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "The model identifies high risk primarily due to the number of counters and a significant increase in the ratio of recent consumption to lifetime usage, but there is no evidence of specific meter tampering codes (e.g., index backwards or recon mismatch) in the provided data."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_20606\",\n  \"risk_score\": 0.3194,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client is classified in the high-risk tier with a risk rank percentile of 99.99.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The number of counters (3.0) is the primary driver of the risk score, ranking first in SHAP feature importance.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The ratio of consumption in the last year compared to lifetime consumption is 3.6193, placing the client in the 99.1st percentile of the training population for this metric.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has a long tenure of 26.58 years, which is a significant factor in the model's risk assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Gas consumption mean is 0.0, which is in the 4.9th percentile of the training population, despite the client having both electricity and gas services.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the status and functionality of all 3 counters\",\n    \"Inspect gas meter for potential bypass or inactivity given 0.0 mean consumption\",\n    \"Verify current consumption against historical usage patterns\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The model identifies high risk primarily due to the number of counters and a significant increase in the ratio of recent consumption to lifetime usage, but there is no evidence of specific meter tampering codes (e.g., index backwards or recon mismatch) in the provided data.\"\n}",
+  "usage": {
+    "input_tokens": 2394,
+    "output_tokens": 1398
+  },
+  "error": null
+}

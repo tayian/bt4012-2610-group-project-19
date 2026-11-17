@@ -1,0 +1,74 @@
+{
+  "client_id": "train_Client_71061",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:29:49",
+  "queries": [
+    "investigate multiple meter accounts for single client with high n_counters",
+    "analyze consumption patterns for zero consumption sequences with zero_run_max 5",
+    "review meter status codes 0 and 5 with reading remark codes 6 8 9"
+  ],
+  "evidence_ids": [
+    "TYP-04",
+    "SOP-v2025-2.2",
+    "CODE-reading_remarque-6",
+    "TYP-09",
+    "CODE-counter_statue-1"
+  ],
+  "brief": {
+    "client_id": "train_Client_71061",
+    "risk_score": 0.3197,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client has a zero_run_max of 5.0, which exceeds the threshold of 2 consecutive zero-consumption invoices defined in the rapid detection protocol.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-2.2"
+        ]
+      },
+      {
+        "point": "Consumption volatility is high, with cons_pm_skew at 3.7915 and cons_pm_kurt at 20.3714, which are identified as proxies for intermittent tampering.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "The client's benford_mad value of 0.0355 exceeds the 0.015 threshold, suggesting potential anomalies in reported consumption data.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-04"
+        ]
+      },
+      {
+        "point": "The client maintains a high volume of infrastructure with 4 counters and 80 invoices, placing them in the 98.3 and 96.1 percentiles respectively.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect terminal screws and conductors for clip marks, scratches, or insulation damage.",
+      "Test the meter casing with a Gaussmeter for residual magnetism.",
+      "Perform an unannounced visit by a supervisory team to record the current dial reading and compute the unbilled balance.",
+      "Inspect for unauthorized neutral disconnection, direct bypass, or meter jamming."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-2.2",
+        "action": "Priority Inspection & Service Verification"
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the zero-consumption run is confirmed, the specific impact of counter_statue codes '0' and '5' remains unverified as their official definitions are not provided."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_71061\",\n  \"risk_score\": 0.3197,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client has a zero_run_max of 5.0, which exceeds the threshold of 2 consecutive zero-consumption invoices defined in the rapid detection protocol.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.2\"\n      ]\n    },\n    {\n      \"point\": \"Consumption volatility is high, with cons_pm_skew at 3.7915 and cons_pm_kurt at 20.3714, which are identified as proxies for intermittent tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The client's benford_mad value of 0.0355 exceeds the 0.015 threshold, suggesting potential anomalies in reported consumption data.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-04\"\n      ]\n    },\n    {\n      \"point\": \"The client maintains a high volume of infrastructure with 4 counters and 80 invoices, placing them in the 98.3 and 96.1 percentiles respectively.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect terminal screws and conductors for clip marks, scratches, or insulation damage.\",\n    \"Test the meter casing with a Gaussmeter for residual magnetism.\",\n    \"Perform an unannounced visit by a supervisory team to record the current dial reading and compute the unbilled balance.\",\n    \"Inspect for unauthorized neutral disconnection, direct bypass, or meter jamming.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-2.2\",\n      \"action\": \"Priority Inspection & Service Verification\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the zero-consumption run is confirmed, the specific impact of counter_statue codes '0' and '5' remains unverified as their official definitions are not provided.\"\n}",
+  "usage": {
+    "input_tokens": 4247,
+    "output_tokens": 2581
+  },
+  "error": null
+}

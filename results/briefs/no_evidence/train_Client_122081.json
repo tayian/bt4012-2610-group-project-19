@@ -1,0 +1,56 @@
+{
+  "client_id": "train_Client_122081",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:19:55",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_122081",
+    "risk_score": 0.3196,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client exhibits high-volume activity with 197 total invoices, placing them in the 99.9th percentile of the training set.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Consumption patterns are significantly elevated, with a mean consumption per month of 1012.0049, which is in the 98.1st percentile.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client manages 3 counters and has recorded a maximum zero-consumption run of 17 months, ranking in the 96.4th percentile for zero-run duration.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Invalid reading indicators are present, specifically 2 index rollovers and instances of missing months, alongside reading remark codes 6, 8, and 9.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify the physical status and accessibility of all 3 counters.",
+      "Investigate the cause of the 17-month zero-consumption run.",
+      "Inspect for potential meter tampering or bypass mechanisms.",
+      "Reconcile the index rollover events with historical billing data."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "While the model identifies a high risk score based on consumption anomalies and invalid reading flags, there is no direct evidence of fraud provided in the snapshot; onsite verification is necessary to confirm if the zero-consumption runs and index rollovers are due to technical errors or intentional manipulation."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_122081\",\n  \"risk_score\": 0.3196,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits high-volume activity with 197 total invoices, placing them in the 99.9th percentile of the training set.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Consumption patterns are significantly elevated, with a mean consumption per month of 1012.0049, which is in the 98.1st percentile.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client manages 3 counters and has recorded a maximum zero-consumption run of 17 months, ranking in the 96.4th percentile for zero-run duration.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Invalid reading indicators are present, specifically 2 index rollovers and instances of missing months, alongside reading remark codes 6, 8, and 9.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the physical status and accessibility of all 3 counters.\",\n    \"Investigate the cause of the 17-month zero-consumption run.\",\n    \"Inspect for potential meter tampering or bypass mechanisms.\",\n    \"Reconcile the index rollover events with historical billing data.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the model identifies a high risk score based on consumption anomalies and invalid reading flags, there is no direct evidence of fraud provided in the snapshot; onsite verification is necessary to confirm if the zero-consumption runs and index rollovers are due to technical errors or intentional manipulation.\"\n}",
+  "usage": {
+    "input_tokens": 2442,
+    "output_tokens": 1387
+  },
+  "error": null
+}

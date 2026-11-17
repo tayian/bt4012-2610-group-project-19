@@ -1,0 +1,67 @@
+{
+  "client_id": "train_Client_22147",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:23:03",
+  "queries": [
+    "investigate multiple meters account with high invoice volume and recent consumption spike",
+    "review account with reading remark codes 6, 8, and 9 for potential tampering",
+    "audit long-tenure account with sudden increase in consumption ratio compared to lifetime average"
+  ],
+  "evidence_ids": [
+    "TYP-11",
+    "CODE-counter_statue-1",
+    "TYP-08",
+    "SOP-v2025-5.1",
+    "SOP-v2025-2.1"
+  ],
+  "brief": {
+    "client_id": "train_Client_22147",
+    "risk_score": 0.3212,
+    "risk_rank_pct": 100.0,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client exhibits a Benford's Law mean absolute deviation of 0.0431, which exceeds the 0.015 threshold, indicating potential non-conformity in meter reading data [SNAPSHOT, TYP-08].",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-08"
+        ]
+      },
+      {
+        "point": "The account history includes 'reading_remarque' code 8, which is indicative of estimated readings often used to mask actual consumption patterns [SNAPSHOT, TYP-08].",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-08"
+        ]
+      },
+      {
+        "point": "The client has a high invoice count (78) and a ratio_last1y_lifetime of 1.9551, suggesting a significant recent surge in consumption relative to the account's long-term history [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The presence of missing months (has_missing_months = 1) combined with multiple counters (3) increases the complexity of the account and the potential for unbilled consumption [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify physical accessibility of all 3 meters to ensure future readings are actual rather than estimated.",
+      "Compare current physical meter indices against the last estimated billing records to identify potential unbilled consumption.",
+      "Inspect meter seals and terminals for evidence of tampering or bypass."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "The account does not trigger the specific thresholds for SOP-2.1 (yoy_drop_max 0.379 < 0.50) or SOP-5.1 (round_reading_share 0.2051 < 0.40), suggesting that while anomalies exist, they do not currently meet the mandatory criteria for those specific forensic protocols."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_22147\",\n  \"risk_score\": 0.3212,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits a Benford's Law mean absolute deviation of 0.0431, which exceeds the 0.015 threshold, indicating potential non-conformity in meter reading data [SNAPSHOT, TYP-08].\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-08\"\n      ]\n    },\n    {\n      \"point\": \"The account history includes 'reading_remarque' code 8, which is indicative of estimated readings often used to mask actual consumption patterns [SNAPSHOT, TYP-08].\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-08\"\n      ]\n    },\n    {\n      \"point\": \"The client has a high invoice count (78) and a ratio_last1y_lifetime of 1.9551, suggesting a significant recent surge in consumption relative to the account's long-term history [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The presence of missing months (has_missing_months = 1) combined with multiple counters (3) increases the complexity of the account and the potential for unbilled consumption [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify physical accessibility of all 3 meters to ensure future readings are actual rather than estimated.\",\n    \"Compare current physical meter indices against the last estimated billing records to identify potential unbilled consumption.\",\n    \"Inspect meter seals and terminals for evidence of tampering or bypass.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The account does not trigger the specific thresholds for SOP-2.1 (yoy_drop_max 0.379 < 0.50) or SOP-5.1 (round_reading_share 0.2051 < 0.40), suggesting that while anomalies exist, they do not currently meet the mandatory criteria for those specific forensic protocols.\"\n}",
+  "usage": {
+    "input_tokens": 4245,
+    "output_tokens": 2376
+  },
+  "error": null
+}

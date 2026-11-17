@@ -1,0 +1,78 @@
+{
+  "client_id": "train_Client_122081",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:29:57",
+  "queries": [
+    "investigate multiple meter accounts for client with counter_statue 0 and 5",
+    "analyze consumption history for zero_run_max of 17 consecutive months",
+    "review reading_remarque codes 6, 8, and 9 for potential meter tampering"
+  ],
+  "evidence_ids": [
+    "TYP-04",
+    "SOP-v2025-2.1",
+    "TYP-08",
+    "CODE-counter_statue-2",
+    "SOP-v2025-2.2"
+  ],
+  "brief": {
+    "client_id": "train_Client_122081",
+    "risk_score": 0.3196,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client exhibits a zero_run_max of 17.0, which significantly exceeds the threshold for consecutive zero-consumption billing cycles, triggering an immediate physical inspection order.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-2.2"
+        ]
+      },
+      {
+        "point": "A yoy_drop_max of 1.0 indicates a total collapse in year-on-year consumption, meeting the criteria for suspected meter bypass or magnetic tampering.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-2.1"
+        ]
+      },
+      {
+        "point": "The presence of reading_remarque code '8' indicates reliance on estimated readings, which is a known tactic to mask actual consumption or tampering.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-08"
+        ]
+      },
+      {
+        "point": "The account shows an n_index_rollover of 2, necessitating a physical check to determine if this reflects a legitimate meter replacement or an attempt to hide index discontinuities.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect for unauthorized neutral disconnection, direct bypass, or meter jamming",
+      "Verify meter accessibility and document any obstructions preventing physical reads",
+      "Compare current dial reading with billing records to calculate unbilled balance",
+      "Inspect seals and terminals for evidence of tampering"
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-2.2",
+        "action": "Priority Inspection & Service Verification"
+      },
+      {
+        "rule_id": "SOP-v2025-2.1",
+        "action": "Urgent Forensic Site Inspection (Level 2)"
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the zero-consumption and consumption drop metrics strongly align with fraud indicators, the n_index_rollover of 2 requires on-site verification to distinguish between technical meter issues and intentional tampering."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_122081\",\n  \"risk_score\": 0.3196,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits a zero_run_max of 17.0, which significantly exceeds the threshold for consecutive zero-consumption billing cycles, triggering an immediate physical inspection order.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.2\"\n      ]\n    },\n    {\n      \"point\": \"A yoy_drop_max of 1.0 indicates a total collapse in year-on-year consumption, meeting the criteria for suspected meter bypass or magnetic tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.1\"\n      ]\n    },\n    {\n      \"point\": \"The presence of reading_remarque code '8' indicates reliance on estimated readings, which is a known tactic to mask actual consumption or tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-08\"\n      ]\n    },\n    {\n      \"point\": \"The account shows an n_index_rollover of 2, necessitating a physical check to determine if this reflects a legitimate meter replacement or an attempt to hide index discontinuities.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect for unauthorized neutral disconnection, direct bypass, or meter jamming\",\n    \"Verify meter accessibility and document any obstructions preventing physical reads\",\n    \"Compare current dial reading with billing records to calculate unbilled balance\",\n    \"Inspect seals and terminals for evidence of tampering\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-2.2\",\n      \"action\": \"Priority Inspection & Service Verification\"\n    },\n    {\n      \"rule_id\": \"SOP-v2025-2.1\",\n      \"action\": \"Urgent Forensic Site Inspection (Level 2)\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the zero-consumption and consumption drop metrics strongly align with fraud indicators, the n_index_rollover of 2 requires on-site verification to distinguish between technical meter issues and intentional tampering.\"\n}",
+  "usage": {
+    "input_tokens": 4252,
+    "output_tokens": 1902
+  },
+  "error": null
+}

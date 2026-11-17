@@ -1,0 +1,77 @@
+{
+  "client_id": "train_Client_30864",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:26:37",
+  "queries": [
+    "investigate high number of meters n_counters 4 for single account",
+    "analyze sudden consumption increase ratio_last1y_lifetime 2.48",
+    "review meter status 0 1 5 and remark codes 6 8 9 for tampering"
+  ],
+  "evidence_ids": [
+    "CODE-counter_statue-2",
+    "TYP-04",
+    "SOP-v2025-2.1",
+    "SOP-v2023-3.2",
+    "CODE-counter_statue-4"
+  ],
+  "brief": {
+    "client_id": "train_Client_30864",
+    "risk_score": 0.319,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client's account contains a 'counter_statue' code of 5, which necessitates a routine technical site inspection to verify meter operational status and check for seal tampering.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2023-3.2"
+        ]
+      },
+      {
+        "point": "The client exhibits a year-on-year consumption drop of 0.7755, which exceeds the 0.50 threshold defined for suspected meter bypass or magnetic tampering.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-2.1"
+        ]
+      },
+      {
+        "point": "The client has 4 counters, placing them in the 98.3 percentile of training clients, indicating a complex metering configuration.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The ratio of last-year consumption to lifetime consumption is 2.4848, which is in the 97.2 percentile, suggesting a significant recent shift in consumption patterns.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify meter operational status",
+      "Confirm presence of seal tampering",
+      "Perform forensic audit of meter index",
+      "Check for meter bypass or magnetic tampering"
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2023-3.2",
+        "action": "Routine Technical Site Inspection"
+      },
+      {
+        "rule_id": "SOP-v2025-2.1",
+        "action": "Urgent Forensic Site Inspection (Level 2)"
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the consumption drop and counter status trigger specific SOPs, the 'reading_remarque' codes (6, 8, 9) are present but do not definitively confirm collusion without further field verification of the meter accessibility."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_30864\",\n  \"risk_score\": 0.319,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client's account contains a 'counter_statue' code of 5, which necessitates a routine technical site inspection to verify meter operational status and check for seal tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2023-3.2\"\n      ]\n    },\n    {\n      \"point\": \"The client exhibits a year-on-year consumption drop of 0.7755, which exceeds the 0.50 threshold defined for suspected meter bypass or magnetic tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.1\"\n      ]\n    },\n    {\n      \"point\": \"The client has 4 counters, placing them in the 98.3 percentile of training clients, indicating a complex metering configuration.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The ratio of last-year consumption to lifetime consumption is 2.4848, which is in the 97.2 percentile, suggesting a significant recent shift in consumption patterns.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify meter operational status\",\n    \"Confirm presence of seal tampering\",\n    \"Perform forensic audit of meter index\",\n    \"Check for meter bypass or magnetic tampering\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2023-3.2\",\n      \"action\": \"Routine Technical Site Inspection\"\n    },\n    {\n      \"rule_id\": \"SOP-v2025-2.1\",\n      \"action\": \"Urgent Forensic Site Inspection (Level 2)\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the consumption drop and counter status trigger specific SOPs, the 'reading_remarque' codes (6, 8, 9) are present but do not definitively confirm collusion without further field verification of the meter accessibility.\"\n}",
+  "usage": {
+    "input_tokens": 3898,
+    "output_tokens": 1913
+  },
+  "error": null
+}

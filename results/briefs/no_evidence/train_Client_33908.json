@@ -1,0 +1,55 @@
+{
+  "client_id": "train_Client_33908",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:19:11",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_33908",
+    "risk_score": 0.3208,
+    "risk_rank_pct": 100.0,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client is ranked in the 100.0 percentile for risk, placing them in the high risk tier.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The slope of consumption over the last 3 years is 174.8304, which is in the 98.1 percentile of the training set, indicating a significant trend.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has a long tenure of 33.232 years, placing them in the 91.2 percentile of the training set.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account shows evidence of missing months and contains reading remark codes 6, 8, and 9, which requires verification of meter reading integrity.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify meter reading integrity",
+      "Check for missing months in billing history",
+      "Inspect physical condition of the two counters"
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "No specific precedent cases or SOP rules were provided in the evidence section to guide the inspection process."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_33908\",\n  \"risk_score\": 0.3208,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client is ranked in the 100.0 percentile for risk, placing them in the high risk tier.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The slope of consumption over the last 3 years is 174.8304, which is in the 98.1 percentile of the training set, indicating a significant trend.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has a long tenure of 33.232 years, placing them in the 91.2 percentile of the training set.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account shows evidence of missing months and contains reading remark codes 6, 8, and 9, which requires verification of meter reading integrity.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify meter reading integrity\",\n    \"Check for missing months in billing history\",\n    \"Inspect physical condition of the two counters\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"No specific precedent cases or SOP rules were provided in the evidence section to guide the inspection process.\"\n}",
+  "usage": {
+    "input_tokens": 2335,
+    "output_tokens": 1507
+  },
+  "error": null
+}

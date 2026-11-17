@@ -1,0 +1,10 @@
+{
+  "queries": [
+    "investigate high number of meters n_counters 4",
+    "analyze consumption surge ratio_last1y_lifetime 1.5678",
+    "review meter reading remark codes 6 8 9"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4"
+}
