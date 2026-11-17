@@ -1,9 +1,0 @@
-{
-  "queries": [
-    "investigate multiple meters account with high counter count",
-    "analyze consumption volatility and sudden year over year drop",
-    "review meter status codes 0 1 5 and remark codes 6 8 9"
-  ],
-  "source": "llm",
-  "model": "gemini-3.1-flash-lite"
-}

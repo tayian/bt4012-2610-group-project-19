@@ -223,3 +223,13 @@ def test_cache_model_picks_the_saved_model(tmp_path):
     paths = [tmp_path / f"{i}.json" for i in range(5)]
     assert briefs.cache_model(paths) == "b"
     assert briefs.cache_model([tmp_path / "missing.json"]) is None
+
+
+def test_cached_brief_from_an_old_scoring_model_is_not_reused():
+    from src.llm.briefs import _current
+
+    now = SNAPSHOT_CONFIG["model_version"]
+    assert _current({"model": "m", "model_version": now}, "m")
+    assert not _current({"model": "m", "model_version": "M10_v1"}, "m")
+    assert not _current({"model": "m"}, "m")
+    assert not _current({"model": "other", "model_version": now}, "m")

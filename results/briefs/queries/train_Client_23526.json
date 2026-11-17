@@ -1,9 +1,0 @@
-{
-  "queries": [
-    "investigate multiple meters account with 3 counters",
-    "analyze consumption skew and high robust z-score",
-    "review meter reading remark codes 6, 8, and 9"
-  ],
-  "source": "llm",
-  "model": "gemini-3.1-flash-lite"
-}

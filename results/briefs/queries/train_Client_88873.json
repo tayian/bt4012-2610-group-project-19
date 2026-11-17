@@ -1,9 +1,0 @@
-{
-  "queries": [
-    "investigate multiple meter accounts for single client with high invoice volume",
-    "review consumption anomalies and high year-over-year drop for meter status 0",
-    "audit billing records for reading remark codes 6, 8, and 9"
-  ],
-  "source": "llm",
-  "model": "gemini-3.1-flash-lite"
-}

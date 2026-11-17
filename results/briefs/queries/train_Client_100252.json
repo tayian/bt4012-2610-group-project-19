@@ -1,9 +1,0 @@
-{
-  "queries": [
-    "investigate high number of counters and invoices for potential meter tampering",
-    "review consumption skew and high kurtosis indicating irregular usage patterns",
-    "audit account with reading remark codes 6, 8, and 9 for billing irregularities"
-  ],
-  "source": "llm",
-  "model": "gemini-3.1-flash-lite"
-}

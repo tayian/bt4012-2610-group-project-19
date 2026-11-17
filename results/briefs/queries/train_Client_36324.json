@@ -1,9 +1,0 @@
-{
-  "queries": [
-    "investigate high consumption variability and multiple meters for client category 51",
-    "review billing history for reading remark codes 6, 8, and 9",
-    "analyze high electricity consumption levels and irregular invoice frequency"
-  ],
-  "source": "llm",
-  "model": "gemini-3.1-flash-lite"
-}

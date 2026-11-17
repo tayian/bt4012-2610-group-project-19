@@ -1,9 +1,0 @@
-{
-  "queries": [
-    "investigate multiple meter count anomaly n_counters 6",
-    "review billing irregularities and bad months number 2",
-    "audit meter status codes 0 1 5 and reading remark codes 6 8 9"
-  ],
-  "source": "llm",
-  "model": "gemini-3.1-flash-lite"
-}

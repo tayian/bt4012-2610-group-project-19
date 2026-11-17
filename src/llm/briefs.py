@@ -31,6 +31,15 @@ from src.llm.query_rewriter import (
 from src.llm.retrieval import client_filters, get_retriever, rrf
 from src.llm.snapshot import SNAPSHOT_CONFIG, get_client_snapshot
 
+
+# A cached LLM response is reused only if both the LLM and the scoring model that produced the
+# snapshot match, so a new final model regenerates every brief instead of reusing stale scores.
+def _current(rec: dict[str, Any], model: str) -> bool:
+    return (
+        rec.get("model") == model and rec.get("model_version") == SNAPSHOT_CONFIG["model_version"]
+    )
+
+
 try:
     from dotenv import load_dotenv
 
@@ -284,11 +293,16 @@ def client_queries(
     path = Path(cache_dir) / f"{snapshot['client_id']}.json"
     if path.is_file():
         record = json.loads(path.read_text(encoding="utf-8"))
-        if record.get("model") == model:
+        if _current(record, model):
             return record
     try:
         queries = rewrite_snapshot_to_queries(snapshot, model=model, client=client)
-        record = {"queries": queries, "source": "llm", "model": model}
+        record = {
+            "queries": queries,
+            "source": "llm",
+            "model": model,
+            "model_version": SNAPSHOT_CONFIG["model_version"],
+        }
     except Exception as exc:
         if _daily_quota(exc):
             raise DailyQuotaExceeded(f"daily request quota for {model} is used up") from exc
@@ -296,6 +310,7 @@ def client_queries(
             "queries": fallback_queries_from_snapshot(snapshot),
             "source": "fallback",
             "model": model,
+            "model_version": SNAPSHOT_CONFIG["model_version"],
             "error": repr(exc)[:300],
         }
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -343,7 +358,7 @@ def generate_run(
         path = Path(out_dir) / run / f"{cid}.json"
         if path.is_file():
             rec = json.loads(path.read_text(encoding="utf-8"))
-            if rec.get("brief") is not None and rec.get("model") == model:
+            if rec.get("brief") is not None and _current(rec, model):
                 records.append(rec)
                 continue
         snap = brief_snapshot(get_client_snapshot(cid))
@@ -358,6 +373,7 @@ def generate_run(
             "client_id": cid,
             "run": run,
             "model": model,
+            "model_version": SNAPSHOT_CONFIG["model_version"],
             "created": dt.datetime.now().isoformat(timespec="seconds"),
             "queries": queries,
             "evidence_ids": [c["id"] for c in evidence],
@@ -389,7 +405,7 @@ def cached_records(
         path = Path(out_dir) / run / f"{cid}.json"
         if path.is_file():
             rec = json.loads(path.read_text(encoding="utf-8"))
-            if rec.get("model") == model:
+            if _current(rec, model):
                 out.append(rec)
     return out
 

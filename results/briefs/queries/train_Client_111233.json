@@ -1,9 +1,0 @@
-{
-  "queries": [
-    "investigate high number of meters n_counters 6 for client category 51",
-    "review consumption anomalies and meter status codes 0 and 5",
-    "audit billing irregularities and reading remark codes 6, 8, and 9"
-  ],
-  "source": "llm",
-  "model": "gemini-3.1-flash-lite"
-}

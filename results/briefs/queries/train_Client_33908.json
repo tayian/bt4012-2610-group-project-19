@@ -1,9 +1,0 @@
-{
-  "queries": [
-    "investigate multiple meter accounts for single client ID",
-    "review consumption anomalies and sudden spike share for meter status 0",
-    "audit billing history for reading remark codes 6, 8, and 9"
-  ],
-  "source": "llm",
-  "model": "gemini-3.1-flash-lite"
-}

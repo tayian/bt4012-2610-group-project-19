@@ -1,9 +1,0 @@
-{
-  "queries": [
-    "investigate multiple meter accounts for single client ID",
-    "analyze extreme consumption volatility and downward usage trend",
-    "review meter status codes 0 and 5 with remark codes 6, 8, and 9"
-  ],
-  "source": "llm",
-  "model": "gemini-3.1-flash-lite"
-}

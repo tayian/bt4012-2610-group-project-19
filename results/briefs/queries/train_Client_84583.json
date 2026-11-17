@@ -1,9 +1,0 @@
-{
-  "queries": [
-    "investigate multiple meters n_counters 2 for potential energy diversion",
-    "analyze consumption trend slope_last3y 59.05 for irregular usage patterns",
-    "review meter reading remarks 6 8 9 and missing billing months"
-  ],
-  "source": "llm",
-  "model": "gemini-3.1-flash-lite"
-}

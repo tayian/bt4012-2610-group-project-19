@@ -1,9 +1,0 @@
-{
-  "queries": [
-    "investigate multiple meters n_counters 4 for potential tampering",
-    "analyze consumption volatility and high yoy_drop_max 0.8776",
-    "review account with reading_remarque codes 6 8 9 and counter_statue codes 0 1 5"
-  ],
-  "source": "llm",
-  "model": "gemini-3.1-flash-lite"
-}

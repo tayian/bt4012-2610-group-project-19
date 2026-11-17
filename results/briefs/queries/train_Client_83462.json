@@ -1,9 +1,0 @@
-{
-  "queries": [
-    "investigate high number of counters and billing frequency for client",
-    "review consumption skew and zero consumption patterns",
-    "audit meter reading remarks 6, 8, and 9"
-  ],
-  "source": "llm",
-  "model": "gemini-3.1-flash-lite"
-}
