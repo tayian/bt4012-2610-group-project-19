@@ -1,0 +1,290 @@
+{
+  "system": "multi",
+  "client_id": "train_Client_28986",
+  "model_version": "M10_v4|gemini-3.1-flash-lite",
+  "tool_calls": [
+    {
+      "tool": "get_client_profile",
+      "args": {
+        "client_id": "train_Client_28986"
+      },
+      "seconds": 0.031,
+      "result_preview": "{'client_id': 'train_Client_28986', 'split': 'train', 'client_catg': 11, 'region': 311, 'district': 63, 'tenure_years': 30.58, 'n_counters': 3, 'n_invoices': 36, 'has_elec': 1, 'has_gaz': 0, 'counter_type': 'ELEC'}"
+    },
+    {
+      "tool": "get_risk_score",
+      "args": {
+        "client_id": "train_Client_28986"
+      },
+      "seconds": 0.03,
+      "result_preview": "{'client_id': 'train_Client_28986', 'risk_score': 0.319, 'risk_rank_pct': 99.98, 'risk_tier': 'high', 'model_version': 'M10_v4', 'note': 'risk_score is the out-of-fold score of the final model (a logistic stack of tuned LightGBM and a wide-and-deep network; it averages the 5.6% fraud rate). It is a "
+    },
+    {
+      "tool": "plot_history",
+      "args": {
+        "client_id": "train_Client_28986"
+      },
+      "seconds": 0.101,
+      "result_preview": "{'client_id': 'train_Client_28986', 'path': 'results/agent_logs/plots/train_Client_28986.png', 'n_invoices': 36, 'first_invoice': '2006-02-15', 'last_invoice': '2019-05-23', 'n_drops': 5, 'drop_dates': ['2010-01-10 (ELEC)', '2011-02-12 (ELEC)', '2014-09-26 (ELEC)', '2015-01-30 (ELEC)', '2016-05-19 ("
+    },
+    {
+      "tool": "explain_shap",
+      "args": {
+        "client_id": "train_Client_28986"
+      },
+      "seconds": 0.033,
+      "result_preview": "{'client_id': 'train_Client_28986', 'source': 'SHAP of the tuned LightGBM component of the stacked model', 'drivers': [{'rank': 1, 'feature': 'n_counters', 'value': 3.0, 'train_pct': 91.5, 'shap_value': 1.6302, 'direction': 'raises risk'}, {'rank': 2, 'feature': 'region', 'value': 311.0, 'train_pct'"
+    },
+    {
+      "tool": "benford_check",
+      "args": {
+        "client_id": "train_Client_28986"
+      },
+      "seconds": 0.047,
+      "result_preview": "{'client_id': 'train_Client_28986', 'benford_mad': 0.0523, 'round_reading_share': 0.1111, 'round_reading_share_train_pct': 15.7, 'n_positive_readings': 34, 'benford_flag': 'nonconformity', 'round_reading_flag': False, 'caveat': 'Benford deviation is a screening signal only; in this data benford_mad "
+    },
+    {
+      "tool": "retrieve_evidence",
+      "args": {
+        "query": "meter change maintenance codes irregularities M10_v4"
+      },
+      "seconds": 0.196,
+      "result_preview": "{'query': 'meter change maintenance codes irregularities M10_v4', 'chunks': [{'id': 'TYP-06', 'doc': 'playbook', 'section': 'meter_jamming', 'version': 'v1.0', 'valid_from': '2005-01-01', 'valid_to': None, 'counter_type': 'both', 'text': '[TYP-06] Meter Jamming & Mechanical Breakdown\\n* **1. Physica"
+    },
+    {
+      "tool": "retrieve_evidence",
+      "args": {
+        "query": "residential commercial usage profile district 63"
+      },
+      "seconds": 0.073,
+      "result_preview": "{'query': 'residential commercial usage profile district 63', 'chunks': [{'id': 'CODE-client_catg-12', 'doc': 'codebook', 'section': 'client_catg', 'version': 'v1.0', 'valid_from': '2005-01-01', 'valid_to': None, 'counter_type': 'both', 'text': '[CODE-client_catg-12] client_catg = 12\\n* **Observed i"
+    },
+    {
+      "tool": "retrieve_evidence",
+      "args": {
+        "query": "meter tampering bypass typologies M10_v4"
+      },
+      "seconds": 0.018,
+      "result_preview": "{'query': 'meter tampering bypass typologies M10_v4', 'chunks': [{'id': 'SOP-v2025-1.2', 'doc': 'sop', 'section': '1.2', 'version': 'v2025', 'valid_from': '2025-01-01', 'valid_to': None, 'counter_type': 'both', 'text': '[SOP-v2025-1.2] Mandatory Dual-Fuel Cross-Inspection Protocol\\n* **Clause Text:*"
+    }
+  ],
+  "llm_calls": [
+    {
+      "role": "planner",
+      "input_tokens": 366,
+      "output_tokens": 225
+    },
+    {
+      "role": "gatherer",
+      "input_tokens": 1222,
+      "output_tokens": 276
+    },
+    {
+      "role": "gatherer",
+      "input_tokens": 8463,
+      "output_tokens": 584
+    },
+    {
+      "role": "writer",
+      "input_tokens": 7092,
+      "output_tokens": 1771
+    }
+  ],
+  "evidence_ids": [
+    "TYP-06",
+    "TYP-04",
+    "SOP-v2025-2.3",
+    "TYP-07",
+    "SOP-v2025-1.2",
+    "CODE-client_catg-12",
+    "SOP-v2025-5.2",
+    "TYP-12",
+    "CODE-tarif_type-14",
+    "TYP-09",
+    "TYP-01",
+    "SOP-v2025-3.1",
+    "TYP-11"
+  ],
+  "brief": {
+    "client_id": "train_Client_28986",
+    "risk_score": 0.319,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client's consumption history shows 5 distinct drops between 2010 and 2016, which may indicate intermittent tampering or meter manipulation.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The consumption data exhibits nonconformity with Benford's Law (MAD 0.0523), which serves as a screening signal for potential reporting irregularities.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-04"
+        ]
+      },
+      {
+        "point": "The model identifies the high number of counters (3) and long tenure (30.58 years) as primary drivers for the high risk score, suggesting complex or legacy metering arrangements.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The ratio of last-year consumption to lifetime consumption (3.1185) is a significant risk driver, potentially consistent with catch-up billing or normalization after a period of under-reporting.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect all 3 counters for signs of physical tampering, such as seal damage, foreign objects, or clip marks on terminals.",
+      "Verify the current index against the last billed index to check for reconciliation gaps exceeding 50 kWh.",
+      "Check for evidence of intermittent tampering or bypass removal, such as residual magnetism on the casing."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-2.3",
+        "action": "Immediate Technical Field Inspection"
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "The Benford's Law nonconformity is a screening signal only and is not definitive proof of fraud. The specific nature of the 5 consumption drops (2010-2016) requires physical verification to distinguish between genuine usage changes and meter manipulation."
+  },
+  "auditor_verdict": "pass",
+  "error": null,
+  "started": "2026-11-17T17:59:47",
+  "llm_model": "gemini-3.1-flash-lite",
+  "plan": [
+    "Does the consumption history for the three counters show sudden, unexplained drops or zero-readings that correlate with the high risk score?",
+    "Are there any specific meter change events or maintenance codes in the last 36 months that align with the model's flagged irregularities?",
+    "How does the consumption pattern of this client compare to the average usage profile for similar residential or commercial accounts in district 63?",
+    "Does the current meter status or any recent inspection notes indicate potential tampering or bypass typologies consistent with the M10_v4 model drivers?"
+  ],
+  "gatherer_notes": "1. **Consumption History:** The consumption history shows 5 distinct drops between 2010 and 2016 [SNAPSHOT]. These drops, combined with the high `ratio_last1y_lifetime` (98.6th percentile) [SNAPSHOT], suggest a pattern of intermittent usage or potential tampering rather than a stable residential profile.\n\n2. **Meter Events:** No specific maintenance codes were returned, but the model's reliance on `n_counters` (3) and `ratio_last1y_lifetime` as top drivers [SNAPSHOT] aligns with `[TYP-09]` (Catch-Up Billing) and `[TYP-01]` (Meter Bypass), where consumption volatility and multi-counter setups are common indicators of tampering.\n\n3. **Usage Profile:** The client is in `client_catg 11` (residential) in district 63. While `[CODE-client_catg-12]` (commercial) has a lower fraud rate, residential accounts with high consumption volatility or peer residuals should be checked against `[SOP-v2025-5.2]` for potential commercial tariff reclassification if business activity is found.\n\n4. **Tampering Typologies:** The data signatures (drops, volatility) are consistent with `[TYP-01]` (Direct Bypass) and `[TYP-09]` (Intermittent Tampering). Inspection should follow `[SOP-v2025-3.1]` (if index reversal is found) or `[TYP-01]` protocols, specifically checking for seal damage and using a clamp ammeter to verify current flow.",
+  "tool_outputs": {
+    "get_client_profile": {
+      "client_id": "train_Client_28986",
+      "split": "train",
+      "client_catg": 11,
+      "region": 311,
+      "district": 63,
+      "tenure_years": 30.58,
+      "n_counters": 3,
+      "n_invoices": 36,
+      "has_elec": 1,
+      "has_gaz": 0,
+      "counter_type": "ELEC"
+    },
+    "get_risk_score": {
+      "client_id": "train_Client_28986",
+      "risk_score": 0.319,
+      "risk_rank_pct": 99.98,
+      "risk_tier": "high",
+      "model_version": "M10_v4",
+      "note": "risk_score is the out-of-fold score of the final model (a logistic stack of tuned LightGBM and a wide-and-deep network; it averages the 5.6% fraud rate). It is a model score for ranking, not a verified probability of fraud. risk_rank_pct is the percentile among training clients (higher = riskier). Tier: high = top 1% of clients, medium = top 5% (the monthly inspection budget), low = the rest."
+    },
+    "plot_history": {
+      "client_id": "train_Client_28986",
+      "path": "results/agent_logs/plots/train_Client_28986.png",
+      "n_invoices": 36,
+      "first_invoice": "2006-02-15",
+      "last_invoice": "2019-05-23",
+      "n_drops": 5,
+      "drop_dates": [
+        "2010-01-10 (ELEC)",
+        "2011-02-12 (ELEC)",
+        "2014-09-26 (ELEC)",
+        "2015-01-30 (ELEC)",
+        "2016-05-19 (ELEC)"
+      ],
+      "drop_years": [
+        2010,
+        2011,
+        2014,
+        2015,
+        2016
+      ],
+      "first_year": 2006,
+      "last_year": 2019
+    },
+    "explain_shap": {
+      "client_id": "train_Client_28986",
+      "source": "SHAP of the tuned LightGBM component of the stacked model",
+      "drivers": [
+        {
+          "rank": 1,
+          "feature": "n_counters",
+          "value": 3.0,
+          "train_pct": 91.5,
+          "shap_value": 1.6302,
+          "direction": "raises risk"
+        },
+        {
+          "rank": 2,
+          "feature": "region",
+          "value": 311.0,
+          "train_pct": null,
+          "shap_value": 0.4876,
+          "direction": "raises risk"
+        },
+        {
+          "rank": 3,
+          "feature": "tenure_years",
+          "value": 30.5845,
+          "train_pct": 87.9,
+          "shap_value": 0.34,
+          "direction": "raises risk"
+        },
+        {
+          "rank": 4,
+          "feature": "n_invoices",
+          "value": 36.0,
+          "train_pct": 59.4,
+          "shap_value": 0.2589,
+          "direction": "raises risk"
+        },
+        {
+          "rank": 5,
+          "feature": "ratio_last1y_lifetime",
+          "value": 3.1185,
+          "train_pct": 98.6,
+          "shap_value": 0.1941,
+          "direction": "raises risk"
+        }
+      ]
+    },
+    "benford_check": {
+      "client_id": "train_Client_28986",
+      "benford_mad": 0.0523,
+      "round_reading_share": 0.1111,
+      "round_reading_share_train_pct": 15.7,
+      "n_positive_readings": 34,
+      "benford_flag": "nonconformity",
+      "round_reading_flag": false,
+      "caveat": "Benford deviation is a screening signal only; in this data benford_mad is on average lower for fraud clients, and round_reading_share carries no signal."
+    }
+  },
+  "audits": [
+    {
+      "client_id": "train_Client_28986",
+      "schema_valid": true,
+      "citation_valid_rate": 1.0,
+      "number_accuracy_rate": 1.0,
+      "rule_applicability_rate": 1.0,
+      "faithfulness_mean": 3.5,
+      "all_pass": true,
+      "faithfulness_scores": [
+        3,
+        5,
+        3,
+        3
+      ]
+    }
+  ],
+  "seconds": 35.24167524999939,
+  "n_tool_calls": 8,
+  "input_tokens": 17143,
+  "output_tokens": 2856
+}
