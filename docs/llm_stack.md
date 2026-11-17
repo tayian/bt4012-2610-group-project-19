@@ -267,13 +267,13 @@ Every run logs the model version, tool calls, evidence IDs, tokens, plan, audits
 
 | System | Clients | Citation validity | Number accuracy | Faithfulness (1-5)* | Schema valid | Tool calls (mean) | Tokens (mean) | Seconds (median) | Auditor pass |
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Single agent | 7 | 100% | 100% | 4.31 | 100% | 6.14 | 14,412 | 15 | n/a |
-| Multi-agent | 7 | 100% | 100% | 4.86 | 100% | 6.29 | 12,136 | 19 | 100% (all on first pass) |
+| Single agent | 30 | 100% | 99.6% | 4.27 | 100% | 6.10 | 14,300 | 15 | n/a |
+| Multi-agent | 30 | 100% | 100% | 4.69 | 100% | 6.63 | 13,718 | 21 | 100% (29 first pass, 1 after revision) |
 
-\* Gemini judge, as in 7.2. The table covers only clients that both systems have finished. The
-single agent has finished all 30 on M10_v4: citation validity 100%, number accuracy 99.6%,
-faithfulness 4.27, all checks pass 96.7%, 6.1 tool calls, about 14.3k tokens, median 15 s. The
-multi-agent has finished 7 of 30 so far, because the daily quota ran out.
-`python run.py agents` resumes the rest.
+\* Gemini judge, as in 7.2, over the same 30 clients for both systems, all on M10_v4. All
+checks pass for 96.7% of single-agent briefs and 100% of multi-agent briefs. The multi-agent's
+separate Writer and Auditor raise faithfulness by 0.42 for a similar token cost; the Auditor
+sent one brief back for revision, and it passed on the second attempt. No brief needed human
+review.
 
 The multi-agent tool count includes the planner's 2 fixed calls. The seconds column mostly measures API latency under load, with two runs sharing one quota, so it is not a property of the design.
