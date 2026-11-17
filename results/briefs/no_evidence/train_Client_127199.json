@@ -1,0 +1,61 @@
+{
+  "client_id": "train_Client_127199",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:22:28",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_127199",
+    "risk_score": 0.3186,
+    "risk_rank_pct": 99.97,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client operates 4 counters, which places them in the 98.3rd percentile for this feature and serves as the primary driver for the risk score.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Consumption data exhibits extreme irregularity, with skewness (4.6731) and kurtosis (26.4175) values both exceeding the 98th percentile.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The robust Z-score maximum of 24.1045 is in the 94.1st percentile, indicating significant consumption outliers.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account has a long tenure of 29.94 years and a high volume of 72 invoices, both of which are significant contributors to the model's risk assessment.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account record contains missing months of data, which may impact the accuracy of consumption trend analysis.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify the physical integrity and current readings of all 4 registered counters.",
+      "Inspect for potential bypasses or unauthorized connections given the high consumption skewness.",
+      "Confirm the accuracy of the meter data against the historical invoice records."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "While the model identifies high risk based on counter volume and consumption irregularities, the specific cause of the extreme skewness and kurtosis is not explicitly determined by the available data."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_127199\",\n  \"risk_score\": 0.3186,\n  \"risk_rank_pct\": 99.97,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client operates 4 counters, which places them in the 98.3rd percentile for this feature and serves as the primary driver for the risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Consumption data exhibits extreme irregularity, with skewness (4.6731) and kurtosis (26.4175) values both exceeding the 98th percentile.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The robust Z-score maximum of 24.1045 is in the 94.1st percentile, indicating significant consumption outliers.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account has a long tenure of 29.94 years and a high volume of 72 invoices, both of which are significant contributors to the model's risk assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account record contains missing months of data, which may impact the accuracy of consumption trend analysis.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the physical integrity and current readings of all 4 registered counters.\",\n    \"Inspect for potential bypasses or unauthorized connections given the high consumption skewness.\",\n    \"Confirm the accuracy of the meter data against the historical invoice records.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the model identifies high risk based on counter volume and consumption irregularities, the specific cause of the extreme skewness and kurtosis is not explicitly determined by the available data.\"\n}",
+  "usage": {
+    "input_tokens": 2367,
+    "output_tokens": 1488
+  },
+  "error": null
+}

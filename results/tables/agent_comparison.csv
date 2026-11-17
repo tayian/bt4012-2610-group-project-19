@@ -1,3 +1,3 @@
 system,n_clients,n_briefs,schema_valid,citation_validity,number_accuracy,rule_applicability,faithfulness_mean,all_pass_share,tool_calls_mean,tool_calls_max,llm_calls_mean,tokens_mean,seconds_mean,seconds_median,auditor_pass_rate,auditor_first_pass_rate,needs_human_review_share,judge,llm_model
-single,8,8,1.0,1.0,1.0,1.0,3.5875,1.0,6.25,7,4.0,14787.0,126.26199505213299,87.28445158351678,,,,lexical,gemini-3.1-flash-lite
-multi,8,8,1.0,1.0,1.0,1.0,3.4375,1.0,6.375,8,4.0,13241.375,116.47239304176765,94.7826585205039,1.0,1.0,0.0,lexical,gemini-3.1-flash-lite
+single,7,7,1.0,1.0,1.0,1.0,4.314285714285714,1.0,6.142857142857143,7,4.0,14411.857142857143,16.777297916855396,14.565270042046905,,,,gemini:gemini-3.1-flash-lite,gemini-3.1-flash-lite
+multi,7,7,1.0,1.0,1.0,1.0,4.857142857142857,1.0,6.285714285714286,7,4.0,12135.857142857143,19.874643011683865,19.409991665976122,1.0,1.0,0.0,gemini:gemini-3.1-flash-lite,gemini-3.1-flash-lite

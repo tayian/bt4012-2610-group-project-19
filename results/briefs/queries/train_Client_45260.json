@@ -1,0 +1,10 @@
+{
+  "queries": [
+    "investigate multiple meter accounts for single client with high invoice volume",
+    "analyze consumption skew and high kurtosis for potential meter tampering",
+    "review meter reading remarks 6, 8, and 9 for billing irregularities"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4"
+}

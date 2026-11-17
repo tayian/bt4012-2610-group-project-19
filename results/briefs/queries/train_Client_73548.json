@@ -1,9 +1,10 @@
 {
   "queries": [
-    "investigate high number of meters n_counters 4 for single account",
-    "analyze consumption skew and high robust_z_max indicating irregular usage patterns",
-    "review meter reading remarks 6 8 9 and missing billing months"
+    "investigate high number of counters 4 for single client account",
+    "review consumption anomaly with reading remark codes 6 8 9",
+    "analyze sudden increase in recent consumption ratio last1y_lifetime 2.249"
   ],
   "source": "llm",
-  "model": "gemini-3.1-flash-lite"
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4"
 }

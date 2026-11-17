@@ -2,64 +2,63 @@
   "client_id": "train_Client_100576",
   "run": "hybrid",
   "model": "gemini-3.1-flash-lite",
-  "created": "2026-11-16T22:58:31",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:27:29",
   "queries": [
-    "investigate meter status codes 0, 5 and remark codes 6, 8, 9 for potential tampering",
-    "review account for extended zero consumption runs and high robust z-score volatility",
-    "audit multi-meter account with excessive counter count and high invoice frequency"
+    "investigate account with 5 meters for potential meter tampering",
+    "analyze consumption history for zero consumption patterns and zero_run_max 28",
+    "review reading_remarque codes 6, 8, and 9 for meter status 0 and 5"
   ],
   "evidence_ids": [
-    "SOP-v2025-2.2",
-    "SOP-v2023-3.2",
     "TYP-11",
-    "SOP-v2025-3.2",
-    "TYP-09"
+    "SOP-v2025-2.2",
+    "CODE-reading_remarque-9",
+    "SOP-v2023-3.2",
+    "CODE-counter_statue-1"
   ],
   "brief": {
     "client_id": "train_Client_100576",
-    "risk_score": 0.3116,
-    "risk_rank_pct": 99.99,
+    "risk_score": 0.3188,
+    "risk_rank_pct": 99.98,
     "risk_tier": "high",
     "evidence": [
       {
-        "point": "The client exhibits a high frequency of zero-consumption periods, with a zero_run_max of 28.0, which triggers mandatory inspection protocols under the rapid zero-consumption detection threshold.",
+        "point": "The account contains a 'counter_statue' code of 5, which mandates a technical site inspection to verify meter operational status and seal integrity.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2023-3.2"
+        ]
+      },
+      {
+        "point": "The client has a 'zero_run_max' of 28.0, significantly exceeding the threshold of 2 consecutive zero-consumption invoices, triggering a priority inspection requirement.",
         "citations": [
           "SNAPSHOT",
           "SOP-v2025-2.2"
         ]
       },
       {
-        "point": "The presence of counter_statue code '5' in the client's history indicates a suspected anomaly or meter defect, requiring priority enforcement dispatch within seven calendar days.",
+        "point": "The account has 5 counters, placing it in the 99.7th percentile of clients, suggesting a complex metering setup that requires careful verification.",
         "citations": [
-          "SNAPSHOT",
-          "SOP-v2025-3.2"
+          "SNAPSHOT"
         ]
       },
       {
-        "point": "The consumption profile shows high volatility, with a sudden_spike_share of 0.3305 and a zero_share of 0.322, consistent with the intermittent tampering signature described in the catch-up billing playbook.",
+        "point": "The client has 118 invoices, indicating a long-standing account history, which is in the 99.5th percentile.",
         "citations": [
-          "SNAPSHOT",
-          "TYP-09"
-        ]
-      },
-      {
-        "point": "The extreme range between the minimum consumption (0.0) and maximum consumption (433.0) supports the hypothesis of intermittent tampering, where consumption is suppressed and then reconciled.",
-        "citations": [
-          "SNAPSHOT",
-          "TYP-09"
+          "SNAPSHOT"
         ]
       }
     ],
     "onsite_checks": [
-      "Inspect terminal screws and conductors for clip marks or insulation damage",
-      "Test the casing with a Gaussmeter for residual magnetism",
-      "Verify seal integrity and terminal links",
-      "Inspect for unauthorized neutral disconnection, direct bypass, or meter jamming"
+      "Verify meter operational status",
+      "Inspect for seal tampering",
+      "Inspect for unauthorized neutral disconnection",
+      "Inspect for direct bypass or meter jamming"
     ],
     "applicable_rules": [
       {
-        "rule_id": "SOP-v2025-3.2",
-        "action": "Priority Enforcement Dispatch (Level 2) within 7 days"
+        "rule_id": "SOP-v2023-3.2",
+        "action": "Routine Technical Site Inspection"
       },
       {
         "rule_id": "SOP-v2025-2.2",
@@ -67,12 +66,12 @@
       }
     ],
     "similar_cases": [],
-    "uncertainty": "While the data strongly suggests intermittent tampering, the specific physical mechanism (e.g., magnet usage vs. bypass) remains unverified without the physical site audit."
+    "uncertainty": "While the high zero-consumption run and counter status 5 strongly suggest potential issues, the 'reading_remarque' code 9 is present, which is common and may not indicate obstruction. The complexity of 5 counters requires verifying if the zero consumption is isolated to specific meters or systemic."
   },
-  "raw_text": "{\n  \"client_id\": \"train_Client_100576\",\n  \"risk_score\": 0.3116,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits a high frequency of zero-consumption periods, with a zero_run_max of 28.0, which triggers mandatory inspection protocols under the rapid zero-consumption detection threshold.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.2\"\n      ]\n    },\n    {\n      \"point\": \"The presence of counter_statue code '5' in the client's history indicates a suspected anomaly or meter defect, requiring priority enforcement dispatch within seven calendar days.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-3.2\"\n      ]\n    },\n    {\n      \"point\": \"The consumption profile shows high volatility, with a sudden_spike_share of 0.3305 and a zero_share of 0.322, consistent with the intermittent tampering signature described in the catch-up billing playbook.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The extreme range between the minimum consumption (0.0) and maximum consumption (433.0) supports the hypothesis of intermittent tampering, where consumption is suppressed and then reconciled.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect terminal screws and conductors for clip marks or insulation damage\",\n    \"Test the casing with a Gaussmeter for residual magnetism\",\n    \"Verify seal integrity and terminal links\",\n    \"Inspect for unauthorized neutral disconnection, direct bypass, or meter jamming\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-3.2\",\n      \"action\": \"Priority Enforcement Dispatch (Level 2) within 7 days\"\n    },\n    {\n      \"rule_id\": \"SOP-v2025-2.2\",\n      \"action\": \"Priority Inspection & Service Verification\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the data strongly suggests intermittent tampering, the specific physical mechanism (e.g., magnet usage vs. bypass) remains unverified without the physical site audit.\"\n}",
+  "raw_text": "{\n  \"client_id\": \"train_Client_100576\",\n  \"risk_score\": 0.3188,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The account contains a 'counter_statue' code of 5, which mandates a technical site inspection to verify meter operational status and seal integrity.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2023-3.2\"\n      ]\n    },\n    {\n      \"point\": \"The client has a 'zero_run_max' of 28.0, significantly exceeding the threshold of 2 consecutive zero-consumption invoices, triggering a priority inspection requirement.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.2\"\n      ]\n    },\n    {\n      \"point\": \"The account has 5 counters, placing it in the 99.7th percentile of clients, suggesting a complex metering setup that requires careful verification.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has 118 invoices, indicating a long-standing account history, which is in the 99.5th percentile.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify meter operational status\",\n    \"Inspect for seal tampering\",\n    \"Inspect for unauthorized neutral disconnection\",\n    \"Inspect for direct bypass or meter jamming\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2023-3.2\",\n      \"action\": \"Routine Technical Site Inspection\"\n    },\n    {\n      \"rule_id\": \"SOP-v2025-2.2\",\n      \"action\": \"Priority Inspection & Service Verification\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the high zero-consumption run and counter status 5 strongly suggest potential issues, the 'reading_remarque' code 9 is present, which is common and may not indicate obstruction. The complexity of 5 counters requires verifying if the zero consumption is isolated to specific meters or systemic.\"\n}",
   "usage": {
-    "input_tokens": 3955,
-    "output_tokens": 1837
+    "input_tokens": 3916,
+    "output_tokens": 1853
   },
   "error": null
 }

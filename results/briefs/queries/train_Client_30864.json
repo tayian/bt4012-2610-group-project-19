@@ -1,0 +1,10 @@
+{
+  "queries": [
+    "investigate high number of meters n_counters 4 for single account",
+    "analyze sudden consumption increase ratio_last1y_lifetime 2.48",
+    "review meter status 0 1 5 and remark codes 6 8 9 for tampering"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4"
+}

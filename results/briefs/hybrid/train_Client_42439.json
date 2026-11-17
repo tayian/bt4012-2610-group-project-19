@@ -1,0 +1,82 @@
+{
+  "client_id": "train_Client_42439",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:27:19",
+  "queries": [
+    "multiple meters account investigation n_counters 3",
+    "high consumption volatility and sudden spike analysis",
+    "meter status 0 1 5 and remark code 6 8 9 review"
+  ],
+  "evidence_ids": [
+    "CODE-counter_statue-1",
+    "CODE-counter_statue-3",
+    "TYP-09",
+    "SOP-v2025-3.2",
+    "TYP-04"
+  ],
+  "brief": {
+    "client_id": "train_Client_42439",
+    "risk_score": 0.3188,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client record includes counter_statue 5, which mandates a priority enforcement dispatch within seven days to inspect for meter defects or tampering.",
+        "citations": [
+          "SOP-v2025-3.2",
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The Benford's Law MAD value of 0.0247 exceeds the 0.015 threshold, suggesting potential irregularities in reported consumption data consistent with meter-reader collusion.",
+        "citations": [
+          "TYP-04",
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "A sudden_spike_share of 0.4324 indicates highly volatile consumption patterns, consistent with intermittent tampering and catch-up billing.",
+        "citations": [
+          "TYP-09",
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The presence of reading_remarque 9 indicates doubtful readings, which is a known data signature for meter-reader collusion.",
+        "citations": [
+          "TYP-04",
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client record includes counter_statue 1, which may indicate unauthorized self-reconnection if the service was previously disconnected.",
+        "citations": [
+          "CODE-counter_statue-1",
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect terminal screws and conductors for clip marks or insulation damage.",
+      "Test the casing with a Gaussmeter for residual magnetism.",
+      "Verify seal integrity and check for external magnet attachment.",
+      "Record the current dial reading to compute the unbilled balance."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-3.2",
+        "action": "Priority Enforcement Dispatch (Level 2)"
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While counter_statue 1 and 5 are present, the lack of specific service-order history makes it difficult to confirm if these statuses correspond to actual disconnection or repair events versus administrative errors."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_42439\",\n  \"risk_score\": 0.3188,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client record includes counter_statue 5, which mandates a priority enforcement dispatch within seven days to inspect for meter defects or tampering.\",\n      \"citations\": [\n        \"SOP-v2025-3.2\",\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The Benford's Law MAD value of 0.0247 exceeds the 0.015 threshold, suggesting potential irregularities in reported consumption data consistent with meter-reader collusion.\",\n      \"citations\": [\n        \"TYP-04\",\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"A sudden_spike_share of 0.4324 indicates highly volatile consumption patterns, consistent with intermittent tampering and catch-up billing.\",\n      \"citations\": [\n        \"TYP-09\",\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The presence of reading_remarque 9 indicates doubtful readings, which is a known data signature for meter-reader collusion.\",\n      \"citations\": [\n        \"TYP-04\",\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client record includes counter_statue 1, which may indicate unauthorized self-reconnection if the service was previously disconnected.\",\n      \"citations\": [\n        \"CODE-counter_statue-1\",\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect terminal screws and conductors for clip marks or insulation damage.\",\n    \"Test the casing with a Gaussmeter for residual magnetism.\",\n    \"Verify seal integrity and check for external magnet attachment.\",\n    \"Record the current dial reading to compute the unbilled balance.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-3.2\",\n      \"action\": \"Priority Enforcement Dispatch (Level 2)\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While counter_statue 1 and 5 are present, the lack of specific service-order history makes it difficult to confirm if these statuses correspond to actual disconnection or repair events versus administrative errors.\"\n}",
+  "usage": {
+    "input_tokens": 4301,
+    "output_tokens": 2248
+  },
+  "error": null
+}

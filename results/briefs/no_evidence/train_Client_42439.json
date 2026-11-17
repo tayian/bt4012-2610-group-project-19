@@ -1,0 +1,61 @@
+{
+  "client_id": "train_Client_42439",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:21:49",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_42439",
+    "risk_score": 0.3188,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client has 3 counters, which is a primary driver of the risk score and places the client in the 91.5th percentile for this feature.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Consumption patterns show a sharp upward trend, with a slope_last3y value of 1077.8157, ranking in the 99.8th percentile of the training set.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client exhibits significant consumption volatility, with a robust_z_max of 74.8685, which is in the 97.9th percentile.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has a high level_4_pm_mean of 736.8491, which is in the 99.2nd percentile and is a significant contributor to the risk model.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account record indicates the presence of missing months, which may suggest gaps in billing or meter reading data.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify the status and physical condition of all 3 counters",
+      "Inspect for potential bypasses or tampering given the high consumption slope",
+      "Check for reasons behind missing billing months"
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "While the model identifies high risk based on consumption patterns and counter count, there is no direct evidence of meter tampering or specific fraud codes (e.g., recon mismatch) present in the snapshot."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_42439\",\n  \"risk_score\": 0.3188,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client has 3 counters, which is a primary driver of the risk score and places the client in the 91.5th percentile for this feature.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Consumption patterns show a sharp upward trend, with a slope_last3y value of 1077.8157, ranking in the 99.8th percentile of the training set.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client exhibits significant consumption volatility, with a robust_z_max of 74.8685, which is in the 97.9th percentile.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has a high level_4_pm_mean of 736.8491, which is in the 99.2nd percentile and is a significant contributor to the risk model.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account record indicates the presence of missing months, which may suggest gaps in billing or meter reading data.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the status and physical condition of all 3 counters\",\n    \"Inspect for potential bypasses or tampering given the high consumption slope\",\n    \"Check for reasons behind missing billing months\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the model identifies high risk based on consumption patterns and counter count, there is no direct evidence of meter tampering or specific fraud codes (e.g., recon mismatch) present in the snapshot.\"\n}",
+  "usage": {
+    "input_tokens": 2430,
+    "output_tokens": 1520
+  },
+  "error": null
+}

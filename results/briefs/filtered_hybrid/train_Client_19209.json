@@ -1,0 +1,69 @@
+{
+  "client_id": "train_Client_19209",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:31:34",
+  "queries": [
+    "meter consumption volatility and sharp downward trend analysis",
+    "investigate meter reconciliation mismatch and missing billing months",
+    "review reading remark codes 6 8 9 for potential tampering"
+  ],
+  "evidence_ids": [
+    "TYP-09",
+    "TYP-08",
+    "SOP-v2025-2.3",
+    "CODE-reading_remarque-8",
+    "TYP-01"
+  ],
+  "brief": {
+    "client_id": "train_Client_19209",
+    "risk_score": 0.319,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client's reconciliation gap is 1564.0, which significantly exceeds the 50 kWh threshold for mandatory inspection.",
+        "citations": [
+          "SOP-v2025-2.3",
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client exhibits a Benford's Law MAD of 0.025, exceeding the 0.015 threshold, and has recorded estimated readings (remark 8), suggesting potential manipulation of consumption data.",
+        "citations": [
+          "TYP-08",
+          "SNAPSHOT",
+          "CODE-reading_remarque-8"
+        ]
+      },
+      {
+        "point": "The client has 3 counters and a high maximum consumption of 4033.0, which, combined with a reconciliation mismatch, aligns with patterns of intermittent tampering or catch-up billing.",
+        "citations": [
+          "TYP-09",
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect terminal-cover seals for tampering",
+      "Verify meter register against billing records to account for the 1564.0 kWh reconciliation gap",
+      "Check for physical access barriers that may have caused estimated readings",
+      "Perform a clamp-ammeter check on all 3 counters"
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-2.3",
+        "action": "Immediate Technical Field Inspection"
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the reconciliation gap and Benford's Law deviation are strong indicators, the specific cause (meter defect vs. intentional manipulation) requires physical verification of the 3 counters."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_19209\",\n  \"risk_score\": 0.319,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client's reconciliation gap is 1564.0, which significantly exceeds the 50 kWh threshold for mandatory inspection.\",\n      \"citations\": [\n        \"SOP-v2025-2.3\",\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client exhibits a Benford's Law MAD of 0.025, exceeding the 0.015 threshold, and has recorded estimated readings (remark 8), suggesting potential manipulation of consumption data.\",\n      \"citations\": [\n        \"TYP-08\",\n        \"SNAPSHOT\",\n        \"CODE-reading_remarque-8\"\n      ]\n    },\n    {\n      \"point\": \"The client has 3 counters and a high maximum consumption of 4033.0, which, combined with a reconciliation mismatch, aligns with patterns of intermittent tampering or catch-up billing.\",\n      \"citations\": [\n        \"TYP-09\",\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect terminal-cover seals for tampering\",\n    \"Verify meter register against billing records to account for the 1564.0 kWh reconciliation gap\",\n    \"Check for physical access barriers that may have caused estimated readings\",\n    \"Perform a clamp-ammeter check on all 3 counters\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-2.3\",\n      \"action\": \"Immediate Technical Field Inspection\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the reconciliation gap and Benford's Law deviation are strong indicators, the specific cause (meter defect vs. intentional manipulation) requires physical verification of the 3 counters.\"\n}",
+  "usage": {
+    "input_tokens": 4579,
+    "output_tokens": 1896
+  },
+  "error": null
+}

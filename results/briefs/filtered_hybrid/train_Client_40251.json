@@ -1,0 +1,69 @@
+{
+  "client_id": "train_Client_40251",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:30:47",
+  "queries": [
+    "investigate multiple meter accounts for client with remark codes 6, 8, 9",
+    "analyze high consumption volatility and sudden spike share in long-tenure account",
+    "review meter status 0 for potential tampering or bypass"
+  ],
+  "evidence_ids": [
+    "TYP-11",
+    "TYP-04",
+    "TYP-09",
+    "TYP-06",
+    "CODE-reading_remarque-9"
+  ],
+  "brief": {
+    "client_id": "train_Client_40251",
+    "risk_score": 0.3193,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client exhibits a round_reading_share of 0.2564 and utilizes reading_remarque code 9, which are data signatures associated with potential meter-reader collusion or under-reporting [SNAPSHOT], [TYP-04].",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-04"
+        ]
+      },
+      {
+        "point": "The client has a sudden_spike_share of 0.2564, which is a data signature for intermittent tampering or catch-up billing patterns [SNAPSHOT], [TYP-09].",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "The client has missing months recorded (has_missing_months = 1), which is a data signature for irregular billing and potential meter issues [SNAPSHOT], [TYP-06].",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-06"
+        ]
+      },
+      {
+        "point": "The benford_mad value of 0.042 indicates a departure from expected consumption patterns, which can be a sign of manipulated reporting [SNAPSHOT], [TYP-04].",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-04"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Perform an unannounced inspection to verify the current meter index and compare it with the last billed index to calculate any unbilled balance [TYP-04].",
+      "Inspect the meter for physical signs of tampering, such as seal damage or inserted objects [TYP-06].",
+      "Compare the current meter reading with neighboring meters to check for route-level anomalies [TYP-04]."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "While the model flags high risk, the reading_remarque 9 code is frequent and may not definitively indicate obstruction [CODE-reading_remarque-9]. Additionally, the benford_mad is based on a small sample size of 39 invoices, which may reduce its reliability as a standalone indicator [TYP-04]."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_40251\",\n  \"risk_score\": 0.3193,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits a round_reading_share of 0.2564 and utilizes reading_remarque code 9, which are data signatures associated with potential meter-reader collusion or under-reporting [SNAPSHOT], [TYP-04].\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-04\"\n      ]\n    },\n    {\n      \"point\": \"The client has a sudden_spike_share of 0.2564, which is a data signature for intermittent tampering or catch-up billing patterns [SNAPSHOT], [TYP-09].\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The client has missing months recorded (has_missing_months = 1), which is a data signature for irregular billing and potential meter issues [SNAPSHOT], [TYP-06].\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-06\"\n      ]\n    },\n    {\n      \"point\": \"The benford_mad value of 0.042 indicates a departure from expected consumption patterns, which can be a sign of manipulated reporting [SNAPSHOT], [TYP-04].\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-04\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Perform an unannounced inspection to verify the current meter index and compare it with the last billed index to calculate any unbilled balance [TYP-04].\",\n    \"Inspect the meter for physical signs of tampering, such as seal damage or inserted objects [TYP-06].\",\n    \"Compare the current meter reading with neighboring meters to check for route-level anomalies [TYP-04].\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the model flags high risk, the reading_remarque 9 code is frequent and may not definitively indicate obstruction [CODE-reading_remarque-9]. Additionally, the benford_mad is based on a small sample size of 39 invoices, which may reduce its reliability as a standalone indicator [TYP-04].\"\n}",
+  "usage": {
+    "input_tokens": 4777,
+    "output_tokens": 1823
+  },
+  "error": null
+}

@@ -1,0 +1,10 @@
+{
+  "queries": [
+    "multiple meters account investigation n_counters 3",
+    "high consumption volatility and sudden spike analysis",
+    "meter status 0 1 5 and remark code 6 8 9 review"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4"
+}

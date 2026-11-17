@@ -1,0 +1,10 @@
+{
+  "queries": [
+    "investigate high number of counters 4 and meter status codes 0 1 5",
+    "analyze consumption volatility with high skew and robust z-score 24.10",
+    "review billing irregularities and reading remark codes 6 8 9"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4"
+}

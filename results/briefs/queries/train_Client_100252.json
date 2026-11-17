@@ -1,9 +1,10 @@
 {
   "queries": [
-    "investigate high number of counters and invoices for potential meter tampering",
-    "review consumption skew and high kurtosis indicating irregular usage patterns",
-    "audit account with reading remark codes 6, 8, and 9 for billing irregularities"
+    "investigate high number of meters n_counters 4",
+    "analyze consumption surge ratio_last1y_lifetime 1.5678",
+    "review meter reading remark codes 6 8 9"
   ],
   "source": "llm",
-  "model": "gemini-3.1-flash-lite"
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4"
 }

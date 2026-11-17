@@ -2,70 +2,70 @@
   "client_id": "train_Client_73548",
   "run": "hybrid",
   "model": "gemini-3.1-flash-lite",
-  "created": "2026-11-16T23:01:59",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:25:09",
   "queries": [
-    "investigate high number of meters n_counters 4 for single account",
-    "analyze consumption skew and high robust_z_max indicating irregular usage patterns",
-    "review meter reading remarks 6 8 9 and missing billing months"
+    "investigate high number of counters 4 for single client account",
+    "review consumption anomaly with reading remark codes 6 8 9",
+    "analyze sudden increase in recent consumption ratio last1y_lifetime 2.249"
   ],
   "evidence_ids": [
-    "TYP-09",
-    "TYP-04",
-    "SOP-v2023-4.1",
-    "CODE-counter_statue-4",
-    "CODE-tarif_type-14"
+    "CODE-counter_statue-1",
+    "CODE-counter_code-333",
+    "CODE-reading_remarque-6",
+    "SOP-v2025-2.1",
+    "CODE-counter_code-453"
   ],
   "brief": {
     "client_id": "train_Client_73548",
-    "risk_score": 0.311,
-    "risk_rank_pct": 99.98,
+    "risk_score": 0.3195,
+    "risk_rank_pct": 99.99,
     "risk_tier": "high",
     "evidence": [
       {
-        "point": "The client is flagged as high risk (99.98th percentile), with the number of counters (4) being the primary driver of the model's risk assessment.",
+        "point": "The client exhibits a year-on-year consumption drop of 59.59%, which exceeds the 50% threshold for suspected meter bypass or tampering defined in the standard operating procedures.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-2.1"
+        ]
+      },
+      {
+        "point": "The client maintains 4 counters, which is the primary feature driving the model's high risk assessment.",
         "citations": [
           "SNAPSHOT"
         ]
       },
       {
-        "point": "Consumption data shows high skew (2.7637), which aligns with the data signature for intermittent tampering where consumption fluctuates between low and high periods.",
+        "point": "The ratio of consumption in the last year relative to the client's lifetime average is 2.249, indicating a significant deviation from historical usage patterns.",
         "citations": [
-          "SNAPSHOT",
-          "TYP-09"
+          "SNAPSHOT"
         ]
       },
       {
-        "point": "The presence of reading_remarque 8 and 9 indicates reliance on estimated or unread billing, which necessitates verification of meter accessibility.",
-        "citations": [
-          "SNAPSHOT",
-          "SOP-v2023-4.1"
-        ]
-      },
-      {
-        "point": "The client has missing months (has_missing_months = 1), which may obscure consumption patterns and requires on-site verification of the meter status.",
+        "point": "The account record contains missing months, which requires verification during the site visit to ensure meter data integrity.",
         "citations": [
           "SNAPSHOT"
         ]
       }
     ],
     "onsite_checks": [
-      "Verify meter accessibility and compare current index with last billed index.",
-      "Inspect for signs of intermittent tampering (e.g., bypass marks, residual magnetism).",
-      "Verify the status of all 4 counters associated with the client."
+      "Inspect all 4 counters for physical signs of tampering or bypass",
+      "Verify meter readings against the recorded missing months",
+      "Audit the 59.59% YoY consumption drop for potential service irregularities"
     ],
     "applicable_rules": [
       {
-        "rule_id": "SOP-v2023-4.1",
-        "action": "Verify if consecutive estimated readings exceed the limit and require a physical read."
+        "rule_id": "SOP-v2025-2.1",
+        "action": "Urgent Forensic Site Inspection (Level 2)"
       }
     ],
     "similar_cases": [],
-    "uncertainty": "The model relies heavily on the number of counters (4), which is an outlier; however, the specific nature of the consumption volatility (skew) could also be attributed to legitimate seasonal variations rather than fraud."
+    "uncertainty": "While the model flags high risk, the specific cause (e.g., meter tampering vs. legitimate consumption changes) remains unverified without physical inspection. The presence of 4 counters requires a comprehensive audit of all meter points."
   },
-  "raw_text": "{\n  \"client_id\": \"train_Client_73548\",\n  \"risk_score\": 0.311,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client is flagged as high risk (99.98th percentile), with the number of counters (4) being the primary driver of the model's risk assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Consumption data shows high skew (2.7637), which aligns with the data signature for intermittent tampering where consumption fluctuates between low and high periods.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The presence of reading_remarque 8 and 9 indicates reliance on estimated or unread billing, which necessitates verification of meter accessibility.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2023-4.1\"\n      ]\n    },\n    {\n      \"point\": \"The client has missing months (has_missing_months = 1), which may obscure consumption patterns and requires on-site verification of the meter status.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify meter accessibility and compare current index with last billed index.\",\n    \"Inspect for signs of intermittent tampering (e.g., bypass marks, residual magnetism).\",\n    \"Verify the status of all 4 counters associated with the client.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2023-4.1\",\n      \"action\": \"Verify if consecutive estimated readings exceed the limit and require a physical read.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The model relies heavily on the number of counters (4), which is an outlier; however, the specific nature of the consumption volatility (skew) could also be attributed to legitimate seasonal variations rather than fraud.\"\n}",
+  "raw_text": "{\n  \"client_id\": \"train_Client_73548\",\n  \"risk_score\": 0.3195,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits a year-on-year consumption drop of 59.59%, which exceeds the 50% threshold for suspected meter bypass or tampering defined in the standard operating procedures.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.1\"\n      ]\n    },\n    {\n      \"point\": \"The client maintains 4 counters, which is the primary feature driving the model's high risk assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The ratio of consumption in the last year relative to the client's lifetime average is 2.249, indicating a significant deviation from historical usage patterns.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account record contains missing months, which requires verification during the site visit to ensure meter data integrity.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect all 4 counters for physical signs of tampering or bypass\",\n    \"Verify meter readings against the recorded missing months\",\n    \"Audit the 59.59% YoY consumption drop for potential service irregularities\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-2.1\",\n      \"action\": \"Urgent Forensic Site Inspection (Level 2)\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the model flags high risk, the specific cause (e.g., meter tampering vs. legitimate consumption changes) remains unverified without physical inspection. The presence of 4 counters requires a comprehensive audit of all meter points.\"\n}",
   "usage": {
-    "input_tokens": 4131,
-    "output_tokens": 1901
+    "input_tokens": 3630,
+    "output_tokens": 1545
   },
   "error": null
 }

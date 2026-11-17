@@ -233,18 +233,19 @@ Setup:
 
 | Run | Schema valid | Citation validity | Number accuracy | Rule applicability | Faithfulness (1-5)* | All checks pass | Expired SOP retrieved |
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| No evidence | 100% | 100% | 100.0% | 100% | 3.05 | 100% | 0% |
-| Hybrid | 100% | 100% | 98.6% | 65.6% | 3.43 | 46.7% | 56.7% |
-| Filtered hybrid | 100% | 100% | 98.9% | 100% | 3.34 | 86.7% | 0% |
+| No evidence | 100% | 100% | 100.0% | 100% | 4.56 | 100% | 0% |
+| Hybrid | 100% | 100% | 97.8% | 80.0% | 4.42 | 56.7% | 56.7% |
+| Filtered hybrid | 100% | 100% | 97.6% | 100% | 4.52 | 76.7% | 0% |
 
-\* Faithfulness in this table comes from the offline lexical proxy. The Gemini judge scores are cached for about half the points, and the rest need a rerun once the daily quota resets (`python run.py briefs`).
+\* Faithfulness is the Gemini judge's mean score over every evidence point. All 90 briefs were
+regenerated on the final model (M10_v4) and every point was judged.
 
 Reading the table:
-- Without a date filter, the unfiltered run retrieves expired SOP-v2023 clauses for 57% of clients. Briefs then cite them, so rule applicability falls to 66%. The metadata filter removes this failure completely.
+- Without a date filter, the unfiltered run retrieves expired SOP-v2023 clauses for 57% of clients. Briefs then cite them, so rule applicability falls to 80%. The metadata filter removes this failure completely.
 - The no-evidence run passes every check trivially, because it cites only `[SNAPSHOT]`. It also has no rules, typologies or precedents, so its briefs are generic.
 - The remaining number failures are thresholds written in `uncertainty` without citing their SOP chunk, for example `0.40`.
 - No top-30 client's own case card was retrieved, even unfiltered, because none of the 30 is among the 300 precedent cards.
-- `rule_and_case_ids_ok_pct` counts briefs that put typology IDs where SOP or CASE IDs belong: 83% (hybrid) and 73% (filtered) are clean. The citation check does not catch this kind of misuse.
+- `rule_and_case_ids_ok_pct` counts briefs that put typology IDs where SOP or CASE IDs belong: 93% (hybrid) and 90% (filtered) are clean. The citation check does not catch this kind of misuse.
 
 ### 7.3 Agents (`results/tables/agent_comparison.csv`)
 **Tools.** The six tools are `get_client_profile`, `get_risk_score`, `explain_shap`, `benford_check`, `retrieve_evidence` and `plot_history`. `plot_history` writes a PNG and marks drops: a reading below half the median of the previous three readings for that meter type. Each tool is tested alone. Tools are bound to the client under investigation:
@@ -266,9 +267,13 @@ Every run logs the model version, tool calls, evidence IDs, tokens, plan, audits
 
 | System | Clients | Citation validity | Number accuracy | Faithfulness (1-5)* | Schema valid | Tool calls (mean) | Tokens (mean) | Seconds (median) | Auditor pass |
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Single agent | 8 | 100% | 100% | 3.59 | 100% | 6.25 | 14,787 | 87 | n/a |
-| Multi-agent | 8 | 100% | 100% | 3.44 | 100% | 6.38 | 13,241 | 95 | 100% (all on first pass) |
+| Single agent | 7 | 100% | 100% | 4.31 | 100% | 6.14 | 14,412 | 15 | n/a |
+| Multi-agent | 7 | 100% | 100% | 4.86 | 100% | 6.29 | 12,136 | 19 | 100% (all on first pass) |
 
-\* Lexical proxy, as in 7.2. The table covers only clients that both systems have finished. The single agent has finished all 30: citation validity 100%, number accuracy 99.7%, all checks pass 96.7%, 6.2 tool calls, about 14.4k tokens, median 48 s. The multi-agent has finished 8 of 30, because the daily quota ran out. `python run.py agents` resumes the rest and rescores with the Gemini judge.
+\* Gemini judge, as in 7.2. The table covers only clients that both systems have finished. The
+single agent has finished all 30 on M10_v4: citation validity 100%, number accuracy 99.6%,
+faithfulness 4.27, all checks pass 96.7%, 6.1 tool calls, about 14.3k tokens, median 15 s. The
+multi-agent has finished 7 of 30 so far, because the daily quota ran out.
+`python run.py agents` resumes the rest.
 
 The multi-agent tool count includes the planner's 2 fixed calls. The seconds column mostly measures API latency under load, with two runs sharing one quota, so it is not a property of the design.

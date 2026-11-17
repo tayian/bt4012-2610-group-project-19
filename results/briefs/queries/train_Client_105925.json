@@ -1,9 +1,10 @@
 {
   "queries": [
-    "investigate multiple meters account n_counters 2",
-    "analyze extreme consumption spikes robust_z_max 19.47",
-    "review meter reading remarks 6 8 9 for potential tampering"
+    "investigate multiple meters for single account with counter_statue 0",
+    "analyze high consumption skewness and robust_z_max outlier patterns",
+    "review reading_remarque 6 8 9 for potential meter tampering or estimation errors"
   ],
   "source": "llm",
-  "model": "gemini-3.1-flash-lite"
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4"
 }

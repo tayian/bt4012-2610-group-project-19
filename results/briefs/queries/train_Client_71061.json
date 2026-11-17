@@ -1,0 +1,10 @@
+{
+  "queries": [
+    "investigate multiple meter accounts for single client with high n_counters",
+    "analyze consumption patterns for zero consumption sequences with zero_run_max 5",
+    "review meter status codes 0 and 5 with reading remark codes 6 8 9"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4"
+}

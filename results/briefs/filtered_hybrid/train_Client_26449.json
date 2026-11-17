@@ -1,0 +1,75 @@
+{
+  "client_id": "train_Client_26449",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:28:35",
+  "queries": [
+    "investigate multiple meter accounts for single client ID",
+    "analyze consumption spike ratio_last2y_lifetime for potential meter tampering",
+    "review reading_remarque 6 8 9 for billing irregularities"
+  ],
+  "evidence_ids": [
+    "TYP-11",
+    "TYP-04",
+    "CODE-reading_remarque-9",
+    "TYP-09",
+    "SOP-v2025-4.1"
+  ],
+  "brief": {
+    "client_id": "train_Client_26449",
+    "risk_score": 0.321,
+    "risk_rank_pct": 100.0,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client's benford_mad value of 0.0295 exceeds the 0.015 threshold, which is a data signature associated with potential meter-reader collusion or under-reporting.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-04"
+        ]
+      },
+      {
+        "point": "The model identifies n_counters (3.0) and n_invoices (68.0) as the primary features driving the risk score, indicating a complex account structure with significant history.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account history includes reading_remarque codes 6, 8, and 9. Code 8 requires verification against the three-cycle estimation limit, while code 9 is frequent and should be interpreted with caution.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-4.1",
+          "CODE-reading_remarque-9"
+        ]
+      },
+      {
+        "point": "The ratio_last2y_lifetime of 1.7577 indicates a significant increase in recent consumption relative to the client's 29.12-year tenure, warranting investigation for potential catch-up billing or tampering.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Perform a supervisory audit of all 3 counters to verify current index readings against billed records.",
+      "Inspect terminal screws and conductors for signs of temporary jumpers or bypass devices.",
+      "Verify if the meter is physically accessible to confirm the validity of past reading remarks.",
+      "Compare current consumption patterns with historical data to identify potential catch-up billing."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-4.1",
+        "action": "Verify if any counter has remained on reading_remarque 8 for three consecutive billing cycles and initiate lockout if applicable."
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "The benford_mad score is a client-level metric, which is noted as noisy compared to route-level aggregation. Additionally, the presence of reading_remarque 9 is ambiguous and does not definitively indicate obstruction."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_26449\",\n  \"risk_score\": 0.321,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client's benford_mad value of 0.0295 exceeds the 0.015 threshold, which is a data signature associated with potential meter-reader collusion or under-reporting.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-04\"\n      ]\n    },\n    {\n      \"point\": \"The model identifies n_counters (3.0) and n_invoices (68.0) as the primary features driving the risk score, indicating a complex account structure with significant history.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account history includes reading_remarque codes 6, 8, and 9. Code 8 requires verification against the three-cycle estimation limit, while code 9 is frequent and should be interpreted with caution.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-4.1\",\n        \"CODE-reading_remarque-9\"\n      ]\n    },\n    {\n      \"point\": \"The ratio_last2y_lifetime of 1.7577 indicates a significant increase in recent consumption relative to the client's 29.12-year tenure, warranting investigation for potential catch-up billing or tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Perform a supervisory audit of all 3 counters to verify current index readings against billed records.\",\n    \"Inspect terminal screws and conductors for signs of temporary jumpers or bypass devices.\",\n    \"Verify if the meter is physically accessible to confirm the validity of past reading remarks.\",\n    \"Compare current consumption patterns with historical data to identify potential catch-up billing.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-4.1\",\n      \"action\": \"Verify if any counter has remained on reading_remarque 8 for three consecutive billing cycles and initiate lockout if applicable.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The benford_mad score is a client-level metric, which is noted as noisy compared to route-level aggregation. Additionally, the presence of reading_remarque 9 is ambiguous and does not definitively indicate obstruction.\"\n}",
+  "usage": {
+    "input_tokens": 4526,
+    "output_tokens": 1824
+  },
+  "error": null
+}

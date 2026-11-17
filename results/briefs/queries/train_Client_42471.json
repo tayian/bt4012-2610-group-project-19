@@ -1,9 +1,0 @@
-{
-  "queries": [
-    "investigate multiple meters n_counters 3 for potential tampering",
-    "review consumption history for meter remark codes 6 8 9",
-    "analyze high invoice volume and long billing intervals"
-  ],
-  "source": "llm",
-  "model": "gemini-3.1-flash-lite"
-}

@@ -1,0 +1,72 @@
+{
+  "client_id": "train_Client_107034",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:29:27",
+  "queries": [
+    "investigate multiple meter account with n_counters 3",
+    "analyze high consumption skewness and kurtosis for potential meter tampering",
+    "review reading_remarque codes 6 8 9 for billing irregularities"
+  ],
+  "evidence_ids": [
+    "TYP-11",
+    "SOP-v2025-4.1",
+    "TYP-04",
+    "TYP-09",
+    "CODE-reading_remarque-7"
+  ],
+  "brief": {
+    "client_id": "train_Client_107034",
+    "risk_score": 0.3201,
+    "risk_rank_pct": 100.0,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client's Benford's Law Mean Absolute Deviation (MAD) is 0.0312, which exceeds the 0.015 threshold associated with potential meter-reader collusion or under-reporting.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-04"
+        ]
+      },
+      {
+        "point": "The client has 3 counters, which is the highest-ranked feature contributing to the current risk score.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client's billing history includes 'reading_remarque' code 8, indicating the presence of estimated readings, which requires monitoring for consecutive estimation.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-4.1"
+        ]
+      },
+      {
+        "point": "The client has a total of 78 invoices, which is a significant factor in the model's risk assessment.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Conduct an unannounced visit by a supervisory team to verify the current meter index.",
+      "Compare the actual meter index against the last billed index to calculate any unbilled balance.",
+      "Verify physical accessibility of the meter to investigate potential 'not read' remarks."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-4.1",
+        "action": "Mandatory physical inspection within 10 business days if consecutive estimated readings are confirmed."
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the Benford's Law MAD is elevated, the client's round_reading_share of 0.2564 remains below the 0.40 threshold suggested for identifying meter-reader collusion. Additionally, the Benford's MAD metric is noted to be noisy for individual clients with limited invoice history."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_107034\",\n  \"risk_score\": 0.3201,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client's Benford's Law Mean Absolute Deviation (MAD) is 0.0312, which exceeds the 0.015 threshold associated with potential meter-reader collusion or under-reporting.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-04\"\n      ]\n    },\n    {\n      \"point\": \"The client has 3 counters, which is the highest-ranked feature contributing to the current risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client's billing history includes 'reading_remarque' code 8, indicating the presence of estimated readings, which requires monitoring for consecutive estimation.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-4.1\"\n      ]\n    },\n    {\n      \"point\": \"The client has a total of 78 invoices, which is a significant factor in the model's risk assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Conduct an unannounced visit by a supervisory team to verify the current meter index.\",\n    \"Compare the actual meter index against the last billed index to calculate any unbilled balance.\",\n    \"Verify physical accessibility of the meter to investigate potential 'not read' remarks.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-4.1\",\n      \"action\": \"Mandatory physical inspection within 10 business days if consecutive estimated readings are confirmed.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the Benford's Law MAD is elevated, the client's round_reading_share of 0.2564 remains below the 0.40 threshold suggested for identifying meter-reader collusion. Additionally, the Benford's MAD metric is noted to be noisy for individual clients with limited invoice history.\"\n}",
+  "usage": {
+    "input_tokens": 4425,
+    "output_tokens": 2209
+  },
+  "error": null
+}

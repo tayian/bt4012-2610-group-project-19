@@ -2,85 +2,71 @@
   "client_id": "train_Client_22147",
   "run": "filtered_hybrid",
   "model": "gemini-3.1-flash-lite",
-  "created": "2026-11-16T23:07:40",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:28:26",
   "queries": [
-    "investigate multiple meters n_counters 3 for potential unmetered usage",
-    "review consumption skew and high robust_z_max 5.6521 for irregular usage patterns",
-    "audit reading remark codes 6 8 9 for potential meter tampering or estimation errors"
+    "investigate multiple meters account with high invoice volume and recent consumption spike",
+    "review account with reading remark codes 6, 8, and 9 for potential tampering",
+    "audit long-tenure account with sudden increase in consumption ratio compared to lifetime average"
   ],
   "evidence_ids": [
-    "TYP-06",
-    "TYP-02",
-    "TYP-04",
-    "TYP-09",
-    "TYP-08"
+    "TYP-11",
+    "SOP-v2025-2.1",
+    "CODE-counter_statue-1",
+    "SOP-v2025-5.1",
+    "TYP-09"
   ],
   "brief": {
     "client_id": "train_Client_22147",
-    "risk_score": 0.3142,
+    "risk_score": 0.3212,
     "risk_rank_pct": 100.0,
     "risk_tier": "high",
     "evidence": [
       {
-        "point": "The client's reading history includes remark code 8, which is associated with estimated readings and potential abuse to hide actual consumption patterns [SNAPSHOT, TYP-08].",
+        "point": "The client is ranked in the 100th percentile of risk, with a model score of 0.3212.",
         "citations": [
-          "SNAPSHOT",
-          "TYP-08"
+          "SNAPSHOT"
         ]
       },
       {
-        "point": "The benford_mad value of 0.0431 exceeds the 0.015 threshold, indicating a departure from expected consumption data distributions and potential manipulation [SNAPSHOT, TYP-04, TYP-08].",
+        "point": "The account history includes 3 counters and 78 invoices, which are the primary features contributing to the high risk score.",
         "citations": [
-          "SNAPSHOT",
-          "TYP-04",
-          "TYP-08"
+          "SNAPSHOT"
         ]
       },
       {
-        "point": "The robust_z_max value of 5.6521 is significantly above the 3.0 threshold, which serves as a data signature for external interference such as magnet slowdown [SNAPSHOT, TYP-02].",
+        "point": "The ratio of consumption in the last year to lifetime consumption is 1.9551, suggesting a significant recent increase in usage.",
         "citations": [
-          "SNAPSHOT",
-          "TYP-02"
+          "SNAPSHOT"
         ]
       },
       {
-        "point": "The presence of missing months and a high volume of invoices (78) indicates irregular billing history, which is a known indicator of potential meter issues or tampering [SNAPSHOT, TYP-06].",
+        "point": "The account shows a Benford's Law mean absolute deviation of 0.0431, which exceeds the 0.015 threshold for potential audit, though the round reading share of 0.2051 does not meet the secondary criteria.",
         "citations": [
           "SNAPSHOT",
-          "TYP-06"
+          "SOP-v2025-5.1"
+        ]
+      },
+      {
+        "point": "The account has missing months (has_missing_months = 1), which may indicate irregularities in the billing cycle.",
+        "citations": [
+          "SNAPSHOT"
         ]
       }
     ],
     "onsite_checks": [
-      "Inspect all 3 meters for physical accessibility and signs of tampering, such as scratches or adhesive residue [TYP-02, TYP-06].",
-      "Verify if the 'estimated' reading remarks (code 8) correspond to actual access issues or if they are being used to mask consumption [TYP-08].",
-      "Perform a load test on the meters to check for potential slowdowns or jamming [TYP-02, TYP-06]."
+      "Inspect terminal screws and conductors for signs of tampering",
+      "Verify the current meter readings against the historical consumption patterns",
+      "Check for physical damage or unauthorized modifications to the 3 counters"
     ],
-    "applicable_rules": [
-      {
-        "rule_id": "TYP-08",
-        "action": "Investigate estimated reading patterns."
-      },
-      {
-        "rule_id": "TYP-04",
-        "action": "Check for data manipulation."
-      },
-      {
-        "rule_id": "TYP-02",
-        "action": "Test for magnetic interference."
-      },
-      {
-        "rule_id": "TYP-06",
-        "action": "Inspect for mechanical jamming."
-      }
-    ],
+    "applicable_rules": [],
     "similar_cases": [],
-    "uncertainty": "The high number of counters (3) and invoices (78) suggests a complex site; the data signatures (Benford's Law, robust Z-score) are strong, but the specific cause (estimated reading abuse vs. physical tampering) remains ambiguous without on-site verification."
+    "uncertainty": "While the risk score is high, the specific triggers for mandatory SOP actions (SOP-v2025-2.1 and SOP-v2025-5.1) are not fully met. The yoy_drop_max of 0.379 is below the 0.50 threshold, and the round_reading_share of 0.2051 is below the 0.40 threshold. The high risk is driven primarily by account volume (counters/invoices) and recent consumption shifts rather than specific known fraud patterns."
   },
-  "raw_text": "{\n  \"client_id\": \"train_Client_22147\",\n  \"risk_score\": 0.3142,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client's reading history includes remark code 8, which is associated with estimated readings and potential abuse to hide actual consumption patterns [SNAPSHOT, TYP-08].\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-08\"\n      ]\n    },\n    {\n      \"point\": \"The benford_mad value of 0.0431 exceeds the 0.015 threshold, indicating a departure from expected consumption data distributions and potential manipulation [SNAPSHOT, TYP-04, TYP-08].\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-04\",\n        \"TYP-08\"\n      ]\n    },\n    {\n      \"point\": \"The robust_z_max value of 5.6521 is significantly above the 3.0 threshold, which serves as a data signature for external interference such as magnet slowdown [SNAPSHOT, TYP-02].\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-02\"\n      ]\n    },\n    {\n      \"point\": \"The presence of missing months and a high volume of invoices (78) indicates irregular billing history, which is a known indicator of potential meter issues or tampering [SNAPSHOT, TYP-06].\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-06\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect all 3 meters for physical accessibility and signs of tampering, such as scratches or adhesive residue [TYP-02, TYP-06].\",\n    \"Verify if the 'estimated' reading remarks (code 8) correspond to actual access issues or if they are being used to mask consumption [TYP-08].\",\n    \"Perform a load test on the meters to check for potential slowdowns or jamming [TYP-02, TYP-06].\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"TYP-08\",\n      \"action\": \"Investigate estimated reading patterns.\"\n    },\n    {\n      \"rule_id\": \"TYP-04\",\n      \"action\": \"Check for data manipulation.\"\n    },\n    {\n      \"rule_id\": \"TYP-02\",\n      \"action\": \"Test for magnetic interference.\"\n    },\n    {\n      \"rule_id\": \"TYP-06\",\n      \"action\": \"Inspect for mechanical jamming.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The high number of counters (3) and invoices (78) suggests a complex site; the data signatures (Benford's Law, robust Z-score) are strong, but the specific cause (estimated reading abuse vs. physical tampering) remains ambiguous without on-site verification.\"\n}",
+  "raw_text": "{\n  \"client_id\": \"train_Client_22147\",\n  \"risk_score\": 0.3212,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client is ranked in the 100th percentile of risk, with a model score of 0.3212.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account history includes 3 counters and 78 invoices, which are the primary features contributing to the high risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The ratio of consumption in the last year to lifetime consumption is 1.9551, suggesting a significant recent increase in usage.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account shows a Benford's Law mean absolute deviation of 0.0431, which exceeds the 0.015 threshold for potential audit, though the round reading share of 0.2051 does not meet the secondary criteria.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-5.1\"\n      ]\n    },\n    {\n      \"point\": \"The account has missing months (has_missing_months = 1), which may indicate irregularities in the billing cycle.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect terminal screws and conductors for signs of tampering\",\n    \"Verify the current meter readings against the historical consumption patterns\",\n    \"Check for physical damage or unauthorized modifications to the 3 counters\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the risk score is high, the specific triggers for mandatory SOP actions (SOP-v2025-2.1 and SOP-v2025-5.1) are not fully met. The yoy_drop_max of 0.379 is below the 0.50 threshold, and the round_reading_share of 0.2051 is below the 0.40 threshold. The high risk is driven primarily by account volume (counters/invoices) and recent consumption shifts rather than specific known fraud patterns.\"\n}",
   "usage": {
-    "input_tokens": 5055,
-    "output_tokens": 2158
+    "input_tokens": 4201,
+    "output_tokens": 2190
   },
   "error": null
 }

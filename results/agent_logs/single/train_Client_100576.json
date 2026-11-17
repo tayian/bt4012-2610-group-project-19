@@ -1,22 +1,22 @@
 {
   "system": "single",
   "client_id": "train_Client_100576",
-  "model_version": "M10_v1|gemini-3.1-flash-lite",
+  "model_version": "M10_v4|gemini-3.1-flash-lite",
   "tool_calls": [
     {
       "tool": "get_risk_score",
       "args": {
         "client_id": "train_Client_100576"
       },
-      "seconds": 0.045,
-      "result_preview": "{'client_id': 'train_Client_100576', 'risk_score': 0.3116, 'risk_rank_pct': 99.99, 'risk_tier': 'high', 'model_version': 'M10_v1', 'note': 'risk_score is the out-of-fold score of the final stacked model (logistic regression over tuned LightGBM and wide-and-deep CNN ranks). It is a model score, not a"
+      "seconds": 0.057,
+      "result_preview": "{'client_id': 'train_Client_100576', 'risk_score': 0.3188, 'risk_rank_pct': 99.98, 'risk_tier': 'high', 'model_version': 'M10_v4', 'note': 'risk_score is the out-of-fold score of the final model (a logistic stack of tuned LightGBM and a wide-and-deep network; it averages the 5.6% fraud rate). It is "
     },
     {
       "tool": "get_client_profile",
       "args": {
         "client_id": "train_Client_100576"
       },
-      "seconds": 0.037,
+      "seconds": 0.034,
       "result_preview": "{'client_id': 'train_Client_100576', 'split': 'train', 'client_catg': 11, 'region': 311, 'district': 63, 'tenure_years': 28.92, 'n_counters': 5, 'n_invoices': 118, 'has_elec': 1, 'has_gaz': 1, 'counter_type': 'both'}"
     },
     {
@@ -24,15 +24,15 @@
       "args": {
         "client_id": "train_Client_100576"
       },
-      "seconds": 0.034,
-      "result_preview": "{'client_id': 'train_Client_100576', 'source': 'SHAP of the tuned LightGBM component of the stacked model', 'drivers': [{'rank': 1, 'feature': 'n_counters', 'value': 5.0, 'train_pct': 99.7, 'shap_value': 2.9246, 'direction': 'raises risk'}, {'rank': 2, 'feature': 'region', 'value': 311.0, 'train_pct"
+      "seconds": 0.031,
+      "result_preview": "{'client_id': 'train_Client_100576', 'source': 'SHAP of the tuned LightGBM component of the stacked model', 'drivers': [{'rank': 1, 'feature': 'n_counters', 'value': 5.0, 'train_pct': 99.7, 'shap_value': 2.5631, 'direction': 'raises risk'}, {'rank': 2, 'feature': 'region', 'value': 311.0, 'train_pct"
     },
     {
       "tool": "benford_check",
       "args": {
         "client_id": "train_Client_100576"
       },
-      "seconds": 0.054,
+      "seconds": 0.047,
       "result_preview": "{'client_id': 'train_Client_100576', 'benford_mad': 0.0187, 'round_reading_share': 0.2712, 'round_reading_share_train_pct': 67.0, 'n_positive_readings': 80, 'benford_flag': 'nonconformity', 'round_reading_flag': False, 'caveat': 'Benford deviation is a screening signal only; in this data benford_mad"
     },
     {
@@ -40,24 +40,16 @@
       "args": {
         "client_id": "train_Client_100576"
       },
-      "seconds": 0.093,
+      "seconds": 0.075,
       "result_preview": "{'client_id': 'train_Client_100576', 'path': 'results/agent_logs/plots/train_Client_100576.png', 'n_invoices': 118, 'first_invoice': '2006-01-02', 'last_invoice': '2019-05-14', 'n_drops': 8, 'drop_dates': ['2007-01-25 (ELEC)', '2007-09-21 (GAZ)', '2008-09-18 (GAZ)', '2009-09-23 (GAZ)', '2012-05-21 ("
     },
     {
       "tool": "retrieve_evidence",
       "args": {
-        "query": "consumption drop inspection procedure"
+        "query": "consumption drops and multiple counters inspection procedure"
       },
-      "seconds": 0.327,
-      "result_preview": "{'query': 'consumption drop inspection procedure', 'chunks': [{'id': 'SOP-v2025-2.1', 'doc': 'sop', 'section': '2.1', 'version': 'v2025', 'valid_from': '2025-01-01', 'valid_to': None, 'counter_type': 'both', 'text': '[SOP-v2025-2.1] Acute Year-on-Year Consumption Collapse\\n* **Clause Text:** An acti"
-    },
-    {
-      "tool": "retrieve_evidence",
-      "args": {
-        "query": "multiple counters fraud inspection"
-      },
-      "seconds": 0.022,
-      "result_preview": "{'query': 'multiple counters fraud inspection', 'chunks': [{'id': 'CODE-counter_statue-3', 'doc': 'codebook', 'section': 'counter_statue', 'version': 'v1.0', 'valid_from': '2005-01-01', 'valid_to': None, 'counter_type': 'both', 'text': '[CODE-counter_statue-3] counter_statue = 3\\n* **Observed in dat"
+      "seconds": 0.103,
+      "result_preview": "{'query': 'consumption drops and multiple counters inspection procedure', 'chunks': [{'id': 'SOP-v2025-2.2', 'doc': 'sop', 'section': '2.2', 'version': 'v2025', 'valid_from': '2025-01-01', 'valid_to': None, 'counter_type': 'both', 'text': '[SOP-v2025-2.2] Rapid Zero-Consumption Detection Threshold\\n"
     }
   ],
   "llm_calls": [
@@ -68,97 +60,91 @@
     },
     {
       "role": "agent",
-      "input_tokens": 2236,
-      "output_tokens": 142
+      "input_tokens": 2303,
+      "output_tokens": 110
     },
     {
       "role": "agent",
-      "input_tokens": 5393,
-      "output_tokens": 742
+      "input_tokens": 4029,
+      "output_tokens": 626
     },
     {
       "role": "writer",
-      "input_tokens": 5205,
-      "output_tokens": 1714
+      "input_tokens": 3753,
+      "output_tokens": 1862
     }
   ],
   "evidence_ids": [
-    "SOP-v2025-2.1",
     "SOP-v2025-2.2",
-    "TYP-12",
-    "SOP-v2025-1.2",
+    "CODE-counter_statue-1",
+    "SOP-v2025-2.1",
     "TYP-11",
-    "CODE-counter_statue-3",
-    "CODE-counter_statue-0",
-    "CODE-counter_statue-5",
-    "SOP-v2025-1.1"
+    "CODE-counter_statue-2"
   ],
   "brief": {
     "client_id": "train_Client_100576",
-    "risk_score": 0.3116,
-    "risk_rank_pct": 99.99,
+    "risk_score": 0.3188,
+    "risk_rank_pct": 99.98,
     "risk_tier": "high",
     "evidence": [
       {
-        "point": "The client is in the top 5% risk tier, necessitating high-priority dispatch for on-site forensic inspection [SNAPSHOT], [SOP-v2025-1.1].",
+        "point": "The client's consumption history shows 8 distinct drops between 2007 and 2017, which triggers the criteria for an acute year-on-year consumption collapse [SOP-v2025-2.1] [SNAPSHOT].",
+        "citations": [
+          "SOP-v2025-2.1",
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client manages 5 counters, which is a significant risk driver [SNAPSHOT]. For accounts with multiple counters, tampering with instrument transformers (CT/PT) is a specific risk that can cause consumption to drop by fixed fractions [TYP-11].",
         "citations": [
           "SNAPSHOT",
-          "SOP-v2025-1.1"
+          "TYP-11"
         ]
       },
       {
-        "point": "The client has 5 counters and a history of 8 consumption drops between 2007 and 2017, which are significant risk factors [SNAPSHOT].",
+        "point": "Benford analysis indicates nonconformity in the consumption data, which serves as a screening signal for potential irregularities in reported meter readings [SNAPSHOT].",
         "citations": [
           "SNAPSHOT"
         ]
       },
       {
-        "point": "Benford nonconformity (MAD 0.0187) is present, which is a screening signal for irregular meter readings [SNAPSHOT].",
+        "point": "The account has a long tenure of 28.92 years with 118 invoices, providing a substantial baseline to evaluate the observed consumption drops [SNAPSHOT].",
         "citations": [
           "SNAPSHOT"
-        ]
-      },
-      {
-        "point": "As a dual-fuel client, a mandatory forensic audit of both electricity and gas meters is required [SOP-v2025-1.2].",
-        "citations": [
-          "SOP-v2025-1.2"
         ]
       }
     ],
     "onsite_checks": [
-      "Inspect overhead service lines for direct tapping [TYP-12]",
-      "Perform acoustic bypass leak testing and seal inspection on gas meter [SOP-v2025-1.2]",
-      "Inspect CT enclosure and test terminal block for tampering [TYP-11]"
+      "Inspect CT enclosure and test terminal block for broken or replaced seals [TYP-11]",
+      "Measure primary current with a high-voltage clamp and secondary current at the meter to verify ratio [TYP-11]",
+      "Verify if consumption drops align with service status codes or meter exchanges [CODE-counter_statue-1] [CODE-counter_statue-2]",
+      "Check for unauthorized neutral disconnection or direct bypass [SOP-v2025-2.2]"
     ],
     "applicable_rules": [
       {
-        "rule_id": "SOP-v2025-1.1",
-        "action": "High-Priority Inspection Dispatch"
-      },
-      {
-        "rule_id": "SOP-v2025-1.2",
-        "action": "Mandatory Dual-Counter Audit"
-      },
-      {
         "rule_id": "SOP-v2025-2.1",
-        "action": "Urgent Forensic Site Inspection"
+        "action": "Urgent Forensic Site Inspection (Level 2)"
+      },
+      {
+        "rule_id": "SOP-v2025-2.2",
+        "action": "Priority Inspection & Service Verification"
       }
     ],
     "similar_cases": [],
-    "uncertainty": "The specific physical mechanism (e.g., bypass vs. jamming) remains unverified until an on-site inspection is conducted."
+    "uncertainty": "The consumption drops are historical (2007-2017), and the current status of the account needs verification to determine if these are legacy issues or ongoing tampering. The 'counter_statue' codes require reconciliation with the service history to rule out legitimate meter exchanges or service cut-offs."
   },
   "auditor_verdict": null,
   "error": null,
-  "started": "2026-11-16T23:10:42",
+  "started": "2026-11-17T17:41:52",
   "llm_model": "gemini-3.1-flash-lite",
   "tool_outputs": {
     "get_risk_score": {
       "client_id": "train_Client_100576",
-      "risk_score": 0.3116,
-      "risk_rank_pct": 99.99,
+      "risk_score": 0.3188,
+      "risk_rank_pct": 99.98,
       "risk_tier": "high",
-      "model_version": "M10_v1",
-      "note": "risk_score is the out-of-fold score of the final stacked model (logistic regression over tuned LightGBM and wide-and-deep CNN ranks). It is a model score, not a verified probability of fraud. risk_rank_pct is the percentile among training clients (higher = riskier). Tier: high = top 1% of clients, medium = top 5% (the monthly inspection budget), low = the rest."
+      "model_version": "M10_v4",
+      "note": "risk_score is the out-of-fold score of the final model (a logistic stack of tuned LightGBM and a wide-and-deep network; it averages the 5.6% fraud rate). It is a model score for ranking, not a verified probability of fraud. risk_rank_pct is the percentile among training clients (higher = riskier). Tier: high = top 1% of clients, medium = top 5% (the monthly inspection budget), low = the rest."
     },
     "get_client_profile": {
       "client_id": "train_Client_100576",
@@ -182,7 +168,7 @@
           "feature": "n_counters",
           "value": 5.0,
           "train_pct": 99.7,
-          "shap_value": 2.9246,
+          "shap_value": 2.5631,
           "direction": "raises risk"
         },
         {
@@ -190,7 +176,7 @@
           "feature": "region",
           "value": 311.0,
           "train_pct": null,
-          "shap_value": 0.5036,
+          "shap_value": 0.4682,
           "direction": "raises risk"
         },
         {
@@ -198,23 +184,23 @@
           "feature": "n_invoices",
           "value": 118.0,
           "train_pct": 99.5,
-          "shap_value": 0.4653,
+          "shap_value": 0.3941,
           "direction": "raises risk"
         },
         {
           "rank": 4,
-          "feature": "invoices_per_year",
-          "value": 8.8319,
-          "train_pct": 98.8,
-          "shap_value": -0.4113,
-          "direction": "lowers risk"
-        },
-        {
-          "rank": 5,
           "feature": "benford_mad",
           "value": 0.0187,
           "train_pct": 0.4,
-          "shap_value": 0.2909,
+          "shap_value": 0.279,
+          "direction": "raises risk"
+        },
+        {
+          "rank": 5,
+          "feature": "tenure_years",
+          "value": 28.9172,
+          "train_pct": 85.7,
+          "shap_value": 0.2111,
           "direction": "raises risk"
         }
       ]
@@ -245,11 +231,22 @@
         "2014-09-16 (GAZ)",
         "2016-10-05 (ELEC)",
         "2017-01-16 (ELEC)"
-      ]
+      ],
+      "drop_years": [
+        2007,
+        2008,
+        2009,
+        2012,
+        2014,
+        2016,
+        2017
+      ],
+      "first_year": 2006,
+      "last_year": 2019
     }
   },
-  "seconds": 19.909254250116646,
-  "n_tool_calls": 7,
-  "input_tokens": 13863,
+  "seconds": 13.825036083813757,
+  "n_tool_calls": 6,
+  "input_tokens": 11114,
   "output_tokens": 2896
 }

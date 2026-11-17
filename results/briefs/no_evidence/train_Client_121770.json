@@ -2,53 +2,60 @@
   "client_id": "train_Client_121770",
   "run": "no_evidence",
   "model": "gemini-3.1-flash-lite",
-  "created": "2026-11-16T22:44:11",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:20:08",
   "queries": [],
   "evidence_ids": [],
   "brief": {
     "client_id": "train_Client_121770",
-    "risk_score": 0.3114,
+    "risk_score": 0.3196,
     "risk_rank_pct": 99.99,
     "risk_tier": "high",
     "evidence": [
       {
-        "point": "The client exhibits extreme consumption variability, with a maximum monthly consumption (cons_pm_max) of 9867.0, placing them in the 99.6th percentile of the training set [SNAPSHOT].",
+        "point": "The client exhibits exceptionally high consumption patterns, with a mean monthly consumption of 1248.7538, placing them in the 98.5th percentile of the training set.",
         "citations": [
           "SNAPSHOT"
         ]
       },
       {
-        "point": "The client operates with 3 counters, which is a significant risk factor (91.5th percentile) and is identified as the top feature contributing to the current risk score [SNAPSHOT].",
+        "point": "The maximum monthly consumption is 9867.0, which is in the 99.6th percentile, indicating significant volatility or high-volume usage spikes.",
         "citations": [
           "SNAPSHOT"
         ]
       },
       {
-        "point": "Billing data quality is flagged with an n_bad_months_number of 1.0 (92.5th percentile) and the presence of missing months (has_missing_months: 1) [SNAPSHOT].",
+        "point": "The client operates with 3.0 counters, a configuration that is in the 91.5th percentile and is a primary driver of the model's risk assessment.",
         "citations": [
           "SNAPSHOT"
         ]
       },
       {
-        "point": "The client's mean monthly consumption (cons_pm_mean) is 1248.7538, which is in the 98.5th percentile, indicating significantly higher usage than the average client [SNAPSHOT].",
+        "point": "Data quality indicators show 1.0 bad months and the presence of missing months, which may complicate accurate consumption analysis.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The level 4 mean consumption is 609.8686, which is in the 99.1th percentile, contributing to the high risk ranking.",
         "citations": [
           "SNAPSHOT"
         ]
       }
     ],
     "onsite_checks": [
-      "Verify the physical status and integrity of all 3 counters",
-      "Inspect for potential bypass or tampering given the high consumption variance and kurtosis",
-      "Reconcile billing records to address the identified missing months and bad month indicators"
+      "Inspect all 3 counters for physical tampering or bypass devices",
+      "Verify current meter readings against historical consumption data",
+      "Investigate the cause of missing months and bad month indicators"
     ],
     "applicable_rules": [],
     "similar_cases": [],
-    "uncertainty": "While the model identifies high risk based on consumption patterns and counter count, there is no direct evidence of meter tampering such as index reversals or recon mismatches, which are currently at 0."
+    "uncertainty": "The high risk score is driven by statistical anomalies in consumption volume and counter configuration rather than direct evidence of tampering. The presence of missing months and bad month indicators suggests potential data quality issues or intermittent meter failure that requires physical verification to rule out technical error."
   },
-  "raw_text": "{\n  \"client_id\": \"train_Client_121770\",\n  \"risk_score\": 0.3114,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits extreme consumption variability, with a maximum monthly consumption (cons_pm_max) of 9867.0, placing them in the 99.6th percentile of the training set [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client operates with 3 counters, which is a significant risk factor (91.5th percentile) and is identified as the top feature contributing to the current risk score [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Billing data quality is flagged with an n_bad_months_number of 1.0 (92.5th percentile) and the presence of missing months (has_missing_months: 1) [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client's mean monthly consumption (cons_pm_mean) is 1248.7538, which is in the 98.5th percentile, indicating significantly higher usage than the average client [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the physical status and integrity of all 3 counters\",\n    \"Inspect for potential bypass or tampering given the high consumption variance and kurtosis\",\n    \"Reconcile billing records to address the identified missing months and bad month indicators\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the model identifies high risk based on consumption patterns and counter count, there is no direct evidence of meter tampering such as index reversals or recon mismatches, which are currently at 0.\"\n}",
+  "raw_text": "{\n  \"client_id\": \"train_Client_121770\",\n  \"risk_score\": 0.3196,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits exceptionally high consumption patterns, with a mean monthly consumption of 1248.7538, placing them in the 98.5th percentile of the training set.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The maximum monthly consumption is 9867.0, which is in the 99.6th percentile, indicating significant volatility or high-volume usage spikes.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client operates with 3.0 counters, a configuration that is in the 91.5th percentile and is a primary driver of the model's risk assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Data quality indicators show 1.0 bad months and the presence of missing months, which may complicate accurate consumption analysis.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The level 4 mean consumption is 609.8686, which is in the 99.1th percentile, contributing to the high risk ranking.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect all 3 counters for physical tampering or bypass devices\",\n    \"Verify current meter readings against historical consumption data\",\n    \"Investigate the cause of missing months and bad month indicators\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The high risk score is driven by statistical anomalies in consumption volume and counter configuration rather than direct evidence of tampering. The presence of missing months and bad month indicators suggests potential data quality issues or intermittent meter failure that requires physical verification to rule out technical error.\"\n}",
   "usage": {
-    "input_tokens": 2365,
-    "output_tokens": 1433
+    "input_tokens": 2430,
+    "output_tokens": 1596
   },
   "error": null
 }

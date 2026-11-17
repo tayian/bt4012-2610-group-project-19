@@ -2,79 +2,75 @@
   "client_id": "train_Client_70948",
   "run": "hybrid",
   "model": "gemini-3.1-flash-lite",
-  "created": "2026-11-16T22:54:43",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:27:37",
   "queries": [
-    "investigate multiple meters account with high counter count",
-    "analyze consumption volatility and sudden year over year drop",
-    "review meter status codes 0 1 5 and remark codes 6 8 9"
+    "investigate multiple meter accounts for single client with counter_statue 0 1 5",
+    "review consumption history for sudden year over year drop and high consumption variance",
+    "audit billing records for reading_remarque 6 8 9 and missing billing months"
   ],
   "evidence_ids": [
-    "TYP-11",
-    "SOP-v2023-1.2",
     "SOP-v2025-2.1",
-    "SOP-v2023-3.2",
-    "SOP-v2023-2.1"
+    "SOP-v2023-2.3",
+    "TYP-04",
+    "SOP-v2025-4.1",
+    "CODE-counter_statue-0"
   ],
   "brief": {
     "client_id": "train_Client_70948",
-    "risk_score": 0.3124,
-    "risk_rank_pct": 99.99,
+    "risk_score": 0.3188,
+    "risk_rank_pct": 99.98,
     "risk_tier": "high",
     "evidence": [
       {
-        "point": "The client is in the 99.99th percentile of risk, with key drivers including a high number of counters (4) and a maximum year-on-year consumption drop of 1.0.",
-        "citations": [
-          "SNAPSHOT"
-        ]
-      },
-      {
-        "point": "The account history includes a counter_statue code of '5', which mandates a technical site inspection to verify meter operational status and check for seal tampering.",
-        "citations": [
-          "SNAPSHOT",
-          "SOP-v2023-3.2"
-        ]
-      },
-      {
-        "point": "The recorded yoy_drop_max of 1.0 indicates a significant consumption collapse, triggering the requirement for an urgent forensic site inspection for suspected meter bypass or magnetic tampering.",
+        "point": "The client exhibits a maximum year-on-year consumption drop of 1.0 [SNAPSHOT], which meets the threshold for suspected meter bypass or magnetic tampering under [SOP-v2025-2.1].",
         "citations": [
           "SNAPSHOT",
           "SOP-v2025-2.1"
         ]
       },
       {
-        "point": "As the client holds both electricity and natural gas contracts, a dual-counter field audit is required to inspect both meters simultaneously.",
+        "point": "The client has 4 counters [SNAPSHOT], placing them in the 98.3 percentile for this metric, which is the primary feature driving the high risk score.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The billing history includes 'reading_remarque' code 8 [SNAPSHOT], indicating the use of estimated readings, which requires monitoring for consecutive estimation violations under [SOP-v2025-4.1].",
         "citations": [
           "SNAPSHOT",
-          "SOP-v2023-1.2"
+          "SOP-v2025-4.1"
+        ]
+      },
+      {
+        "point": "The client has a long tenure of 35.17 years and 62 total invoices [SNAPSHOT], both of which are high-percentile features in the risk model.",
+        "citations": [
+          "SNAPSHOT"
         ]
       }
     ],
     "onsite_checks": [
-      "Verify meter operational status and inspect for seal tampering.",
-      "Perform a dual-counter field audit for both electricity and gas meters.",
-      "Conduct a forensic audit of the meter installation to rule out bypass or magnetic tampering."
+      "Verify current meter readings for all 4 counters.",
+      "Inspect for physical signs of tampering or bypass given the 100% YoY consumption drop.",
+      "Confirm accessibility of meters to resolve 'reading_remarque' 8/9 status."
     ],
     "applicable_rules": [
       {
-        "rule_id": "SOP-v2023-3.2",
-        "action": "Routine Technical Site Inspection"
-      },
-      {
         "rule_id": "SOP-v2025-2.1",
-        "action": "Urgent Forensic Site Inspection"
+        "action": "Urgent Forensic Site Inspection (Level 2)"
       },
       {
-        "rule_id": "SOP-v2023-1.2",
-        "action": "Dual-Counter Field Audit"
+        "rule_id": "SOP-v2025-4.1",
+        "action": "Systemic Estimation Lockout & Supervisory Audit"
       }
     ],
     "similar_cases": [],
-    "uncertainty": "While the yoy_drop_max of 1.0 is flagged, the specific billing transcript confirming two consecutive cycles with >= 50% drop is not explicitly provided in the snapshot. Additionally, the presence of missing months may impact the accuracy of the consumption baseline."
+    "uncertainty": "While the YoY drop is severe, the specific billing cycles triggering the drop are not detailed in the snapshot, making it difficult to confirm if the drop occurred over two consecutive periods as strictly required by SOP-v2025-2.1."
   },
-  "raw_text": "{\n  \"client_id\": \"train_Client_70948\",\n  \"risk_score\": 0.3124,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client is in the 99.99th percentile of risk, with key drivers including a high number of counters (4) and a maximum year-on-year consumption drop of 1.0.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account history includes a counter_statue code of '5', which mandates a technical site inspection to verify meter operational status and check for seal tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2023-3.2\"\n      ]\n    },\n    {\n      \"point\": \"The recorded yoy_drop_max of 1.0 indicates a significant consumption collapse, triggering the requirement for an urgent forensic site inspection for suspected meter bypass or magnetic tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.1\"\n      ]\n    },\n    {\n      \"point\": \"As the client holds both electricity and natural gas contracts, a dual-counter field audit is required to inspect both meters simultaneously.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2023-1.2\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify meter operational status and inspect for seal tampering.\",\n    \"Perform a dual-counter field audit for both electricity and gas meters.\",\n    \"Conduct a forensic audit of the meter installation to rule out bypass or magnetic tampering.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2023-3.2\",\n      \"action\": \"Routine Technical Site Inspection\"\n    },\n    {\n      \"rule_id\": \"SOP-v2025-2.1\",\n      \"action\": \"Urgent Forensic Site Inspection\"\n    },\n    {\n      \"rule_id\": \"SOP-v2023-1.2\",\n      \"action\": \"Dual-Counter Field Audit\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the yoy_drop_max of 1.0 is flagged, the specific billing transcript confirming two consecutive cycles with >= 50% drop is not explicitly provided in the snapshot. Additionally, the presence of missing months may impact the accuracy of the consumption baseline.\"\n}",
+  "raw_text": "{\n  \"client_id\": \"train_Client_70948\",\n  \"risk_score\": 0.3188,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits a maximum year-on-year consumption drop of 1.0 [SNAPSHOT], which meets the threshold for suspected meter bypass or magnetic tampering under [SOP-v2025-2.1].\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.1\"\n      ]\n    },\n    {\n      \"point\": \"The client has 4 counters [SNAPSHOT], placing them in the 98.3 percentile for this metric, which is the primary feature driving the high risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The billing history includes 'reading_remarque' code 8 [SNAPSHOT], indicating the use of estimated readings, which requires monitoring for consecutive estimation violations under [SOP-v2025-4.1].\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-4.1\"\n      ]\n    },\n    {\n      \"point\": \"The client has a long tenure of 35.17 years and 62 total invoices [SNAPSHOT], both of which are high-percentile features in the risk model.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify current meter readings for all 4 counters.\",\n    \"Inspect for physical signs of tampering or bypass given the 100% YoY consumption drop.\",\n    \"Confirm accessibility of meters to resolve 'reading_remarque' 8/9 status.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-2.1\",\n      \"action\": \"Urgent Forensic Site Inspection (Level 2)\"\n    },\n    {\n      \"rule_id\": \"SOP-v2025-4.1\",\n      \"action\": \"Systemic Estimation Lockout & Supervisory Audit\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the YoY drop is severe, the specific billing cycles triggering the drop are not detailed in the snapshot, making it difficult to confirm if the drop occurred over two consecutive periods as strictly required by SOP-v2025-2.1.\"\n}",
   "usage": {
-    "input_tokens": 3642,
-    "output_tokens": 1690
+    "input_tokens": 3825,
+    "output_tokens": 2129
   },
   "error": null
 }

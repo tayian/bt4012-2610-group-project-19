@@ -1,0 +1,73 @@
+{
+  "client_id": "train_Client_45260",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:24:40",
+  "queries": [
+    "investigate multiple meter accounts for single client with high invoice volume",
+    "analyze consumption skew and high kurtosis for potential meter tampering",
+    "review meter reading remarks 6, 8, and 9 for billing irregularities"
+  ],
+  "evidence_ids": [
+    "TYP-11",
+    "TYP-08",
+    "TYP-09",
+    "CODE-reading_remarque-9",
+    "SOP-v2023-4.1"
+  ],
+  "brief": {
+    "client_id": "train_Client_45260",
+    "risk_score": 0.3196,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client exhibits high consumption volatility, with cons_pm_skew (2.3658) and cons_pm_kurt (6.7334) in the 88.5th and 87.7th percentiles, respectively; these are established proxies for intermittent tampering patterns.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "The client's benford_mad value of 0.0362 exceeds the 0.015 threshold, which is a recognized indicator for screening potential billing irregularities or estimation abuse.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-08"
+        ]
+      },
+      {
+        "point": "The invoice history contains reading_remarque code 8, which is associated with estimated readings and potential estimation abuse, warranting verification of the meter's actual status.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-08"
+        ]
+      },
+      {
+        "point": "The account is complex, with 3 counters and 79 invoices, placing the client in the 91.5th and 95.5th percentiles for these metrics, which increases the potential impact of any billing anomalies.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect meter accessibility and verify if reading_remarque 8 codes correspond to actual access issues or false estimation.",
+      "Check for signs of intermittent tampering, such as residual magnetism or terminal damage, given the high consumption volatility.",
+      "Verify the current meter status and seals for all 3 counters."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2023-4.1",
+        "action": "Verify if five consecutive estimated invoices exist; if so, perform a mandatory physical meter read."
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "The data shows high volatility and estimation codes, but does not explicitly confirm five consecutive estimated readings to trigger the mandatory SOP-v2023-4.1 action. The high number of counters and invoices suggests a complex account where billing anomalies might be operational rather than fraudulent."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_45260\",\n  \"risk_score\": 0.3196,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits high consumption volatility, with cons_pm_skew (2.3658) and cons_pm_kurt (6.7334) in the 88.5th and 87.7th percentiles, respectively; these are established proxies for intermittent tampering patterns.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The client's benford_mad value of 0.0362 exceeds the 0.015 threshold, which is a recognized indicator for screening potential billing irregularities or estimation abuse.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-08\"\n      ]\n    },\n    {\n      \"point\": \"The invoice history contains reading_remarque code 8, which is associated with estimated readings and potential estimation abuse, warranting verification of the meter's actual status.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-08\"\n      ]\n    },\n    {\n      \"point\": \"The account is complex, with 3 counters and 79 invoices, placing the client in the 91.5th and 95.5th percentiles for these metrics, which increases the potential impact of any billing anomalies.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect meter accessibility and verify if reading_remarque 8 codes correspond to actual access issues or false estimation.\",\n    \"Check for signs of intermittent tampering, such as residual magnetism or terminal damage, given the high consumption volatility.\",\n    \"Verify the current meter status and seals for all 3 counters.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2023-4.1\",\n      \"action\": \"Verify if five consecutive estimated invoices exist; if so, perform a mandatory physical meter read.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The data shows high volatility and estimation codes, but does not explicitly confirm five consecutive estimated readings to trigger the mandatory SOP-v2023-4.1 action. The high number of counters and invoices suggests a complex account where billing anomalies might be operational rather than fraudulent.\"\n}",
+  "usage": {
+    "input_tokens": 4415,
+    "output_tokens": 1955
+  },
+  "error": null
+}

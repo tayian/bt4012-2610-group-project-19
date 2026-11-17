@@ -1,9 +1,0 @@
-{
-  "queries": [
-    "investigate high number of meters n_counters 4 for single account",
-    "analyze extreme consumption volatility and skewness with reading remark codes 6 8 9",
-    "review account with counter status codes 0 1 5 for potential meter tampering"
-  ],
-  "source": "llm",
-  "model": "gemini-3.1-flash-lite"
-}

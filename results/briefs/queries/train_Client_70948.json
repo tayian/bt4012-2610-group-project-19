@@ -1,9 +1,10 @@
 {
   "queries": [
-    "investigate multiple meters account with high counter count",
-    "analyze consumption volatility and sudden year over year drop",
-    "review meter status codes 0 1 5 and remark codes 6 8 9"
+    "investigate multiple meter accounts for single client with counter_statue 0 1 5",
+    "review consumption history for sudden year over year drop and high consumption variance",
+    "audit billing records for reading_remarque 6 8 9 and missing billing months"
   ],
   "source": "llm",
-  "model": "gemini-3.1-flash-lite"
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4"
 }

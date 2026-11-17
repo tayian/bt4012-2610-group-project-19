@@ -1,0 +1,61 @@
+{
+  "client_id": "train_Client_45260",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:20:01",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_45260",
+    "risk_score": 0.3196,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client has 3 counters, which is in the 91.5th percentile of the training population and is the primary feature driving the risk score.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has 79 invoices, placing them in the 95.5th percentile for invoice frequency.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client is located in region 311, which is a significant factor in the risk model.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account history contains missing months, as indicated by the has_missing_months flag.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has a tenure of 18.18 years, which is identified as a contributing factor to the risk score.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify the status and physical condition of all 3 counters.",
+      "Check for any unauthorized bypasses or tampering given the high invoice count.",
+      "Investigate the cause of missing months in the billing history."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "No specific precedent cases or SOP rules were provided in the evidence section to guide the inspection, so the inspection should rely on standard verification of meter integrity and billing accuracy."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_45260\",\n  \"risk_score\": 0.3196,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client has 3 counters, which is in the 91.5th percentile of the training population and is the primary feature driving the risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has 79 invoices, placing them in the 95.5th percentile for invoice frequency.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client is located in region 311, which is a significant factor in the risk model.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account history contains missing months, as indicated by the has_missing_months flag.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has a tenure of 18.18 years, which is identified as a contributing factor to the risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the status and physical condition of all 3 counters.\",\n    \"Check for any unauthorized bypasses or tampering given the high invoice count.\",\n    \"Investigate the cause of missing months in the billing history.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"No specific precedent cases or SOP rules were provided in the evidence section to guide the inspection, so the inspection should rely on standard verification of meter integrity and billing accuracy.\"\n}",
+  "usage": {
+    "input_tokens": 2348,
+    "output_tokens": 1564
+  },
+  "error": null
+}

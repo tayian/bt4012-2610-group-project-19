@@ -2,53 +2,60 @@
   "client_id": "train_Client_23526",
   "run": "no_evidence",
   "model": "gemini-3.1-flash-lite",
-  "created": "2026-11-16T22:40:08",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:19:23",
   "queries": [],
   "evidence_ids": [],
   "brief": {
     "client_id": "train_Client_23526",
-    "risk_score": 0.3132,
+    "risk_score": 0.3203,
     "risk_rank_pct": 100.0,
     "risk_tier": "high",
     "evidence": [
       {
-        "point": "The client operates 3 counters, which places them in the 91.5th percentile of the training population and is a primary driver of the risk score.",
+        "point": "The client exhibits highly irregular consumption patterns, with cons_pm_skew at 3.5231 (95.8th percentile) and cons_pm_kurt at 13.3181 (94.8th percentile), suggesting significant volatility.",
         "citations": [
           "SNAPSHOT"
         ]
       },
       {
-        "point": "Consumption data shows high skewness (3.5231), ranking in the 95.8th percentile, which indicates irregular usage patterns.",
+        "point": "There is a substantial increase in recent consumption, with a ratio_last1y_lifetime of 2.9546, placing the client in the 98.3rd percentile for recent usage relative to their lifetime history.",
         "citations": [
           "SNAPSHOT"
         ]
       },
       {
-        "point": "The robust Z-score maximum is 15.4054, placing the client in the 90.7th percentile and suggesting extreme consumption outliers.",
+        "point": "The client has a high number of counters (3.0, 91.5th percentile) and a long tenure (30.7296 years, 88.1th percentile), both of which are primary drivers of the risk model score.",
         "citations": [
           "SNAPSHOT"
         ]
       },
       {
-        "point": "The account history contains missing months and reading remarks 6, 8, and 9, which require physical verification.",
+        "point": "The robust_z_max value of 15.4054 (90.7th percentile) indicates the presence of extreme consumption readings that deviate significantly from the norm.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Billing history contains gaps, as indicated by the has_missing_months flag being set to 1.",
         "citations": [
           "SNAPSHOT"
         ]
       }
     ],
     "onsite_checks": [
-      "Inspect all 3 counters for physical tampering or bypasses.",
-      "Verify the accuracy of meter readings against the recorded consumption history.",
-      "Investigate the cause of missing billing months."
+      "Verify the physical status and accessibility of all 3 counters.",
+      "Inspect for potential meter tampering or bypass given the high consumption volatility and extreme Z-score.",
+      "Reconcile billing history to address the identified missing months."
     ],
     "applicable_rules": [],
     "similar_cases": [],
-    "uncertainty": "The risk score is driven by statistical outliers and structural account features. While these indicate potential anomalies, they do not definitively prove fraud without onsite verification of the meter infrastructure."
+    "uncertainty": "The risk score is driven by statistical anomalies in consumption patterns and high-volume usage metrics rather than direct evidence of tampering or specific fraud codes. The presence of missing months suggests potential data quality issues that may influence the model's assessment."
   },
-  "raw_text": "{\n  \"client_id\": \"train_Client_23526\",\n  \"risk_score\": 0.3132,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client operates 3 counters, which places them in the 91.5th percentile of the training population and is a primary driver of the risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Consumption data shows high skewness (3.5231), ranking in the 95.8th percentile, which indicates irregular usage patterns.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The robust Z-score maximum is 15.4054, placing the client in the 90.7th percentile and suggesting extreme consumption outliers.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account history contains missing months and reading remarks 6, 8, and 9, which require physical verification.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect all 3 counters for physical tampering or bypasses.\",\n    \"Verify the accuracy of meter readings against the recorded consumption history.\",\n    \"Investigate the cause of missing billing months.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The risk score is driven by statistical outliers and structural account features. While these indicate potential anomalies, they do not definitively prove fraud without onsite verification of the meter infrastructure.\"\n}",
+  "raw_text": "{\n  \"client_id\": \"train_Client_23526\",\n  \"risk_score\": 0.3203,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits highly irregular consumption patterns, with cons_pm_skew at 3.5231 (95.8th percentile) and cons_pm_kurt at 13.3181 (94.8th percentile), suggesting significant volatility.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"There is a substantial increase in recent consumption, with a ratio_last1y_lifetime of 2.9546, placing the client in the 98.3rd percentile for recent usage relative to their lifetime history.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has a high number of counters (3.0, 91.5th percentile) and a long tenure (30.7296 years, 88.1th percentile), both of which are primary drivers of the risk model score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The robust_z_max value of 15.4054 (90.7th percentile) indicates the presence of extreme consumption readings that deviate significantly from the norm.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Billing history contains gaps, as indicated by the has_missing_months flag being set to 1.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the physical status and accessibility of all 3 counters.\",\n    \"Inspect for potential meter tampering or bypass given the high consumption volatility and extreme Z-score.\",\n    \"Reconcile billing history to address the identified missing months.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The risk score is driven by statistical anomalies in consumption patterns and high-volume usage metrics rather than direct evidence of tampering or specific fraud codes. The presence of missing months suggests potential data quality issues that may influence the model's assessment.\"\n}",
   "usage": {
-    "input_tokens": 2334,
-    "output_tokens": 1573
+    "input_tokens": 2389,
+    "output_tokens": 1655
   },
   "error": null
 }

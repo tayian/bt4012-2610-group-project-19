@@ -1,0 +1,61 @@
+{
+  "client_id": "train_Client_132011",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:19:44",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_132011",
+    "risk_score": 0.3199,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client is ranked in the 99.99th percentile of risk, placing them in the high-risk tier for inspection.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The number of counters (3.0) is the primary feature driving the risk score, with a SHAP value of 2.2253.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The ratio of consumption in the last year to lifetime consumption is 2.1254, which is in the 95.7th percentile of training data, indicating a significant recent increase in usage.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client exhibits a robust Z-score maximum of 11.4129, which is in the 86.8th percentile, suggesting extreme consumption outliers.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has missing months in their billing history, which may impact the accuracy of consumption analysis.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify all 3 counters for physical tampering or bypass",
+      "Inspect meter reading history for gaps corresponding to missing months",
+      "Validate current consumption against historical usage patterns"
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "The model identifies high risk based on structural features like counter count and consumption ratios, but there is no direct evidence of meter tampering or index manipulation (e.g., n_index_backwards is 0). The high risk score is driven by statistical anomalies rather than confirmed fraud indicators."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_132011\",\n  \"risk_score\": 0.3199,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client is ranked in the 99.99th percentile of risk, placing them in the high-risk tier for inspection.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The number of counters (3.0) is the primary feature driving the risk score, with a SHAP value of 2.2253.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The ratio of consumption in the last year to lifetime consumption is 2.1254, which is in the 95.7th percentile of training data, indicating a significant recent increase in usage.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client exhibits a robust Z-score maximum of 11.4129, which is in the 86.8th percentile, suggesting extreme consumption outliers.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has missing months in their billing history, which may impact the accuracy of consumption analysis.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify all 3 counters for physical tampering or bypass\",\n    \"Inspect meter reading history for gaps corresponding to missing months\",\n    \"Validate current consumption against historical usage patterns\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The model identifies high risk based on structural features like counter count and consumption ratios, but there is no direct evidence of meter tampering or index manipulation (e.g., n_index_backwards is 0). The high risk score is driven by statistical anomalies rather than confirmed fraud indicators.\"\n}",
+  "usage": {
+    "input_tokens": 2397,
+    "output_tokens": 1452
+  },
+  "error": null
+}

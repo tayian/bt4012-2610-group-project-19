@@ -2,59 +2,60 @@
   "client_id": "train_Client_22147",
   "run": "no_evidence",
   "model": "gemini-3.1-flash-lite",
-  "created": "2026-11-16T22:39:51",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:18:56",
   "queries": [],
   "evidence_ids": [],
   "brief": {
     "client_id": "train_Client_22147",
-    "risk_score": 0.3142,
+    "risk_score": 0.3212,
     "risk_rank_pct": 100.0,
     "risk_tier": "high",
     "evidence": [
       {
-        "point": "The client has 3 counters, which is the primary feature driving the risk score [SNAPSHOT].",
+        "point": "The client has 3 counters, which places them in the 91.5th percentile of the training population for this metric.",
         "citations": [
           "SNAPSHOT"
         ]
       },
       {
-        "point": "The client is located in region 311, which is identified as the second most significant factor in the risk model [SNAPSHOT].",
+        "point": "The client has a high volume of invoices (78 total), ranking in the 95.0th percentile.",
         "citations": [
           "SNAPSHOT"
         ]
       },
       {
-        "point": "The client has a history of 78 invoices, which is a top-three feature contributing to the risk assessment [SNAPSHOT].",
+        "point": "Consumption in the last year relative to the lifetime average is 1.9551, which is in the 94.4th percentile, indicating a significant recent increase.",
         "citations": [
           "SNAPSHOT"
         ]
       },
       {
-        "point": "Consumption data exhibits a skew of 1.6954, suggesting potential irregularities in usage patterns [SNAPSHOT].",
+        "point": "The account record contains missing months (has_missing_months: 1) and reading remarks '6', '8', and '9'.",
         "citations": [
           "SNAPSHOT"
         ]
       },
       {
-        "point": "The account record indicates missing months, which requires verification during the onsite inspection [SNAPSHOT].",
+        "point": "The client has a long tenure of 21.8754 years, placing them in the 75.1st percentile.",
         "citations": [
           "SNAPSHOT"
         ]
       }
     ],
     "onsite_checks": [
-      "Verify the status and functionality of all 3 counters.",
-      "Check for meter tampering or bypasses given the consumption skew.",
-      "Investigate the cause of missing months in the billing history."
+      "Verify the physical status and accessibility of all 3 counters.",
+      "Investigate the cause of missing billing months.",
+      "Inspect for potential meter tampering or bypass given the recent consumption increase."
     ],
     "applicable_rules": [],
     "similar_cases": [],
-    "uncertainty": "The risk score is driven primarily by structural features like the number of counters and region rather than specific anomalies like index reversals or recon mismatches, which are currently absent."
+    "uncertainty": "While the model flags this client as high risk due to consumption patterns and account history, there is no direct evidence of meter tampering, index reversals, or recon mismatches in the provided data."
   },
-  "raw_text": "{\n  \"client_id\": \"train_Client_22147\",\n  \"risk_score\": 0.3142,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client has 3 counters, which is the primary feature driving the risk score [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client is located in region 311, which is identified as the second most significant factor in the risk model [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has a history of 78 invoices, which is a top-three feature contributing to the risk assessment [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Consumption data exhibits a skew of 1.6954, suggesting potential irregularities in usage patterns [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account record indicates missing months, which requires verification during the onsite inspection [SNAPSHOT].\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the status and functionality of all 3 counters.\",\n    \"Check for meter tampering or bypasses given the consumption skew.\",\n    \"Investigate the cause of missing months in the billing history.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The risk score is driven primarily by structural features like the number of counters and region rather than specific anomalies like index reversals or recon mismatches, which are currently absent.\"\n}",
+  "raw_text": "{\n  \"client_id\": \"train_Client_22147\",\n  \"risk_score\": 0.3212,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client has 3 counters, which places them in the 91.5th percentile of the training population for this metric.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has a high volume of invoices (78 total), ranking in the 95.0th percentile.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Consumption in the last year relative to the lifetime average is 1.9551, which is in the 94.4th percentile, indicating a significant recent increase.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account record contains missing months (has_missing_months: 1) and reading remarks '6', '8', and '9'.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has a long tenure of 21.8754 years, placing them in the 75.1st percentile.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the physical status and accessibility of all 3 counters.\",\n    \"Investigate the cause of missing billing months.\",\n    \"Inspect for potential meter tampering or bypass given the recent consumption increase.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the model flags this client as high risk due to consumption patterns and account history, there is no direct evidence of meter tampering, index reversals, or recon mismatches in the provided data.\"\n}",
   "usage": {
-    "input_tokens": 2340,
-    "output_tokens": 1466
+    "input_tokens": 2393,
+    "output_tokens": 1333
   },
   "error": null
 }

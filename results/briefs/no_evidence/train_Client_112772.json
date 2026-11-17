@@ -1,0 +1,55 @@
+{
+  "client_id": "train_Client_112772",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:21:44",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_112772",
+    "risk_score": 0.3189,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client has 3 counters, which places them in the 91.5th percentile of the training population.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client has 72 invoices, placing them in the 91.0th percentile of the training population.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Consumption per month skew (5.6251) and kurtosis (38.869) are extremely high, ranking in the 99.2nd and 99.4th percentiles respectively, indicating highly irregular consumption patterns.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client record contains missing months and specific reading remarks including codes 6, 8, and 9.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify the status and physical condition of all 3 counters.",
+      "Investigate the cause of missing months in the billing history.",
+      "Inspect the site for potential bypasses given the high consumption skew and kurtosis."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "The model score is high, but there are no specific precedent cases or SOP rules provided to guide the investigation beyond standard inspection protocols."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_112772\",\n  \"risk_score\": 0.3189,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client has 3 counters, which places them in the 91.5th percentile of the training population.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has 72 invoices, placing them in the 91.0th percentile of the training population.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Consumption per month skew (5.6251) and kurtosis (38.869) are extremely high, ranking in the 99.2nd and 99.4th percentiles respectively, indicating highly irregular consumption patterns.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client record contains missing months and specific reading remarks including codes 6, 8, and 9.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the status and physical condition of all 3 counters.\",\n    \"Investigate the cause of missing months in the billing history.\",\n    \"Inspect the site for potential bypasses given the high consumption skew and kurtosis.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The model score is high, but there are no specific precedent cases or SOP rules provided to guide the investigation beyond standard inspection protocols.\"\n}",
+  "usage": {
+    "input_tokens": 2350,
+    "output_tokens": 1436
+  },
+  "error": null
+}

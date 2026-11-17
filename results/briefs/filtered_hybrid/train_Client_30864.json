@@ -1,0 +1,78 @@
+{
+  "client_id": "train_Client_30864",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:31:40",
+  "queries": [
+    "investigate high number of meters n_counters 4 for single account",
+    "analyze sudden consumption increase ratio_last1y_lifetime 2.48",
+    "review meter status 0 1 5 and remark codes 6 8 9 for tampering"
+  ],
+  "evidence_ids": [
+    "CODE-counter_statue-2",
+    "TYP-04",
+    "SOP-v2025-2.1",
+    "SOP-v2025-3.2",
+    "CODE-counter_statue-4"
+  ],
+  "brief": {
+    "client_id": "train_Client_30864",
+    "risk_score": 0.319,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client record contains counter_statue code 5, which mandates a priority enforcement dispatch under SOP guidelines.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-3.2"
+        ]
+      },
+      {
+        "point": "The client exhibits a yoy_drop_max of 0.7755, which exceeds the 0.50 threshold for suspected meter tampering or bypass.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-2.1"
+        ]
+      },
+      {
+        "point": "The model identifies n_counters (4.0) and n_invoices (60.0) as the top two features contributing to the high risk score.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The ratio_last1y_lifetime of 2.4848 indicates a significant shift in consumption patterns over the last year compared to the account's 19.64-year tenure.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify seal integrity",
+      "Check terminal links",
+      "Inspect for external magnet attachment",
+      "Record current dial reading",
+      "Compare with neighboring meters"
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-3.2",
+        "action": "Priority Enforcement Dispatch (Level 2) within 7 days"
+      },
+      {
+        "rule_id": "SOP-v2025-2.1",
+        "action": "Urgent Forensic Site Inspection (Level 2) within 14 days"
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the counter_statue 5 and yoy_drop_max provide clear grounds for inspection, the high ratio_last1y_lifetime suggests recent volatility that may be unrelated to the historical yoy_drop_max event; further investigation is needed to reconcile these conflicting consumption signals."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_30864\",\n  \"risk_score\": 0.319,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client record contains counter_statue code 5, which mandates a priority enforcement dispatch under SOP guidelines.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-3.2\"\n      ]\n    },\n    {\n      \"point\": \"The client exhibits a yoy_drop_max of 0.7755, which exceeds the 0.50 threshold for suspected meter tampering or bypass.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.1\"\n      ]\n    },\n    {\n      \"point\": \"The model identifies n_counters (4.0) and n_invoices (60.0) as the top two features contributing to the high risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The ratio_last1y_lifetime of 2.4848 indicates a significant shift in consumption patterns over the last year compared to the account's 19.64-year tenure.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify seal integrity\",\n    \"Check terminal links\",\n    \"Inspect for external magnet attachment\",\n    \"Record current dial reading\",\n    \"Compare with neighboring meters\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-3.2\",\n      \"action\": \"Priority Enforcement Dispatch (Level 2) within 7 days\"\n    },\n    {\n      \"rule_id\": \"SOP-v2025-2.1\",\n      \"action\": \"Urgent Forensic Site Inspection (Level 2) within 14 days\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the counter_statue 5 and yoy_drop_max provide clear grounds for inspection, the high ratio_last1y_lifetime suggests recent volatility that may be unrelated to the historical yoy_drop_max event; further investigation is needed to reconcile these conflicting consumption signals.\"\n}",
+  "usage": {
+    "input_tokens": 3899,
+    "output_tokens": 1892
+  },
+  "error": null
+}

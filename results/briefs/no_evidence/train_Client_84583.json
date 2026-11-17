@@ -2,53 +2,60 @@
   "client_id": "train_Client_84583",
   "run": "no_evidence",
   "model": "gemini-3.1-flash-lite",
-  "created": "2026-11-16T22:45:29",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:19:38",
   "queries": [],
   "evidence_ids": [],
   "brief": {
     "client_id": "train_Client_84583",
-    "risk_score": 0.3113,
+    "risk_score": 0.3199,
     "risk_rank_pct": 99.99,
     "risk_tier": "high",
     "evidence": [
       {
-        "point": "The client operates with 2 counters, which is the highest-weighted feature in the risk model.",
+        "point": "The client is classified in the high risk tier with a risk rank percentile of 99.99.",
         "citations": [
           "SNAPSHOT"
         ]
       },
       {
-        "point": "The client has an invoice frequency of 2.44 invoices per year, which is identified as a significant contributor to the risk score.",
+        "point": "Consumption data indicates a high slope over the last 3 years (93.9th percentile) and significant skewness in monthly consumption (85.0th percentile).",
         "citations": [
           "SNAPSHOT"
         ]
       },
       {
-        "point": "There is a notable upward consumption trend over the last three years, with a slope_last3y value of 59.0519.",
+        "point": "The account profile includes 2 counters and has documented instances of missing months.",
         "citations": [
           "SNAPSHOT"
         ]
       },
       {
-        "point": "The account history contains reading remarks 6, 8, and 9, alongside a flag for missing months, suggesting potential inconsistencies in billing data.",
+        "point": "Reading remarks codes 6, 8, and 9 are present on the account, which may indicate irregular meter reading activities.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The Benford's Law MAD value of 0.0174 is identified as a contributing factor to the risk score.",
         "citations": [
           "SNAPSHOT"
         ]
       }
     ],
     "onsite_checks": [
-      "Verify the status and accessibility of both counters.",
-      "Inspect for potential meter tampering or bypasses given the consumption slope.",
-      "Validate the reading history against the physical meter readings."
+      "Verify the status and physical readings of both counters.",
+      "Inspect for potential meter tampering or bypass given the reading remarks.",
+      "Review the history of missing months to determine if they correlate with billing gaps."
     ],
     "applicable_rules": [],
     "similar_cases": [],
-    "uncertainty": "The risk score is driven by model features related to counter count and consumption trends; however, the absence of specific fraud patterns like index reversals or recon mismatches makes the exact nature of the risk unclear."
+    "uncertainty": "The model identifies high risk, but specific evidence of fraud is not confirmed. The presence of missing months and specific reading remarks requires physical verification to rule out administrative errors versus intentional manipulation."
   },
-  "raw_text": "{\n  \"client_id\": \"train_Client_84583\",\n  \"risk_score\": 0.3113,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client operates with 2 counters, which is the highest-weighted feature in the risk model.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has an invoice frequency of 2.44 invoices per year, which is identified as a significant contributor to the risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"There is a notable upward consumption trend over the last three years, with a slope_last3y value of 59.0519.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account history contains reading remarks 6, 8, and 9, alongside a flag for missing months, suggesting potential inconsistencies in billing data.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the status and accessibility of both counters.\",\n    \"Inspect for potential meter tampering or bypasses given the consumption slope.\",\n    \"Validate the reading history against the physical meter readings.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The risk score is driven by model features related to counter count and consumption trends; however, the absence of specific fraud patterns like index reversals or recon mismatches makes the exact nature of the risk unclear.\"\n}",
+  "raw_text": "{\n  \"client_id\": \"train_Client_84583\",\n  \"risk_score\": 0.3199,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client is classified in the high risk tier with a risk rank percentile of 99.99.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Consumption data indicates a high slope over the last 3 years (93.9th percentile) and significant skewness in monthly consumption (85.0th percentile).\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account profile includes 2 counters and has documented instances of missing months.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Reading remarks codes 6, 8, and 9 are present on the account, which may indicate irregular meter reading activities.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The Benford's Law MAD value of 0.0174 is identified as a contributing factor to the risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the status and physical readings of both counters.\",\n    \"Inspect for potential meter tampering or bypass given the reading remarks.\",\n    \"Review the history of missing months to determine if they correlate with billing gaps.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The model identifies high risk, but specific evidence of fraud is not confirmed. The presence of missing months and specific reading remarks requires physical verification to rule out administrative errors versus intentional manipulation.\"\n}",
   "usage": {
-    "input_tokens": 2317,
-    "output_tokens": 1423
+    "input_tokens": 2299,
+    "output_tokens": 1534
   },
   "error": null
 }

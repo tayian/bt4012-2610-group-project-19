@@ -1,0 +1,10 @@
+{
+  "queries": [
+    "investigate multiple meter accounts for single client with high consumption ratio",
+    "review consumption spike and steep upward slope in usage history",
+    "audit meter status codes 0 and 5 with remark codes 6, 8, and 9"
+  ],
+  "source": "llm",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4"
+}

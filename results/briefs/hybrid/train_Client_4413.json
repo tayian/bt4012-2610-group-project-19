@@ -2,71 +2,66 @@
   "client_id": "train_Client_4413",
   "run": "hybrid",
   "model": "gemini-3.1-flash-lite",
-  "created": "2026-11-16T22:52:41",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:22:44",
   "queries": [
-    "investigate multiple meters n_counters 3 for potential energy diversion",
-    "analyze consumption skew and high robust_z_max for irregular usage patterns",
-    "review reading remark codes 6 8 9 for potential meter tampering"
+    "investigate multiple meters n_counters 3 for potential unmetered usage",
+    "review consumption anomaly with reading remark codes 6 8 9",
+    "analyze sudden consumption increase ratio_last1y_lifetime 1.9257"
   ],
   "evidence_ids": [
-    "TYP-02",
+    "CODE-counter_statue-1",
+    "TYP-04",
     "TYP-06",
-    "TYP-10",
-    "TYP-09",
-    "SOP-v2025-5.1"
+    "CODE-reading_remarque-6",
+    "TYP-12"
   ],
   "brief": {
     "client_id": "train_Client_4413",
-    "risk_score": 0.3141,
+    "risk_score": 0.3213,
     "risk_rank_pct": 100.0,
     "risk_tier": "high",
     "evidence": [
       {
-        "point": "The account exhibits a Benford's Law mean absolute deviation (benford_mad) of 0.0349, which exceeds the 0.015 threshold for potential nonconformity.",
-        "citations": [
-          "SNAPSHOT",
-          "SOP-v2025-5.1"
-        ]
-      },
-      {
-        "point": "Consumption data shows a high skew (cons_pm_skew = 3.1536), which serves as a proxy for volatile consumption patterns often associated with intermittent tampering.",
-        "citations": [
-          "SNAPSHOT",
-          "TYP-09"
-        ]
-      },
-      {
-        "point": "The model identifies account complexity, specifically the number of counters (3.0) and total invoices (71.0), as the primary drivers for the high risk score.",
+        "point": "The client exhibits a significant increase in consumption over the last year relative to their lifetime usage, with a ratio_last1y_lifetime of 1.9257, placing them in the 94.1st percentile of the training population.",
         "citations": [
           "SNAPSHOT"
         ]
       },
       {
-        "point": "The presence of missing months (has_missing_months = 1) is a recognized data signature for potential meter jamming or mechanical breakdown.",
+        "point": "The client has 3.0 counters and 71.0 invoices, both of which are high-ranking features (91.5th and 90.3rd percentiles respectively) contributing significantly to the model's risk assessment.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account history includes missing months (has_missing_months = 1), which is a data signature often associated with irregular billing or potential meter maintenance issues.",
         "citations": [
           "SNAPSHOT",
           "TYP-06"
         ]
+      },
+      {
+        "point": "The client's reading history includes remarks 6, 8, and 9; while remark 6 is standard, the presence of multiple remark types suggests the need to verify if readings are being taken accurately.",
+        "citations": [
+          "SNAPSHOT",
+          "CODE-reading_remarque-6"
+        ]
       }
     ],
     "onsite_checks": [
-      "Inspect terminal covers and windows for inserted objects or seal damage [TYP-06].",
-      "Check for residual magnetism using a Gaussmeter [TYP-02].",
-      "Verify meter readings against the reader route schedule [TYP-09]."
+      "Verify the physical status and accessibility of all 3 counters.",
+      "Compare the current meter index against the last billed index to identify any unbilled balance.",
+      "Inspect the meter for signs of physical tampering or obstruction."
     ],
-    "applicable_rules": [
-      {
-        "rule_id": "SOP-v2025-5.1",
-        "action": "Review Benford's Law anomaly; note that the secondary threshold for rounded-reading share was not met."
-      }
-    ],
+    "applicable_rules": [],
     "similar_cases": [],
-    "uncertainty": "While the Benford's Law deviation is significant, the round_reading_share (0.2113) does not meet the secondary threshold (> 0.40) required by [SOP-v2025-5.1] to mandate an immediate supervisory audit, suggesting the anomaly may be less indicative of reader collusion."
+    "uncertainty": "The high risk score is driven largely by structural features (number of counters/invoices) and a recent consumption spike. There is no evidence of zero-consumption runs or specific tampering codes, meaning the spike could be due to legitimate changes in household activity."
   },
-  "raw_text": "{\n  \"client_id\": \"train_Client_4413\",\n  \"risk_score\": 0.3141,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The account exhibits a Benford's Law mean absolute deviation (benford_mad) of 0.0349, which exceeds the 0.015 threshold for potential nonconformity.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-5.1\"\n      ]\n    },\n    {\n      \"point\": \"Consumption data shows a high skew (cons_pm_skew = 3.1536), which serves as a proxy for volatile consumption patterns often associated with intermittent tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The model identifies account complexity, specifically the number of counters (3.0) and total invoices (71.0), as the primary drivers for the high risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The presence of missing months (has_missing_months = 1) is a recognized data signature for potential meter jamming or mechanical breakdown.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-06\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect terminal covers and windows for inserted objects or seal damage [TYP-06].\",\n    \"Check for residual magnetism using a Gaussmeter [TYP-02].\",\n    \"Verify meter readings against the reader route schedule [TYP-09].\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-5.1\",\n      \"action\": \"Review Benford's Law anomaly; note that the secondary threshold for rounded-reading share was not met.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the Benford's Law deviation is significant, the round_reading_share (0.2113) does not meet the secondary threshold (> 0.40) required by [SOP-v2025-5.1] to mandate an immediate supervisory audit, suggesting the anomaly may be less indicative of reader collusion.\"\n}",
+  "raw_text": "{\n  \"client_id\": \"train_Client_4413\",\n  \"risk_score\": 0.3213,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits a significant increase in consumption over the last year relative to their lifetime usage, with a ratio_last1y_lifetime of 1.9257, placing them in the 94.1st percentile of the training population.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has 3.0 counters and 71.0 invoices, both of which are high-ranking features (91.5th and 90.3rd percentiles respectively) contributing significantly to the model's risk assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account history includes missing months (has_missing_months = 1), which is a data signature often associated with irregular billing or potential meter maintenance issues.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-06\"\n      ]\n    },\n    {\n      \"point\": \"The client's reading history includes remarks 6, 8, and 9; while remark 6 is standard, the presence of multiple remark types suggests the need to verify if readings are being taken accurately.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"CODE-reading_remarque-6\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the physical status and accessibility of all 3 counters.\",\n    \"Compare the current meter index against the last billed index to identify any unbilled balance.\",\n    \"Inspect the meter for signs of physical tampering or obstruction.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The high risk score is driven largely by structural features (number of counters/invoices) and a recent consumption spike. There is no evidence of zero-consumption runs or specific tampering codes, meaning the spike could be due to legitimate changes in household activity.\"\n}",
   "usage": {
-    "input_tokens": 4658,
-    "output_tokens": 1871
+    "input_tokens": 4560,
+    "output_tokens": 2291
   },
   "error": null
 }

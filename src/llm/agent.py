@@ -622,7 +622,12 @@ def _done(system: str, client_id: str, log_dir: str, model: str) -> bool:
     if not path.is_file():
         return False
     rec = json.loads(path.read_text(encoding="utf-8"))
-    return rec.get("brief") is not None and not rec.get("error") and rec.get("llm_model") == model
+    return (
+        rec.get("brief") is not None
+        and not rec.get("error")
+        and rec.get("llm_model") == model
+        and str(rec.get("model_version", "")).startswith(f"{SNAPSHOT_CONFIG['model_version']}|")
+    )
 
 
 def compare(
@@ -643,6 +648,7 @@ def compare(
             if log.get("brief") is not None
             and not log.get("error")
             and (model is None or log.get("llm_model") == model)
+            and str(log.get("model_version", "")).startswith(f"{SNAPSHOT_CONFIG['model_version']}|")
         }
     common = sorted(set.intersection(*(set(v) for v in logs.values()))) if logs else []
 

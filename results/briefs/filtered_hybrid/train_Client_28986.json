@@ -1,0 +1,74 @@
+{
+  "client_id": "train_Client_28986",
+  "run": "filtered_hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:31:47",
+  "queries": [
+    "investigate multiple meter accounts for single client with high consumption ratio",
+    "review consumption spike and steep upward slope in usage history",
+    "audit meter status codes 0 and 5 with remark codes 6, 8, and 9"
+  ],
+  "evidence_ids": [
+    "TYP-09",
+    "TYP-11",
+    "SOP-v2025-3.2",
+    "CODE-counter_statue-1",
+    "SOP-v2025-1.2"
+  ],
+  "brief": {
+    "client_id": "train_Client_28986",
+    "risk_score": 0.319,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client's invoice history includes counter_statue code 5, which mandates a priority enforcement dispatch within seven days to verify meter integrity.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-3.2"
+        ]
+      },
+      {
+        "point": "The ratio_last1y_lifetime of 3.1185 indicates a sharp increase in recent consumption relative to the client's 30-year history, consistent with potential intermittent tampering or catch-up billing patterns.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      },
+      {
+        "point": "The client operates with 3 counters, a key feature driving the high risk score, which necessitates a thorough inspection of all metering points for potential bypass or tampering.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The presence of has_missing_months (value 1) suggests potential gaps in the billing record that should be reconciled during the site visit.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify seal integrity",
+      "Check terminal links",
+      "Inspect for external magnet attachment",
+      "Verify all 3 counters",
+      "Reconcile missing billing months"
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-3.2",
+        "action": "Priority Enforcement Dispatch (Level 2) within 7 days"
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the counter_statue 5 and high consumption ratio are strong indicators, the specific nature of the tampering (e.g., magnet vs. bypass) remains unconfirmed until the physical inspection of the 3 counters is completed."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_28986\",\n  \"risk_score\": 0.319,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client's invoice history includes counter_statue code 5, which mandates a priority enforcement dispatch within seven days to verify meter integrity.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-3.2\"\n      ]\n    },\n    {\n      \"point\": \"The ratio_last1y_lifetime of 3.1185 indicates a sharp increase in recent consumption relative to the client's 30-year history, consistent with potential intermittent tampering or catch-up billing patterns.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    },\n    {\n      \"point\": \"The client operates with 3 counters, a key feature driving the high risk score, which necessitates a thorough inspection of all metering points for potential bypass or tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The presence of has_missing_months (value 1) suggests potential gaps in the billing record that should be reconciled during the site visit.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify seal integrity\",\n    \"Check terminal links\",\n    \"Inspect for external magnet attachment\",\n    \"Verify all 3 counters\",\n    \"Reconcile missing billing months\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-3.2\",\n      \"action\": \"Priority Enforcement Dispatch (Level 2) within 7 days\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the counter_statue 5 and high consumption ratio are strong indicators, the specific nature of the tampering (e.g., magnet vs. bypass) remains unconfirmed until the physical inspection of the 3 counters is completed.\"\n}",
+  "usage": {
+    "input_tokens": 4124,
+    "output_tokens": 1841
+  },
+  "error": null
+}

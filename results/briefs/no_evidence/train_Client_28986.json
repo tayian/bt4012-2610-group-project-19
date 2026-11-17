@@ -1,0 +1,61 @@
+{
+  "client_id": "train_Client_28986",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:21:32",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_28986",
+    "risk_score": 0.319,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client has 3 counters, which places them in the 91.5th percentile for this metric [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The ratio of consumption in the last year compared to the lifetime average is 3.1185, which is in the 98.6th percentile [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The slope of consumption over the last 3 years is 78.6208, placing the client in the 95.4th percentile [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client's account history contains missing months [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Reading remarks codes 6, 8, and 9 are present in the client's history [SNAPSHOT].",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify the status and physical condition of all 3 counters.",
+      "Investigate the cause of the significant consumption increase in the last year.",
+      "Check for potential meter tampering or bypass given the reading remarks and consumption slope."
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "While the model indicates a high risk score and significant consumption anomalies, there is no specific evidence of meter tampering or fraud in the provided data. The high consumption ratio and slope could potentially be explained by legitimate changes in household or business activity."
+  },
+  "raw_text": "{\n\"client_id\": \"train_Client_28986\",\n\"risk_score\": 0.319,\n\"risk_rank_pct\": 99.98,\n\"risk_tier\": \"high\",\n\"evidence\": [\n{\n\"point\": \"The client has 3 counters, which places them in the 91.5th percentile for this metric [SNAPSHOT].\",\n\"citations\": [\"SNAPSHOT\"]\n},\n{\n\"point\": \"The ratio of consumption in the last year compared to the lifetime average is 3.1185, which is in the 98.6th percentile [SNAPSHOT].\",\n\"citations\": [\"SNAPSHOT\"]\n},\n{\n\"point\": \"The slope of consumption over the last 3 years is 78.6208, placing the client in the 95.4th percentile [SNAPSHOT].\",\n\"citations\": [\"SNAPSHOT\"]\n},\n{\n\"point\": \"The client's account history contains missing months [SNAPSHOT].\",\n\"citations\": [\"SNAPSHOT\"]\n},\n{\n\"point\": \"Reading remarks codes 6, 8, and 9 are present in the client's history [SNAPSHOT].\",\n\"citations\": [\"SNAPSHOT\"]\n}\n],\n\"onsite_checks\": [\n\"Verify the status and physical condition of all 3 counters.\",\n\"Investigate the cause of the significant consumption increase in the last year.\",\n\"Check for potential meter tampering or bypass given the reading remarks and consumption slope.\"\n],\n\"applicable_rules\": [],\n\"similar_cases\": [],\n\"uncertainty\": \"While the model indicates a high risk score and significant consumption anomalies, there is no specific evidence of meter tampering or fraud in the provided data. The high consumption ratio and slope could potentially be explained by legitimate changes in household or business activity.\"\n}",
+  "usage": {
+    "input_tokens": 2384,
+    "output_tokens": 1510
+  },
+  "error": null
+}

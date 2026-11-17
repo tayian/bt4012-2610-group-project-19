@@ -2,59 +2,60 @@
   "client_id": "train_Client_4413",
   "run": "no_evidence",
   "model": "gemini-3.1-flash-lite",
-  "created": "2026-11-16T22:39:57",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:18:49",
   "queries": [],
   "evidence_ids": [],
   "brief": {
     "client_id": "train_Client_4413",
-    "risk_score": 0.3141,
+    "risk_score": 0.3213,
     "risk_rank_pct": 100.0,
     "risk_tier": "high",
     "evidence": [
       {
-        "point": "The client operates with 3 counters, which is the primary feature driving the risk model's assessment.",
+        "point": "The client operates with 3 counters, which is the primary feature influencing the risk score [SNAPSHOT].",
         "citations": [
           "SNAPSHOT"
         ]
       },
       {
-        "point": "The client has a high volume of 71 invoices, which is a significant contributor to the risk score.",
+        "point": "The client has a history of 71 invoices, which is a significant factor in the model's risk calculation [SNAPSHOT].",
         "citations": [
           "SNAPSHOT"
         ]
       },
       {
-        "point": "The consumption pattern shows a skewness of 3.1536, indicating irregular usage behavior.",
+        "point": "The ratio of consumption in the last year relative to the client's lifetime consumption is 1.9257, suggesting a notable change in usage patterns [SNAPSHOT].",
         "citations": [
           "SNAPSHOT"
         ]
       },
       {
-        "point": "The client is located in region 311, which is identified as a top-three feature influencing the risk model.",
+        "point": "The client is located in region 311, which is a top-contributing feature to the current risk ranking [SNAPSHOT].",
         "citations": [
           "SNAPSHOT"
         ]
       },
       {
-        "point": "The account record indicates the presence of missing months, which may warrant further investigation into data continuity.",
+        "point": "The account record indicates the presence of missing months, which should be investigated during the onsite inspection [SNAPSHOT].",
         "citations": [
           "SNAPSHOT"
         ]
       }
     ],
     "onsite_checks": [
-      "Verify the status and physical integrity of all 3 counters.",
+      "Verify the status and physical readings of all 3 counters.",
       "Investigate the cause of missing months in the billing history.",
-      "Compare current meter readings against the last recorded invoice data."
+      "Compare current consumption patterns against the historical ratio of 1.9257."
     ],
     "applicable_rules": [],
     "similar_cases": [],
-    "uncertainty": "While the model assigns a high risk score, there are no confirmed indicators of tampering such as index reversals, rollover errors, or reconciliation mismatches, suggesting the risk may be driven by structural data anomalies or specific regional characteristics."
+    "uncertainty": "No specific precedent cases or SOP clauses were provided in the evidence section to guide the inspection protocol."
   },
-  "raw_text": "{\n  \"client_id\": \"train_Client_4413\",\n  \"risk_score\": 0.3141,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client operates with 3 counters, which is the primary feature driving the risk model's assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has a high volume of 71 invoices, which is a significant contributor to the risk score.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The consumption pattern shows a skewness of 3.1536, indicating irregular usage behavior.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client is located in region 311, which is identified as a top-three feature influencing the risk model.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account record indicates the presence of missing months, which may warrant further investigation into data continuity.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify the status and physical integrity of all 3 counters.\",\n    \"Investigate the cause of missing months in the billing history.\",\n    \"Compare current meter readings against the last recorded invoice data.\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the model assigns a high risk score, there are no confirmed indicators of tampering such as index reversals, rollover errors, or reconciliation mismatches, suggesting the risk may be driven by structural data anomalies or specific regional characteristics.\"\n}",
+  "raw_text": "{\n\"client_id\": \"train_Client_4413\",\n\"risk_score\": 0.3213,\n\"risk_rank_pct\": 100.0,\n\"risk_tier\": \"high\",\n\"evidence\": [\n{\n\"point\": \"The client operates with 3 counters, which is the primary feature influencing the risk score [SNAPSHOT].\",\n\"citations\": [\"SNAPSHOT\"]\n},\n{\n\"point\": \"The client has a history of 71 invoices, which is a significant factor in the model's risk calculation [SNAPSHOT].\",\n\"citations\": [\"SNAPSHOT\"]\n},\n{\n\"point\": \"The ratio of consumption in the last year relative to the client's lifetime consumption is 1.9257, suggesting a notable change in usage patterns [SNAPSHOT].\",\n\"citations\": [\"SNAPSHOT\"]\n},\n{\n\"point\": \"The client is located in region 311, which is a top-contributing feature to the current risk ranking [SNAPSHOT].\",\n\"citations\": [\"SNAPSHOT\"]\n},\n{\n\"point\": \"The account record indicates the presence of missing months, which should be investigated during the onsite inspection [SNAPSHOT].\",\n\"citations\": [\"SNAPSHOT\"]\n}\n],\n\"onsite_checks\": [\n\"Verify the status and physical readings of all 3 counters.\",\n\"Investigate the cause of missing months in the billing history.\",\n\"Compare current consumption patterns against the historical ratio of 1.9257.\"\n],\n\"applicable_rules\": [],\n\"similar_cases\": [],\n\"uncertainty\": \"No specific precedent cases or SOP clauses were provided in the evidence section to guide the inspection protocol.\"\n}",
   "usage": {
-    "input_tokens": 2333,
-    "output_tokens": 1262
+    "input_tokens": 2387,
+    "output_tokens": 1368
   },
   "error": null
 }

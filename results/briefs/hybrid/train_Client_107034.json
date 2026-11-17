@@ -1,0 +1,77 @@
+{
+  "client_id": "train_Client_107034",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:23:57",
+  "queries": [
+    "investigate multiple meter account with n_counters 3",
+    "analyze high consumption skewness and kurtosis for potential meter tampering",
+    "review reading_remarque codes 6 8 9 for billing irregularities"
+  ],
+  "evidence_ids": [
+    "TYP-11",
+    "SOP-v2025-4.1",
+    "SOP-v2023-1.2",
+    "TYP-09",
+    "SOP-v2023-4.1"
+  ],
+  "brief": {
+    "client_id": "train_Client_107034",
+    "risk_score": 0.3201,
+    "risk_rank_pct": 100.0,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client maintains both electricity and natural gas contracts at the same premises, requiring a joint inspection of all counters regardless of which specific meter triggered the alert.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2023-1.2"
+        ]
+      },
+      {
+        "point": "The client's billing history includes 'reading_remarque' code 8, indicating estimated readings, which necessitates a review of the estimation frequency against current policy limits.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-4.1"
+        ]
+      },
+      {
+        "point": "The model identifies the number of counters (3.0) and the total number of invoices (78.0) as the primary drivers for the high risk score, suggesting the complexity of the account is a significant factor.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The 'benford_mad' value of 0.0312 is a top 5 SHAP feature, indicating potential irregularities in the distribution of reported consumption figures.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Perform joint visual inspection of both electricity and gas meters.",
+      "Verify seals and index progression for all 3 counters.",
+      "Check for physical signs of tampering such as terminal damage or residual magnetism.",
+      "Confirm current billing status to ensure compliance with estimation limits."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2023-1.2",
+        "action": "Conduct dual-counter field audit."
+      },
+      {
+        "rule_id": "SOP-v2025-4.1",
+        "action": "Verify estimation history and perform physical read if limit exceeded."
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the model assigns a high risk score, the specific consumption volatility metrics such as `n_recon_mismatch` and `n_index_backwards` are zero, and `cons_pm_skew` is not extreme, suggesting the risk may be related to account complexity or billing estimation rather than active tampering."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_107034\",\n  \"risk_score\": 0.3201,\n  \"risk_rank_pct\": 100.0,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client maintains both electricity and natural gas contracts at the same premises, requiring a joint inspection of all counters regardless of which specific meter triggered the alert.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2023-1.2\"\n      ]\n    },\n    {\n      \"point\": \"The client's billing history includes 'reading_remarque' code 8, indicating estimated readings, which necessitates a review of the estimation frequency against current policy limits.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-4.1\"\n      ]\n    },\n    {\n      \"point\": \"The model identifies the number of counters (3.0) and the total number of invoices (78.0) as the primary drivers for the high risk score, suggesting the complexity of the account is a significant factor.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The 'benford_mad' value of 0.0312 is a top 5 SHAP feature, indicating potential irregularities in the distribution of reported consumption figures.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Perform joint visual inspection of both electricity and gas meters.\",\n    \"Verify seals and index progression for all 3 counters.\",\n    \"Check for physical signs of tampering such as terminal damage or residual magnetism.\",\n    \"Confirm current billing status to ensure compliance with estimation limits.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2023-1.2\",\n      \"action\": \"Conduct dual-counter field audit.\"\n    },\n    {\n      \"rule_id\": \"SOP-v2025-4.1\",\n      \"action\": \"Verify estimation history and perform physical read if limit exceeded.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the model assigns a high risk score, the specific consumption volatility metrics such as `n_recon_mismatch` and `n_index_backwards` are zero, and `cons_pm_skew` is not extreme, suggesting the risk may be related to account complexity or billing estimation rather than active tampering.\"\n}",
+  "usage": {
+    "input_tokens": 3945,
+    "output_tokens": 1835
+  },
+  "error": null
+}

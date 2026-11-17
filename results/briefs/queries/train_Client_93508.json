@@ -1,9 +1,0 @@
-{
-  "queries": [
-    "investigate multiple meters n_counters 3 for potential energy diversion",
-    "analyze consumption skew and high robust_z_max for irregular usage patterns",
-    "review meter status codes 0 1 5 and remark codes 6 8 9 for tampering"
-  ],
-  "source": "llm",
-  "model": "gemini-3.1-flash-lite"
-}

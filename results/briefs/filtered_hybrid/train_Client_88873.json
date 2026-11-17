@@ -2,76 +2,71 @@
   "client_id": "train_Client_88873",
   "run": "filtered_hybrid",
   "model": "gemini-3.1-flash-lite",
-  "created": "2026-11-16T23:11:44",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:31:26",
   "queries": [
-    "investigate multiple meter accounts for single client with high invoice volume",
-    "review consumption anomalies and high year-over-year drop for meter status 0",
-    "audit billing records for reading remark codes 6, 8, and 9"
+    "investigate multiple meter accounts with remark codes 6, 8, 9",
+    "analyze consumption spike with ratio_last1y_lifetime exceeding historical norms",
+    "review account with 3 counters and high invoice frequency for potential meter tampering"
   ],
   "evidence_ids": [
-    "SOP-v2025-2.1",
-    "SOP-v2025-2.2",
+    "CODE-reading_remarque-9",
     "TYP-09",
+    "SOP-v2025-2.1",
     "TYP-11",
-    "SOP-v2025-4.1"
+    "TYP-08"
   ],
   "brief": {
     "client_id": "train_Client_88873",
-    "risk_score": 0.3122,
-    "risk_rank_pct": 99.99,
+    "risk_score": 0.3191,
+    "risk_rank_pct": 99.98,
     "risk_tier": "high",
     "evidence": [
       {
-        "point": "The account exhibits a year-on-year consumption drop of 73.02% (yoy_drop_max), which exceeds the 50% threshold for suspected meter bypass or tampering.",
+        "point": "The client exhibits a year-on-year consumption drop of 0.7302, which exceeds the 50% threshold for suspected meter bypass or tampering.",
         "citations": [
-          "SNAPSHOT",
-          "SOP-v2025-2.1"
+          "SOP-v2025-2.1",
+          "SNAPSHOT"
         ]
       },
       {
-        "point": "The client operates with 3 counters, a high-impact feature in the risk model that warrants inspection for potential CT/PT tampering as outlined in the playbook.",
+        "point": "The presence of 'reading_remarque' 8 in the billing history is a known indicator for estimated reading abuse, potentially used to conceal tampering.",
         "citations": [
-          "SNAPSHOT",
-          "TYP-11"
+          "TYP-08",
+          "SNAPSHOT"
         ]
       },
       {
-        "point": "The presence of reading remark code '8' indicates estimated billing, necessitating a review to ensure compliance with the three-cycle limit for consecutive estimations.",
+        "point": "The client has 3 counters, which is the highest-ranked feature contributing to the model's risk assessment.",
         "citations": [
-          "SNAPSHOT",
-          "SOP-v2025-4.1"
+          "SNAPSHOT"
         ]
       },
       {
-        "point": "Consumption metrics show high skew (1.7909) and kurtosis (3.1965), which are data signatures associated with intermittent tampering and catch-up billing patterns.",
+        "point": "The ratio of last-year consumption to lifetime consumption is 2.1227, indicating a significant recent increase in usage that deviates from historical patterns.",
         "citations": [
-          "SNAPSHOT",
-          "TYP-09"
+          "SNAPSHOT"
         ]
       }
     ],
     "onsite_checks": [
-      "Inspect CT enclosure and test terminal block for broken or replaced seals",
-      "Verify if estimated readings (code 8) have exceeded three consecutive cycles",
-      "Check for signs of temporary jumpers or magnet usage on the meter casing"
+      "Inspect seals and terminals for evidence of bypass or rollback.",
+      "Verify meter accessibility and document any obstructions.",
+      "Compare reader logs with dial readings to assess unbilled consumption."
     ],
     "applicable_rules": [
       {
         "rule_id": "SOP-v2025-2.1",
-        "action": "Urgent Forensic Site Inspection (Level 2)"
-      },
-      {
-        "rule_id": "SOP-v2025-4.1",
-        "action": "Supervisory Audit"
+        "action": "Urgent Forensic Site Inspection (Level 2) required within 14 calendar days."
       }
     ],
     "similar_cases": [],
-    "uncertainty": "While the YoY drop is significant, the data does not explicitly confirm if the drop occurred over two consecutive billing periods as required by SOP-v2025-2.1. Additionally, the exact count of consecutive estimated readings (code 8) is not provided in the snapshot."
+    "uncertainty": "While the consumption drop triggers a specific SOP, the presence of 'reading_remarque' 9 is frequent and should not be interpreted as definitive evidence of obstruction per the codebook. The high risk score is heavily influenced by account structure (n_counters, n_invoices) rather than purely anomalous consumption, making the specific fraud mechanism less certain."
   },
-  "raw_text": "{\n  \"client_id\": \"train_Client_88873\",\n  \"risk_score\": 0.3122,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The account exhibits a year-on-year consumption drop of 73.02% (yoy_drop_max), which exceeds the 50% threshold for suspected meter bypass or tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.1\"\n      ]\n    },\n    {\n      \"point\": \"The client operates with 3 counters, a high-impact feature in the risk model that warrants inspection for potential CT/PT tampering as outlined in the playbook.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-11\"\n      ]\n    },\n    {\n      \"point\": \"The presence of reading remark code '8' indicates estimated billing, necessitating a review to ensure compliance with the three-cycle limit for consecutive estimations.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-4.1\"\n      ]\n    },\n    {\n      \"point\": \"Consumption metrics show high skew (1.7909) and kurtosis (3.1965), which are data signatures associated with intermittent tampering and catch-up billing patterns.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect CT enclosure and test terminal block for broken or replaced seals\",\n    \"Verify if estimated readings (code 8) have exceeded three consecutive cycles\",\n    \"Check for signs of temporary jumpers or magnet usage on the meter casing\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-2.1\",\n      \"action\": \"Urgent Forensic Site Inspection (Level 2)\"\n    },\n    {\n      \"rule_id\": \"SOP-v2025-4.1\",\n      \"action\": \"Supervisory Audit\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the YoY drop is significant, the data does not explicitly confirm if the drop occurred over two consecutive billing periods as required by SOP-v2025-2.1. Additionally, the exact count of consecutive estimated readings (code 8) is not provided in the snapshot.\"\n}",
+  "raw_text": "{\n  \"client_id\": \"train_Client_88873\",\n  \"risk_score\": 0.3191,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits a year-on-year consumption drop of 0.7302, which exceeds the 50% threshold for suspected meter bypass or tampering.\",\n      \"citations\": [\n        \"SOP-v2025-2.1\",\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The presence of 'reading_remarque' 8 in the billing history is a known indicator for estimated reading abuse, potentially used to conceal tampering.\",\n      \"citations\": [\n        \"TYP-08\",\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client has 3 counters, which is the highest-ranked feature contributing to the model's risk assessment.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The ratio of last-year consumption to lifetime consumption is 2.1227, indicating a significant recent increase in usage that deviates from historical patterns.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect seals and terminals for evidence of bypass or rollback.\",\n    \"Verify meter accessibility and document any obstructions.\",\n    \"Compare reader logs with dial readings to assess unbilled consumption.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-2.1\",\n      \"action\": \"Urgent Forensic Site Inspection (Level 2) required within 14 calendar days.\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the consumption drop triggers a specific SOP, the presence of 'reading_remarque' 9 is frequent and should not be interpreted as definitive evidence of obstruction per the codebook. The high risk score is heavily influenced by account structure (n_counters, n_invoices) rather than purely anomalous consumption, making the specific fraud mechanism less certain.\"\n}",
   "usage": {
-    "input_tokens": 3955,
-    "output_tokens": 2131
+    "input_tokens": 4469,
+    "output_tokens": 2126
   },
   "error": null
 }

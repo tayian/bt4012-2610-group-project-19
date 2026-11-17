@@ -1,9 +1,10 @@
 {
   "queries": [
-    "investigate multiple meters n_counters 3 for potential unmetered usage",
-    "review consumption skew and high robust_z_max 5.6521 for irregular usage patterns",
-    "audit reading remark codes 6 8 9 for potential meter tampering or estimation errors"
+    "investigate multiple meters account with high invoice volume and recent consumption spike",
+    "review account with reading remark codes 6, 8, and 9 for potential tampering",
+    "audit long-tenure account with sudden increase in consumption ratio compared to lifetime average"
   ],
   "source": "llm",
-  "model": "gemini-3.1-flash-lite"
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4"
 }

@@ -1,0 +1,56 @@
+{
+  "client_id": "train_Client_89329",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:21:38",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_89329",
+    "risk_score": 0.3189,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client has 3 counters and 73 invoices, placing them in the 91.5th and 91.7th percentiles respectively, indicating a high volume of activity compared to the training population.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The ratio of consumption in the last year to lifetime consumption is 2.1676, which is in the 95.9th percentile, suggesting a substantial recent increase in usage.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Consumption data exhibits high skewness (2.9746) and kurtosis (14.4959), ranking in the 93.4th and 95.4th percentiles, which indicates irregular consumption patterns.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The account history contains missing months and reading remark codes 6, 8, and 9, which warrant verification of meter status and billing accuracy.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify physical status of all 3 counters",
+      "Check for meter tampering or bypass",
+      "Verify if recent consumption increase is due to legitimate changes in household or business activity",
+      "Investigate missing months in billing history"
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "While the model assigns a high risk score, there are no direct indicators of meter manipulation such as index backwards or recon mismatches. The risk is primarily driven by high consumption volume and recent usage spikes, which could be legitimate."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_89329\",\n  \"risk_score\": 0.3189,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client has 3 counters and 73 invoices, placing them in the 91.5th and 91.7th percentiles respectively, indicating a high volume of activity compared to the training population.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The ratio of consumption in the last year to lifetime consumption is 2.1676, which is in the 95.9th percentile, suggesting a substantial recent increase in usage.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Consumption data exhibits high skewness (2.9746) and kurtosis (14.4959), ranking in the 93.4th and 95.4th percentiles, which indicates irregular consumption patterns.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The account history contains missing months and reading remark codes 6, 8, and 9, which warrant verification of meter status and billing accuracy.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify physical status of all 3 counters\",\n    \"Check for meter tampering or bypass\",\n    \"Verify if recent consumption increase is due to legitimate changes in household or business activity\",\n    \"Investigate missing months in billing history\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the model assigns a high risk score, there are no direct indicators of meter manipulation such as index backwards or recon mismatches. The risk is primarily driven by high consumption volume and recent usage spikes, which could be legitimate.\"\n}",
+  "usage": {
+    "input_tokens": 2388,
+    "output_tokens": 1657
+  },
+  "error": null
+}

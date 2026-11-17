@@ -1,0 +1,74 @@
+{
+  "client_id": "train_Client_132011",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:24:15",
+  "queries": [
+    "investigate multiple meters account with counter_statue 0 and 5",
+    "review consumption spike with reading_remarque 6 8 9",
+    "analyze sudden consumption increase ratio_last1y_lifetime"
+  ],
+  "evidence_ids": [
+    "CODE-counter_statue-1",
+    "CODE-counter_statue-0",
+    "CASE-train_Client_82827",
+    "SOP-v2025-2.1",
+    "CODE-counter_statue-5"
+  ],
+  "brief": {
+    "client_id": "train_Client_132011",
+    "risk_score": 0.3199,
+    "risk_rank_pct": 99.99,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client's year-on-year consumption drop (yoy_drop_max) is 0.6013, which exceeds the 50% threshold for suspected meter bypass or tampering.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-2.1"
+        ]
+      },
+      {
+        "point": "The account history includes counter_statue code '5', which is historically associated with a 10.42% fraud rate, significantly higher than the base rate of 5.58%.",
+        "citations": [
+          "SNAPSHOT",
+          "CODE-counter_statue-5"
+        ]
+      },
+      {
+        "point": "The model identifies the number of counters (3.0) and total invoices (70.0) as the primary drivers of the risk score, indicating that account complexity is a significant risk factor.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The ratio of last-year consumption to lifetime consumption is 2.1254, indicating a substantial recent increase in usage that deviates from historical patterns.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify meter integrity for bypass or magnetic tampering",
+      "Inspect all 3 counters for physical anomalies",
+      "Reconcile consumption records with counter_statue 5 events"
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-2.1",
+        "action": "Urgent Forensic Site Inspection (Level 2) within 14 calendar days"
+      }
+    ],
+    "similar_cases": [
+      "CASE-train_Client_82827"
+    ],
+    "uncertainty": "While the yoy_drop_max triggers the SOP, the high ratio_last1y_lifetime suggests a recent surge in consumption, which is inconsistent with a simple bypass scenario. The counter_statue 5 is an indicator of anomaly but not definitive proof of fraud."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_132011\",\n  \"risk_score\": 0.3199,\n  \"risk_rank_pct\": 99.99,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client's year-on-year consumption drop (yoy_drop_max) is 0.6013, which exceeds the 50% threshold for suspected meter bypass or tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.1\"\n      ]\n    },\n    {\n      \"point\": \"The account history includes counter_statue code '5', which is historically associated with a 10.42% fraud rate, significantly higher than the base rate of 5.58%.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"CODE-counter_statue-5\"\n      ]\n    },\n    {\n      \"point\": \"The model identifies the number of counters (3.0) and total invoices (70.0) as the primary drivers of the risk score, indicating that account complexity is a significant risk factor.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The ratio of last-year consumption to lifetime consumption is 2.1254, indicating a substantial recent increase in usage that deviates from historical patterns.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify meter integrity for bypass or magnetic tampering\",\n    \"Inspect all 3 counters for physical anomalies\",\n    \"Reconcile consumption records with counter_statue 5 events\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-2.1\",\n      \"action\": \"Urgent Forensic Site Inspection (Level 2) within 14 calendar days\"\n    }\n  ],\n  \"similar_cases\": [\n    \"CASE-train_Client_82827\"\n  ],\n  \"uncertainty\": \"While the yoy_drop_max triggers the SOP, the high ratio_last1y_lifetime suggests a recent surge in consumption, which is inconsistent with a simple bypass scenario. The counter_statue 5 is an indicator of anomaly but not definitive proof of fraud.\"\n}",
+  "usage": {
+    "input_tokens": 3735,
+    "output_tokens": 2165
+  },
+  "error": null
+}

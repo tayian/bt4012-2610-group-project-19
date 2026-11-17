@@ -1,0 +1,55 @@
+{
+  "client_id": "train_Client_48874",
+  "run": "no_evidence",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:22:19",
+  "queries": [],
+  "evidence_ids": [],
+  "brief": {
+    "client_id": "train_Client_48874",
+    "risk_score": 0.3186,
+    "risk_rank_pct": 99.97,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client exhibits high consumption metrics, with a mean consumption (cons_pm_mean) of 623.6198, placing them in the 96.6th percentile of the training population.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "Usage in higher consumption tiers is significantly elevated, with share_level_3_plus at 0.475 (97.5th percentile), level_4_pm_mean at 239.5344 (98.2nd percentile), and level_3_pm_mean at 91.8917 (98.1st percentile).",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client's risk score is primarily driven by their client category (51) and the number of counters (2), which are the top two features contributing to the SHAP value.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      },
+      {
+        "point": "The client record contains missing months (has_missing_months: 1), which may indicate gaps in the billing history or data collection.",
+        "citations": [
+          "SNAPSHOT"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Verify physical status of both counters",
+      "Inspect for potential meter tampering or bypass given high consumption levels",
+      "Review billing history to account for missing months"
+    ],
+    "applicable_rules": [],
+    "similar_cases": [],
+    "uncertainty": "The risk assessment is heavily influenced by consumption level metrics and client category; however, the presence of missing months suggests potential data gaps that could affect the reliability of the historical consumption analysis."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_48874\",\n  \"risk_score\": 0.3186,\n  \"risk_rank_pct\": 99.97,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client exhibits high consumption metrics, with a mean consumption (cons_pm_mean) of 623.6198, placing them in the 96.6th percentile of the training population.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"Usage in higher consumption tiers is significantly elevated, with share_level_3_plus at 0.475 (97.5th percentile), level_4_pm_mean at 239.5344 (98.2nd percentile), and level_3_pm_mean at 91.8917 (98.1st percentile).\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client's risk score is primarily driven by their client category (51) and the number of counters (2), which are the top two features contributing to the SHAP value.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    },\n    {\n      \"point\": \"The client record contains missing months (has_missing_months: 1), which may indicate gaps in the billing history or data collection.\",\n      \"citations\": [\n        \"SNAPSHOT\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Verify physical status of both counters\",\n    \"Inspect for potential meter tampering or bypass given high consumption levels\",\n    \"Review billing history to account for missing months\"\n  ],\n  \"applicable_rules\": [],\n  \"similar_cases\": [],\n  \"uncertainty\": \"The risk assessment is heavily influenced by consumption level metrics and client category; however, the presence of missing months suggests potential data gaps that could affect the reliability of the historical consumption analysis.\"\n}",
+  "usage": {
+    "input_tokens": 2451,
+    "output_tokens": 1486
+  },
+  "error": null
+}

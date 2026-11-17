@@ -1,0 +1,75 @@
+{
+  "client_id": "train_Client_19209",
+  "run": "hybrid",
+  "model": "gemini-3.1-flash-lite",
+  "model_version": "M10_v4",
+  "created": "2026-11-17T17:26:26",
+  "queries": [
+    "meter consumption volatility and sharp downward trend analysis",
+    "investigate meter reconciliation mismatch and missing billing months",
+    "review reading remark codes 6 8 9 for potential tampering"
+  ],
+  "evidence_ids": [
+    "TYP-09",
+    "SOP-v2023-2.3",
+    "CODE-reading_remarque-8",
+    "TYP-01",
+    "SOP-v2025-2.3"
+  ],
+  "brief": {
+    "client_id": "train_Client_19209",
+    "risk_score": 0.319,
+    "risk_rank_pct": 99.98,
+    "risk_tier": "high",
+    "evidence": [
+      {
+        "point": "The client has a recorded reconciliation mismatch (n_recon_mismatch = 1) with a max_recon_gap of 1564.0, which significantly exceeds the 50 kWh threshold defined for mandatory field inspection.",
+        "citations": [
+          "SNAPSHOT",
+          "SOP-v2025-2.3"
+        ]
+      },
+      {
+        "point": "The client exhibits a zero_run_max of 21.0 and a zero_share of 0.1812, indicating extended periods of zero consumption, which is a potential indicator of meter tampering or bypass.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-01"
+        ]
+      },
+      {
+        "point": "The presence of reading_remarque code '8' suggests estimated readings, which may be used to mask actual consumption during periods of tampering.",
+        "citations": [
+          "SNAPSHOT",
+          "CODE-reading_remarque-8"
+        ]
+      },
+      {
+        "point": "The client shows a significant negative trend in consumption (slope_last3y = -616.6587) alongside a high cons_pm_max of 4033.0, consistent with intermittent tampering or catch-up billing patterns.",
+        "citations": [
+          "SNAPSHOT",
+          "TYP-09"
+        ]
+      }
+    ],
+    "onsite_checks": [
+      "Inspect terminal-cover seals for cutting, re-crimping or non-matching serial numbers.",
+      "Remove the terminal cover and look for copper bridges, hidden wires behind the board, or scoring on terminal screws.",
+      "Clamp-ammeter check: measure current on the cable entering the meter (I_in) and leaving it (I_out).",
+      "Test the casing with a Gaussmeter for residual magnetism from a recently removed magnet."
+    ],
+    "applicable_rules": [
+      {
+        "rule_id": "SOP-v2025-2.3",
+        "action": "Immediate Technical Field Inspection"
+      }
+    ],
+    "similar_cases": [],
+    "uncertainty": "While the reconciliation gap and zero-consumption patterns are strong indicators, the specific nature of the tampering (bypass vs. intermittent) remains unconfirmed without physical inspection of the meter seals and internal components."
+  },
+  "raw_text": "{\n  \"client_id\": \"train_Client_19209\",\n  \"risk_score\": 0.319,\n  \"risk_rank_pct\": 99.98,\n  \"risk_tier\": \"high\",\n  \"evidence\": [\n    {\n      \"point\": \"The client has a recorded reconciliation mismatch (n_recon_mismatch = 1) with a max_recon_gap of 1564.0, which significantly exceeds the 50 kWh threshold defined for mandatory field inspection.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"SOP-v2025-2.3\"\n      ]\n    },\n    {\n      \"point\": \"The client exhibits a zero_run_max of 21.0 and a zero_share of 0.1812, indicating extended periods of zero consumption, which is a potential indicator of meter tampering or bypass.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-01\"\n      ]\n    },\n    {\n      \"point\": \"The presence of reading_remarque code '8' suggests estimated readings, which may be used to mask actual consumption during periods of tampering.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"CODE-reading_remarque-8\"\n      ]\n    },\n    {\n      \"point\": \"The client shows a significant negative trend in consumption (slope_last3y = -616.6587) alongside a high cons_pm_max of 4033.0, consistent with intermittent tampering or catch-up billing patterns.\",\n      \"citations\": [\n        \"SNAPSHOT\",\n        \"TYP-09\"\n      ]\n    }\n  ],\n  \"onsite_checks\": [\n    \"Inspect terminal-cover seals for cutting, re-crimping or non-matching serial numbers.\",\n    \"Remove the terminal cover and look for copper bridges, hidden wires behind the board, or scoring on terminal screws.\",\n    \"Clamp-ammeter check: measure current on the cable entering the meter (I_in) and leaving it (I_out).\",\n    \"Test the casing with a Gaussmeter for residual magnetism from a recently removed magnet.\"\n  ],\n  \"applicable_rules\": [\n    {\n      \"rule_id\": \"SOP-v2025-2.3\",\n      \"action\": \"Immediate Technical Field Inspection\"\n    }\n  ],\n  \"similar_cases\": [],\n  \"uncertainty\": \"While the reconciliation gap and zero-consumption patterns are strong indicators, the specific nature of the tampering (bypass vs. intermittent) remains unconfirmed without physical inspection of the meter seals and internal components.\"\n}",
+  "usage": {
+    "input_tokens": 4233,
+    "output_tokens": 1893
+  },
+  "error": null
+}

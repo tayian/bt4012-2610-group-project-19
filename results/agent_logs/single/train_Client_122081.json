@@ -1,22 +1,22 @@
 {
   "system": "single",
   "client_id": "train_Client_122081",
-  "model_version": "M10_v1|gemini-3.1-flash-lite",
+  "model_version": "M10_v4|gemini-3.1-flash-lite",
   "tool_calls": [
     {
       "tool": "get_risk_score",
       "args": {
         "client_id": "train_Client_122081"
       },
-      "seconds": 0.07,
-      "result_preview": "{'client_id': 'train_Client_122081', 'risk_score': 0.3131, 'risk_rank_pct': 100.0, 'risk_tier': 'high', 'model_version': 'M10_v1', 'note': 'risk_score is the out-of-fold score of the final stacked model (logistic regression over tuned LightGBM and wide-and-deep CNN ranks). It is a model score, not a"
+      "seconds": 0.039,
+      "result_preview": "{'client_id': 'train_Client_122081', 'risk_score': 0.3196, 'risk_rank_pct': 99.99, 'risk_tier': 'high', 'model_version': 'M10_v4', 'note': 'risk_score is the out-of-fold score of the final model (a logistic stack of tuned LightGBM and a wide-and-deep network; it averages the 5.6% fraud rate). It is "
     },
     {
       "tool": "get_client_profile",
       "args": {
         "client_id": "train_Client_122081"
       },
-      "seconds": 0.036,
+      "seconds": 0.032,
       "result_preview": "{'client_id': 'train_Client_122081', 'split': 'train', 'client_catg': 51, 'region': 104, 'district': 69, 'tenure_years': 31.85, 'n_counters': 3, 'n_invoices': 197, 'has_elec': 1, 'has_gaz': 1, 'counter_type': 'both'}"
     },
     {
@@ -24,15 +24,15 @@
       "args": {
         "client_id": "train_Client_122081"
       },
-      "seconds": 0.034,
-      "result_preview": "{'client_id': 'train_Client_122081', 'source': 'SHAP of the tuned LightGBM component of the stacked model', 'drivers': [{'rank': 1, 'feature': 'n_counters', 'value': 3.0, 'train_pct': 91.5, 'shap_value': 1.1398, 'direction': 'raises risk'}, {'rank': 2, 'feature': 'client_catg', 'value': 51.0, 'train"
+      "seconds": 0.031,
+      "result_preview": "{'client_id': 'train_Client_122081', 'source': 'SHAP of the tuned LightGBM component of the stacked model', 'drivers': [{'rank': 1, 'feature': 'n_counters', 'value': 3.0, 'train_pct': 91.5, 'shap_value': 1.1151, 'direction': 'raises risk'}, {'rank': 2, 'feature': 'region', 'value': 104.0, 'train_pct"
     },
     {
       "tool": "benford_check",
       "args": {
         "client_id": "train_Client_122081"
       },
-      "seconds": 0.056,
+      "seconds": 0.047,
       "result_preview": "{'client_id': 'train_Client_122081', 'benford_mad': 0.0511, 'round_reading_share': 0.2843, 'round_reading_share_train_pct': 69.9, 'n_positive_readings': 178, 'benford_flag': 'nonconformity', 'round_reading_flag': False, 'caveat': 'Benford deviation is a screening signal only; in this data benford_ma"
     },
     {
@@ -40,16 +40,16 @@
       "args": {
         "client_id": "train_Client_122081"
       },
-      "seconds": 0.348,
+      "seconds": 0.084,
       "result_preview": "{'client_id': 'train_Client_122081', 'path': 'results/agent_logs/plots/train_Client_122081.png', 'n_invoices': 197, 'first_invoice': '2006-02-06', 'last_invoice': '2019-04-03', 'n_drops': 10, 'drop_dates': ['2008-02-12 (GAZ)', '2008-06-10 (GAZ)', '2009-02-10 (GAZ)', '2010-02-12 (ELEC)', '2011-02-02 "
     },
     {
       "tool": "retrieve_evidence",
       "args": {
-        "query": "consumption drops multiple counters inspection procedure"
+        "query": "consumption drops meter tampering multiple counters"
       },
-      "seconds": 9.439,
-      "result_preview": "{'query': 'consumption drops multiple counters inspection procedure', 'chunks': [{'id': 'SOP-v2025-2.2', 'doc': 'sop', 'section': '2.2', 'version': 'v2025', 'valid_from': '2025-01-01', 'valid_to': None, 'counter_type': 'both', 'text': '[SOP-v2025-2.2] Rapid Zero-Consumption Detection Threshold\\n* **"
+      "seconds": 0.236,
+      "result_preview": "{'query': 'consumption drops meter tampering multiple counters', 'chunks': [{'id': 'TYP-11', 'doc': 'playbook', 'section': 'ct_pt_tampering', 'version': 'v1.0', 'valid_from': '2005-01-01', 'valid_to': None, 'counter_type': 'ELEC', 'text': \"[TYP-11] Instrument Transformer (CT/PT) Tampering\\n* **1. Ph"
     }
   ],
   "llm_calls": [
@@ -60,91 +60,91 @@
     },
     {
       "role": "agent",
-      "input_tokens": 2262,
-      "output_tokens": 128
+      "input_tokens": 2329,
+      "output_tokens": 144
     },
     {
       "role": "agent",
-      "input_tokens": 4035,
-      "output_tokens": 675
+      "input_tokens": 4551,
+      "output_tokens": 716
     },
     {
       "role": "writer",
-      "input_tokens": 3776,
-      "output_tokens": 1726
+      "input_tokens": 4280,
+      "output_tokens": 1746
     }
   ],
   "evidence_ids": [
-    "SOP-v2025-2.2",
-    "CODE-counter_statue-1",
     "TYP-11",
-    "CODE-counter_statue-3",
+    "TYP-09",
+    "SOP-v2025-2.1",
+    "TYP-06",
     "CODE-counter_statue-2"
   ],
   "brief": {
     "client_id": "train_Client_122081",
-    "risk_score": 0.3131,
-    "risk_rank_pct": 100.0,
+    "risk_score": 0.3196,
+    "risk_rank_pct": 99.99,
     "risk_tier": "high",
     "evidence": [
       {
-        "point": "Client is in the high-risk tier (top 1%) with a model score of 0.3131.",
+        "point": "The client has 3 counters, which is a significant risk driver for this account [SNAPSHOT].",
         "citations": [
           "SNAPSHOT"
         ]
       },
       {
-        "point": "The client operates 3 counters, which is the primary driver of the risk score.",
+        "point": "The account history shows 10 consumption drops between 2008 and 2015, triggering the criteria for suspected meter bypass or magnetic tampering [SOP-v2025-2.1].",
+        "citations": [
+          "SOP-v2025-2.1"
+        ]
+      },
+      {
+        "point": "Benford's Law analysis indicates nonconformity in the consumption data, which is a screening signal for potential manipulation [SNAPSHOT].",
         "citations": [
           "SNAPSHOT"
         ]
       },
       {
-        "point": "Consumption history shows 10 distinct drops across electricity and gas services.",
+        "point": "The consumption history, including frequent drops, aligns with patterns of intermittent tampering where bypasses are removed before inspections [TYP-09].",
         "citations": [
-          "SNAPSHOT"
+          "TYP-09"
         ]
       },
       {
-        "point": "Benford analysis indicates nonconformity, suggesting irregular consumption patterns.",
+        "point": "The history of multiple consumption drops warrants an on-site inspection to check for physical evidence of meter jamming or mechanical obstruction [TYP-06].",
         "citations": [
-          "SNAPSHOT"
-        ]
-      },
-      {
-        "point": "Multiple counters and consumption drops require inspection for potential bypass or tampering.",
-        "citations": [
-          "TYP-11"
+          "TYP-06"
         ]
       }
     ],
     "onsite_checks": [
-      "Inspect CT enclosure and test terminal block for broken or replaced seals.",
-      "Measure primary and secondary current to verify ratio matches nameplate.",
-      "Inspect CT secondary terminals for shorting links or extra burden resistors.",
-      "Verify physical status of all 3 counters."
+      "Inspect CT enclosure and test terminal block for broken or replaced seals [TYP-11].",
+      "Inspect terminal screws and conductors for clip marks or scratches from temporary jumpers [TYP-09].",
+      "Tap the casing while appliances run to check for disc or drum movement [TYP-06].",
+      "Check for residual magnetism on the casing [TYP-09]."
     ],
     "applicable_rules": [
       {
-        "rule_id": "SOP-v2025-2.2",
-        "action": "Inspect for unauthorized neutral disconnection, direct bypass, or meter jamming."
+        "rule_id": "SOP-v2025-2.1",
+        "action": "Urgent Forensic Site Inspection (Level 2) within 14 calendar days."
       }
     ],
     "similar_cases": [],
-    "uncertainty": "While the consumption drops and high risk score are strong indicators, the specific cause (e.g., technical fault vs. intentional tampering) cannot be confirmed without on-site physical verification of the 3 counters."
+    "uncertainty": "While the consumption drops are frequent and the risk score is high, the data does not explicitly confirm the physical method of tampering (e.g., magnets vs. bypass). The long tenure (31.85 years) suggests a stable account, but the recent history of drops is the primary concern."
   },
   "auditor_verdict": null,
   "error": null,
-  "started": "2026-11-16T23:01:59",
+  "started": "2026-11-17T17:37:33",
   "llm_model": "gemini-3.1-flash-lite",
   "tool_outputs": {
     "get_risk_score": {
       "client_id": "train_Client_122081",
-      "risk_score": 0.3131,
-      "risk_rank_pct": 100.0,
+      "risk_score": 0.3196,
+      "risk_rank_pct": 99.99,
       "risk_tier": "high",
-      "model_version": "M10_v1",
-      "note": "risk_score is the out-of-fold score of the final stacked model (logistic regression over tuned LightGBM and wide-and-deep CNN ranks). It is a model score, not a verified probability of fraud. risk_rank_pct is the percentile among training clients (higher = riskier). Tier: high = top 1% of clients, medium = top 5% (the monthly inspection budget), low = the rest."
+      "model_version": "M10_v4",
+      "note": "risk_score is the out-of-fold score of the final model (a logistic stack of tuned LightGBM and a wide-and-deep network; it averages the 5.6% fraud rate). It is a model score for ranking, not a verified probability of fraud. risk_rank_pct is the percentile among training clients (higher = riskier). Tier: high = top 1% of clients, medium = top 5% (the monthly inspection budget), low = the rest."
     },
     "get_client_profile": {
       "client_id": "train_Client_122081",
@@ -168,39 +168,39 @@
           "feature": "n_counters",
           "value": 3.0,
           "train_pct": 91.5,
-          "shap_value": 1.1398,
+          "shap_value": 1.1151,
           "direction": "raises risk"
         },
         {
           "rank": 2,
-          "feature": "client_catg",
-          "value": 51.0,
+          "feature": "region",
+          "value": 104.0,
           "train_pct": null,
-          "shap_value": 0.5637,
+          "shap_value": 0.3898,
           "direction": "raises risk"
         },
         {
           "rank": 3,
-          "feature": "region",
-          "value": 104.0,
-          "train_pct": null,
-          "shap_value": 0.4875,
+          "feature": "n_invoices",
+          "value": 197.0,
+          "train_pct": 99.9,
+          "shap_value": 0.3253,
           "direction": "raises risk"
         },
         {
           "rank": 4,
-          "feature": "n_invoices",
-          "value": 197.0,
-          "train_pct": 99.9,
-          "shap_value": 0.4511,
+          "feature": "level_4_pm_mean",
+          "value": 135.8484,
+          "train_pct": 97.5,
+          "shap_value": 0.3176,
           "direction": "raises risk"
         },
         {
           "rank": 5,
-          "feature": "days_since_last_invoice_mean",
-          "value": 49.9588,
-          "train_pct": 1.3,
-          "shap_value": 0.4246,
+          "feature": "client_catg",
+          "value": 51.0,
+          "train_pct": null,
+          "shap_value": 0.3026,
           "direction": "raises risk"
         }
       ]
@@ -233,11 +233,21 @@
         "2012-03-05 (GAZ)",
         "2015-07-04 (ELEC)",
         "2015-07-04 (GAZ)"
-      ]
+      ],
+      "drop_years": [
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2015
+      ],
+      "first_year": 2006,
+      "last_year": 2019
     }
   },
-  "seconds": 86.95418775011785,
+  "seconds": 17.6026720830705,
   "n_tool_calls": 6,
-  "input_tokens": 11102,
-  "output_tokens": 2827
+  "input_tokens": 12189,
+  "output_tokens": 2904
 }
