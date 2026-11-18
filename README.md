@@ -45,7 +45,7 @@ The data are STEG's training files from the Zindi *Fraud Detection in Electricit
 python run.py all
 ```
 
-This takes about 25 minutes on a laptop. It checks the two data files, rebuilds every table, figure and model result in the repo, and finishes by running the tests. When it is done, every table, figure and result matches ours exactly. If your installed package versions differ from ours, `git status` may still list some `.parquet`, `.png` or notebook files as modified: libraries such as pyarrow and matplotlib write their version number into these files, so the bytes change while the contents stay identical.
+This takes about 15 minutes on a laptop. It checks the two data files, rebuilds every table, figure and model result in the repo, and finishes by running the tests. When it is done, every table, figure and result matches ours exactly. If your installed package versions differ from ours, `git status` may still list some `.parquet`, `.png` or notebook files as modified: libraries such as pyarrow and matplotlib write their version number into these files, so the bytes change while the contents stay identical.
 
 **macOS note.** If LightGBM fails to import with a `libomp.dylib` error, run `brew install libomp`.
 
