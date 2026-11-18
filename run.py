@@ -1,11 +1,5 @@
-# Run the pipeline. From the repo root:
-#
-#   python run.py all          rebuild everything committed from the two raw data files
-#   python run.py baseline     run one step (and the steps it depends on)
-#   python run.py --list       show every step
-#
-# Works the same on Windows, macOS and Linux. Each step runs the steps it needs first,
-# once per call. Settings such as file locations can be changed with options (see --help).
+# Runs the pipeline from the repo root, e.g. `python run.py all` or `python run.py baseline`.
+# Each step runs the steps it needs first; `python run.py --list` shows every step.
 
 import argparse
 import subprocess
@@ -17,6 +11,21 @@ PY = sys.executable
 # The final model's feature table (src/models/fusion.py VERSION).
 VERSION = "v4"
 V4 = "data/processed/features_v4.parquet"
+
+
+def notebook(path):
+    # Execute a notebook in place so its saved outputs are refreshed.
+    return [
+        PY,
+        "-m",
+        "nbconvert",
+        "--to",
+        "notebook",
+        "--execute",
+        "--inplace",
+        "--ExecutePreprocessor.record_timing=False",
+        path,
+    ]
 
 
 def commands(s):
@@ -147,36 +156,12 @@ def commands(s):
         ),
         "eda": (
             ["interim", "splits"],
-            [
-                [
-                    PY,
-                    "-m",
-                    "nbconvert",
-                    "--to",
-                    "notebook",
-                    "--execute",
-                    "--inplace",
-                    "--ExecutePreprocessor.record_timing=False",
-                    "notebooks/01_eda.ipynb",
-                ]
-            ],
+            [notebook("notebooks/01_eda.ipynb")],
             "Re-run the exploratory analysis notebook (tables and figures)",
         ),
         "benford": (
             ["interim", "splits"],
-            [
-                [
-                    PY,
-                    "-m",
-                    "nbconvert",
-                    "--to",
-                    "notebook",
-                    "--execute",
-                    "--inplace",
-                    "--ExecutePreprocessor.record_timing=False",
-                    "notebooks/02_benford.ipynb",
-                ]
-            ],
+            [notebook("notebooks/02_benford.ipynb")],
             "Benford first-digit, two-digit and last-digit tests (notebooks/02_benford.ipynb)",
         ),
         "eda-figures": (
@@ -490,7 +475,7 @@ def commands(s):
                 "robustness-final",
             ],
             [],
-            "Rebuild the final model and every reported result end to end (about 6 h on CPU)",
+            "Rebuild the final model, the test-set run and the analyses on it (about 6 h on CPU)",
         ),
         "mlp": (
             [dl_step, "splits"],
@@ -554,7 +539,7 @@ def commands(s):
                     "tests/test_query_rewriter.py",
                 ]
             ],
-            "Check the RAG corpus, retrieval methods, and environment (check the retrieval libraries (downloads a ~90 MB model once))",
+            "Check the RAG corpus, retrieval and environment (downloads a ~90 MB model once)",
         ),
         "test-faithfulness": (
             [],

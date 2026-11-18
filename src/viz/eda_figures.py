@@ -1,10 +1,6 @@
-# Second round of exploratory analysis (training clients only; the test set is never read).
-#
-#   eda_outliers.csv              boxplot-rule and |z| > 3 outlier counts by class
-#   eda_validity_by_class.csv     F6 invalid readings (impossible combinations) by class
-#   eda_fraud_rate_heatmap.png    fraud rate by district x client_catg, with client counts (F2)
-#   eda_cons_over_time.png        median monthly consumption over time by class, IQR band (F1)
-#   eda_top_features_boxplots.png the six features with the largest effect size by class
+# Second round of EDA on training clients: outlier and validity tables, the fraud-rate heatmap,
+# consumption over time and boxplots of the six features with the largest effect size.
+# Run: python3 -m src.viz.eda_figures
 
 import argparse
 from pathlib import Path
@@ -12,13 +8,13 @@ from pathlib import Path
 import matplotlib
 
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt  # noqa: E402
-import numpy as np  # noqa: E402
-import pandas as pd  # noqa: E402
-from matplotlib.colors import LinearSegmentedColormap  # noqa: E402
-from scipy import stats  # noqa: E402
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from matplotlib.colors import LinearSegmentedColormap
+from scipy import stats
 
-from src.viz import style  # noqa: E402
+from src.viz import style
 
 IQR_K = 1.5
 Z_LIMIT = 3.0
@@ -60,8 +56,7 @@ def top_features(stat_tests, n=N_TOP):
 
 
 def outlier_table(feats, inv, columns):
-    # Fences and z-scores use all training clients (or invoices) pooled, so both classes are
-    # judged against the same cut-offs.
+    # Fences and z-scores are pooled over both classes so they share the same cut-offs.
     series = {f"{c} (client)": (feats[c], feats["target"]) for c in columns}
     series["cons_pm (invoice)"] = (inv["cons_pm"], inv["target"])
     rows = []
@@ -156,8 +151,8 @@ def plot_heatmap(clients, path):
 
 
 def monthly_quantiles(inv):
-    # Per calendar quarter and class: median and quartiles of cons_pm over ELEC invoices.
-    # Quarters rather than months, because a few winter months hold mostly annual catch-up bills.
+    # Quartiles of ELEC cons_pm per quarter and class; quarters, because a few winter months
+    # hold mostly annual catch-up bills.
     elec = inv[inv["counter_type"].eq("ELEC") & inv["cons_pm"].notna()]
     elec = elec[elec["invoice_date"].dt.year >= START_YEAR]
     month = elec["invoice_date"].dt.to_period("Q").dt.to_timestamp()

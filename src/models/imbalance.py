@@ -13,8 +13,7 @@ from src.models.trees import model_fn
 
 
 def run(ctx, n_jobs=2, base=None, prefix="M3"):
-    # base: LightGBM overrides held fixed across strategies (e.g. the tuned M3 parameters).
-    # The default M3 ablation keeps its file names; a tuned run writes imbalance_tuned_*.
+    # base holds LightGBM overrides fixed across strategies, e.g. the tuned M3 parameters.
     table = "imbalance" if prefix == "M3" else "imbalance_tuned"
     completed = []
     for strategy in STRATEGIES:

@@ -1,18 +1,6 @@
-# Responsible-deployment checks on the final model's ranking.
-#
-#   python3 -m src.eval.responsible fairness     -> results/tables/fairness.csv
-#   python3 -m src.eval.responsible calibration  -> results/tables/calibration_by_group.csv,
-#                                                   results/figures/calibration_by_district.png
-#   python3 -m src.eval.responsible stability    -> results/tables/explanation_stability.csv
-#
-# Fairness: who gets inspected at the cost-optimal budget (V/C = 10) compared with where the
-# fraud is, per district, region and client category. A group selected at more than twice its
-# share of the frauds is flagged; groups under MIN_GROUP clients are reported but not flagged.
-# Calibration: does an M10 score of 0.3 mean a 30% fraud rate in every district?
-# Stability: the tuned M3 refitted with three seeds on folds 1 to 4, and the top-5 SHAP
-# drivers of each fold-0 client compared across seeds (Jaccard overlap; target above 0.6).
-# Fairness and calibration read results/final_scores.parquet, on the training OOF scores and,
-# once scored, the test scores.
+# Responsible-deployment checks on the final model: fairness of the inspection list, calibration
+# by district, and SHAP stability across seeds.
+# Run: python3 -m src.eval.responsible fairness | calibration | stability
 
 import argparse
 import json
@@ -44,6 +32,8 @@ def optimal_k(y, scores, ratio=RATIO):
 
 
 def fairness():
+    # Who is inspected at the cost-optimal budget against where the frauds are, per group. A
+    # group selected at over twice its fraud share is flagged unless it has under MIN_GROUP clients.
     data = scored_clients()
     rows = []
     for split, part in data.groupby("split"):
@@ -90,6 +80,7 @@ def fairness():
 
 
 def calibration(bins=10):
+    # Whether a given score means the same fraud rate in every district.
     import matplotlib.pyplot as plt
 
     from src.viz import style
@@ -142,6 +133,8 @@ def calibration(bins=10):
 
 
 def stability(n_jobs=4):
+    # Tuned M3 refitted with three seeds on folds 1 to 4; the top-5 SHAP drivers of each fold-0
+    # client are compared across seeds by Jaccard overlap.
     import shap
 
     from src.eval.explain import positive_shap

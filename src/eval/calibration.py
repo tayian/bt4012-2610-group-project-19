@@ -23,12 +23,10 @@ from src.viz import style
 
 class IsotonicClassifier(ClassifierMixin, BaseEstimator):
     def __init__(self, kind="M3", max_iter=15000, n_jobs=2, inner_folds=3):
-        self.kind, self.max_iter, self.n_jobs, self.inner_folds = (
-            kind,
-            max_iter,
-            n_jobs,
-            inner_folds,
-        )
+        self.kind = kind
+        self.max_iter = max_iter
+        self.n_jobs = n_jobs
+        self.inner_folds = inner_folds
 
     def fit(self, X, y):
         if min(np.bincount(np.asarray(y, dtype=int))) < self.inner_folds:
@@ -48,6 +46,7 @@ class IsotonicClassifier(ClassifierMixin, BaseEstimator):
         return self
 
     def predict_proba(self, X):
+        # Also keeps the uncalibrated scores for the raw-versus-isotonic comparison.
         base = self.estimator_.calibrated_classifiers_[0].estimator
         self.raw_indices_ = X.index.to_numpy()
         self.raw_scores_ = base.predict_proba(X)[:, 1]
@@ -95,7 +94,7 @@ def run(ctx, max_iter=15000, n_jobs=2, inner_folds=3):
             fitted.append(estimator)
             return estimator
 
-        # evaluate caches the calibrated OOF. Incomplete paired caches are safely recomputed.
+        # evaluate() caches only the calibrated scores, so a cache without raw scores is redone.
         if not raw_path.exists():
             (cache / "complete.json").unlink(missing_ok=True)
         oof, row, _ = evaluate(ctx, make, name, params)

@@ -1,9 +1,5 @@
-# Shared PyTorch training loop for M4 (MLP) and M7 (1D-CNN).
-#
-#   * weighted BCE (pos_weight = negatives / positives) or focal loss (gamma 2)
-#   * early stopping on validation PR-AUC (10% stratified inner split of the training fold;
-#     the held-out CV fold is never seen during training)
-#   * returns held-out fold scores for the OOF file
+# Shared PyTorch training loop for the neural models: weighted BCE or focal loss, with early
+# stopping on PR-AUC of a 10% inner split so the held-out CV fold is never seen.
 
 import copy
 import time
@@ -75,8 +71,8 @@ def train_model(
     verbose=True,
     augment=None,
 ):
-    # inputs: list of np arrays (same first dim). augment(batch_inputs, y_batch, model) may
-    # return extra (inputs, y) to append to each batch (used for adversarial training).
+    # inputs is a list of arrays with the same first dimension. augment(xb, yb, model) may return
+    # extra (inputs, labels) to append to each batch, for adversarial training.
     set_seed(seed)
     rng = np.random.default_rng(seed)
     tr, va = train_test_split(np.arange(len(y)), test_size=0.1, stratify=y, random_state=seed)

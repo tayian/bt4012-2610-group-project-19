@@ -1,32 +1,5 @@
-# PU learning (M11): Elkan and Noto (2008) on the LightGBM (M3) out-of-fold scores.
-#
-# Our labels are positive-unlabelled: target = 1 means an inspection confirmed fraud, while
-# target = 0 means "not caught", not "proven honest". If the confirmed frauds were a random
-# sample of all frauds, P(labelled | x) = c * P(fraud | x), where c = P(labelled | fraud).
-#
-# For each held-out fold k:
-#   1. M3 is fitted with scale_pos_weight w = negatives / positives in its training folds,
-#      which multiplies its odds by w. Undo that first: p = s / (s + w * (1 - s)).
-#      Without this step the weighted scores overstate P(labelled | x), so c and the
-#      estimated fraud rate are both wrong.
-#   2. c = mean of p over the known frauds of fold k (Elkan and Noto's estimator e1).
-#   3. The estimated true fraud rate is reported two ways: labelled rate / c (Elkan and Noto's
-#      estimate of P(fraud)) and the mean of min(p / c, 1) over the fold.
-#
-# The OOF score is p / c without the cap of 1. Dividing by one constant per fold keeps the
-# order inside each fold, so the ranking metrics equal M3's; capping would tie every client
-# above c at 1 and lose ranking. Values above 1 are not probabilities (Brier is left empty).
-# The fraud-rate estimate is the result that matters, and it has two opposite biases:
-#   * a weak scorer gives a low c (its scores for known frauds are low), which inflates it;
-#   * inspections target suspicious clients, so confirmed frauds are easier to score than
-#     frauds in general, which raises c and deflates it.
-# Read it as a rough range, and rerun on the tuned M3 before quoting it.
-#
-#   python3 -m src.models.pu --m3 v0              (python run.py pu)
-#   python3 -m src.models.pu --m3 v1 --weight 3   if the tuned M3 used scale_pos_weight = 3
-#
-# Writes results/oof/M11_<version>.parquet, its main_results.csv row and
-# results/tables/pu_estimate.csv (one row per fold plus their mean, per M3 version).
+# M11 PU learning: Elkan and Noto (2008) applied to the M3 OOF scores, to estimate the true fraud
+# rate when target = 0 means "not caught" rather than "honest". Run: python3 -m src.models.pu --m3 v0
 
 import argparse
 from pathlib import Path
@@ -40,8 +13,8 @@ from src.models.common import save_run
 
 
 def unweight(scores, w):
-    # Probabilities of a model trained with positive-class weight w, mapped back to the
-    # unweighted scale: odds / w.
+    # M3 is trained with positive-class weight w, which multiplies its odds by w; undo that
+    # first, or c and the fraud-rate estimate are both overstated.
     s = np.clip(np.asarray(scores, dtype=np.float64), 1e-12, 1 - 1e-12)
     return s / (s + w * (1 - s))
 
@@ -56,9 +29,9 @@ def elkan_noto(p, labelled):
 
 
 def pu_from_oof(oof, labels, weight="fold"):
-    # oof: client_id, fold, score; labels: client_id, target (training clients).
-    # weight: "fold" (negatives / positives of each training fold, as M3 uses), "none", or
-    # a number (a tuned scale_pos_weight).
+    # weight is "fold" (negatives / positives of each training fold, as M3 uses), "none" or a
+    # number. The OOF score p / c is left uncapped: one constant per fold keeps M3's ranking,
+    # while capping at 1 would tie every client above c.
     d = oof[["client_id", "fold", "score"]].merge(labels, on="client_id", validate="1:1")
     if len(d) != len(oof):
         raise ValueError("Every OOF client needs a label.")

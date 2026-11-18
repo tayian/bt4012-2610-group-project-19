@@ -1,17 +1,6 @@
-# M7 dual-input 1D-CNN (Deep Learning II):
-#   sequence branch  Conv1D(32, k=3) -> Conv1D(64, k=3) -> Conv1D(64, k=12) -> global max pool
-#   static branch    Dense(64)
-#   head             concat -> Dense(64) -> dropout 0.3 -> sigmoid, weighted BCE
-#
-# M7wd wide-and-deep variant (after Zheng et al. 2018, docs/reading_notes.md): the same two
-# branches plus a Conv2D branch over the 120 months reshaped to a 10 x 12 year-by-month grid,
-# so a kernel compares the same calendar month across years. The grid is calendar-aligned:
-# each client's window is shifted to end in December of its last invoice year, padding the
-# shift with masked months, so column j is always the same calendar month. Both variants use
-# the same saved folds, seed and training settings, so their OOF files compare directly.
-#
-#   python3 -m src.models.cnn --features v0 --save          # saves fold models for the attacks
-#   python3 -m src.models.cnn --features v1 --arch widedeep
+# M7 dual-input 1D-CNN (monthly sequence + static features) and its wide-and-deep variant M7wd,
+# which adds a Conv2D branch over a calendar-aligned 10 x 12 year-by-month grid.
+# Run: python3 -m src.models.cnn --features v1 [--arch widedeep] [--save]
 
 import argparse
 import os
@@ -26,7 +15,8 @@ from src.features.sequence import COLUMNS, last_invoice_month
 from src.models.common import TabularPrep, load_train, save_run
 from src.models.dl import predict, train_model
 
-SEQ_SCALE = 8.0  # log1p kWh/month rarely exceeds ~12; keeps inputs near [0, 1.5]
+# log1p kWh per month rarely exceeds about 12, so this keeps inputs near [0, 1.5].
+SEQ_SCALE = 8.0
 
 
 class DualCNN(nn.Module):
@@ -37,8 +27,9 @@ class DualCNN(nn.Module):
             nn.ReLU(),
             nn.Conv1d(32, 64, 3, padding=1),
             nn.ReLU(),
+            # A 12-month kernel for yearly seasonality.
             nn.Conv1d(64, 64, 12, padding=6),
-            nn.ReLU(),  # yearly seasonality
+            nn.ReLU(),
         )
         self.static = nn.Sequential(nn.Linear(d_static, 64), nn.ReLU())
         self.head = nn.Sequential(nn.Linear(128, 64), nn.ReLU(), nn.Dropout(0.3), nn.Linear(64, 1))
@@ -49,7 +40,8 @@ class DualCNN(nn.Module):
 
 
 class WideDeepCNN(nn.Module):
-    # DualCNN plus a Conv2D branch on the (3, 10, 12) year-by-month grid.
+    # DualCNN plus a Conv2D branch on the (3, 10, 12) year-by-month grid, so a kernel compares
+    # the same calendar month across years.
     def __init__(self, d_static, c_in=3):
         super().__init__()
         self.conv = DualCNN(d_static, c_in).conv
@@ -72,11 +64,16 @@ class WideDeepCNN(nn.Module):
 ARCHS = {"cnn1d": ("M7", DualCNN), "widedeep": ("M7wd", WideDeepCNN)}
 
 
-def load_seq(ids, calendar=False):
+def raw_seq(ids):
+    # The stored (n, 120, 3) monthly sequences of the given clients, in their order.
     seq = np.load("data/processed/seq.npy", mmap_mode="r")
     sid = np.load("data/processed/seq_client_ids.npy")
     pos = pd.Series(np.arange(len(sid)), index=sid)[ids].values
-    s = np.array(seq[pos], dtype=np.float32)
+    return np.array(seq[pos], dtype=np.float32)
+
+
+def load_seq(ids, calendar=False):
+    s = raw_seq(ids)
     if calendar:
         inv = pd.read_parquet("data/interim/invoice_clean.parquet", columns=COLUMNS)
         s = to_calendar(s, last_invoice_month(inv, ids))
@@ -97,7 +94,7 @@ def to_calendar(s, last_month):
 
 
 def to_model_seq(s):
-    # (n, 120, 3) stored tensor -> (n, 3, 120) scaled model input.
+    # Stored (n, 120, 3) sequences to the scaled (n, 3, 120) model input.
     s = s.copy()
     s[:, :, :2] /= SEQ_SCALE
     return np.ascontiguousarray(s.transpose(0, 2, 1))

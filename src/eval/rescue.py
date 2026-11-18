@@ -1,16 +1,5 @@
-# Unsupervised rescue analysis: among true frauds that M3 ranks BELOW its top 10%, what share
-# do M5 (isolation forest) or M6 (autoencoder) rank in their own top 10%? Rescue rates well
-# above the random baseline would justify running them in parallel with M3 in the fusion.
-#
-# Ranks are computed within each CV fold (OOF scores are only comparable inside the fold that
-# produced them). A random scorer would "rescue" ~10% per model and ~19% for "M5 or M6", so
-# lift is reported against that baseline.
-#
-#   python3 -m src.eval.rescue --m3 v0 --anomaly v0     (python run.py rescue)
-#
-# Reads results/oof/M3_<version>.parquet (python run.py lightgbm) and the M5/M6 files
-# (python run.py anomaly); M7 and M4 are added when present. Writes results/tables/rescue.csv,
-# one block of rows per (M3 version, anomaly version); a rerun replaces only its own block.
+# Among frauds M3 ranks below its top 10%, the share that M5 or M6 rank in their own top 10%.
+# Run: python3 -m src.eval.rescue --m3 v0 --anomaly v0
 
 import argparse
 from pathlib import Path
@@ -23,6 +12,7 @@ TOP = 0.10
 
 
 def top_flag(df, col):
+    # Ranked within each fold, since OOF scores are only comparable inside one fold.
     r = df.groupby("fold")[col].rank(pct=True, ascending=False)
     return r <= TOP
 
@@ -69,19 +59,18 @@ def rescue(m3_v, an_v, extra=("M7", "M4")):
             "random_baseline": 1 - (1 - TOP) ** 2,
         }
     )
-    # same question for non-frauds: anomaly models also flag honest clients
+    # The same question for non-frauds, since anomaly models also flag honest clients.
     hon = d[(d.target == 0) & (~d["top_M3"])]
     hb = hon["top_M5"] | hon["top_M6"]
     rows.append(
         {
             "group": "non-frauds outside M3 top 10% flagged by M5 or M6",
             "n": int(hb.sum()),
-            # A share of these non-frauds, not of missed frauds: its own column.
             "share_of_nonfrauds": hb.mean(),
             "random_baseline": 1 - (1 - TOP) ** 2,
         }
     )
-    # Spearman correlation of OOF scores (diversity for fusion)
+    # Spearman correlation of the OOF scores shows how diverse the models are for fusion.
     corr = d[["M3"] + models].corr(method="spearman")
     out = pd.DataFrame(rows)
     out["m3_version"], out["anomaly_version"] = m3_v, an_v

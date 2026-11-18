@@ -1,13 +1,5 @@
-# Tune M3 LightGBM with Optuna on the saved training folds (objective: mean CV PR-AUC).
-#
-# Each trial is a full 5-fold run through the shared evaluate(), so finished trials are cached
-# and a rerun resumes. The best parameters are refitted the same way and published as M3_tuned:
-#   results/oof/M3_tuned_<version>.parquet and its main_results.csv row
-#   results/tables/M3_tuning_<version>.csv            every trial and its CV PR-AUC
-#   results/tables/M3_tuned_params_<version>.json     the selected LightGBM parameters
-# As with any search, the selected CV score is slightly optimistic; the test set stays unused.
-# --params refits saved parameters on another feature table (e.g. the v1 choice on v2) without
-# searching again.
+# Tune M3 LightGBM with Optuna on the saved folds (objective: mean CV PR-AUC) and publish M3_tuned.
+# Run: python3 -m src.models.tune --features <path> [--params <json> to refit without searching]
 
 import json
 from functools import partial
@@ -48,6 +40,7 @@ def run(ctx, n_trials=30, n_jobs=4):
     optuna.logging.set_verbosity(optuna.logging.WARNING)
     study = optuna.create_study(direction="maximize", sampler=optuna.samplers.TPESampler(seed=SEED))
     study.optimize(objective, n_trials=n_trials)
+    # Refitted through evaluate() like the trials; its CV score is slightly optimistic.
     best = {**study.best_params, "subsample_freq": 1}
     oof, row, _ = evaluate(ctx, partial(model_fn, **best, n_jobs=n_jobs), "M3_tuned", best)
     publish(ctx, oof, row, "M3_tuned")

@@ -1,10 +1,6 @@
-# Evaluate the 4 retrieval methods on the 25-query benchmark (10 concept, 10 exact_code, 5 mixed).
-#
-# Writes Recall@3, Recall@5, and MRR for:
-#   dense, bm25, hybrid, hybrid + rerank
-# to results/tables/retrieval_eval.csv, and the rank of the gold chunk for every query and
-# method (blank = not in the top 5) to results/tables/retrieval_eval_by_query.csv. With 25
-# queries one query moves overall recall by 0.04.
+# Evaluates dense, bm25, hybrid and hybrid + rerank retrieval on the 25-query benchmark and
+# writes results/tables/retrieval_eval.csv plus the gold chunk's rank per query and method.
+# With 25 queries, one query moves overall recall by 0.04.
 
 from __future__ import annotations
 

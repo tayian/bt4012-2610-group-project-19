@@ -16,14 +16,14 @@ from sklearn.preprocessing import FunctionTransformer, OneHotEncoder, StandardSc
 from src.data.ids import check_ids
 from src.data.split import read_clients, read_splits
 from src.eval.metrics import cv_evaluate
-from src.eval.oof import feature_version, write_frames
+from src.eval.oof import feature_version, replace_run_row, write_frames
 from src.models.preprocess import as_object, categorical_columns, numeric_columns
 
 SEED = 4012
 
 
 def model_fn(max_iter=5000, penalty="l2", C=1.0, l1_ratio=None):
-    # Return a fresh pipeline; all learned preprocessing is fitted per fold.
+    # A fresh pipeline, so all learned preprocessing is fitted per fold.
     numeric = Pipeline(
         [
             ("impute", SimpleImputer(strategy="median", keep_empty_features=True)),
@@ -82,7 +82,7 @@ def load_training(features_path, clients_path, split_dir):
             "Feature table must cover the raw client IDs exactly. Run python run.py features."
         )
 
-    # Select training IDs FIRST. No held-out feature row reaches the model.
+    # Training IDs are selected first, so no held-out feature row reaches the model.
     training = train.merge(features, on="client_id", how="left", validate="one_to_one")
     training = training.merge(clients, on="client_id", how="left", validate="one_to_one")
     training = training.reset_index(drop=True)
@@ -133,13 +133,7 @@ def run_baseline(features_path, clients_path, split_dir, results_dir, max_iter=5
             "n_clients_without_invoices": missing_history,
         }
     )
-    if "run_id" in previous:
-        previous = previous.loc[previous["run_id"].ne(run_id)]
-    table = (
-        pd.DataFrame([row])
-        if previous.empty
-        else pd.concat([previous, pd.DataFrame([row])], ignore_index=True)
-    )
+    table = replace_run_row(previous, row)
     oof_path = results_dir / f"oof/M1_{suffix}.parquet"
     write_frames({oof_path: oof, table_path: table})
     print(f"Saved training OOF predictions: {oof_path}")

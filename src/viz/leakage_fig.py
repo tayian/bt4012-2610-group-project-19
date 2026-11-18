@@ -1,8 +1,6 @@
-# Fraud rate by the year of a client's last meter replacement (results/tables/f12_change_year.csv,
-# written by python3 -m src.features.meter_tariff --audit). The jump from 2013 is why the
-# meter- and tariff-count features are left out of features_v4 (docs/decisions.md 8).
-#
-#   python3 -m src.viz.leakage_fig  -> results/figures/meter_change_year.png
+# Plot fraud rate by the year of a client's last meter replacement (f12_change_year.csv); the
+# jump from 2013 is why meter and tariff counts are left out of features_v4.
+# Run: python3 -m src.viz.leakage_fig
 
 import matplotlib
 

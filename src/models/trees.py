@@ -12,12 +12,12 @@ from sklearn.utils.validation import check_is_fitted
 
 from src.data.split import SEED
 from src.eval.metrics import cv_evaluate
-from src.eval.oof import feature_version, write_frames
+from src.eval.oof import feature_version, replace_run_row, write_frames
 from src.models.linear import load_training
 from src.models.preprocess import categorical_columns
+from src.models.sampling import STRATEGIES, balance_training
 
-# Default model settings. Weighting is computed in fit(), never from validation labels.
-# Keep scale_pos_weight and monotone_constraints out so callers can set fold-specific values.
+# scale_pos_weight is left out because fit() computes it from each training fold's labels.
 PARAMS = {
     "objective": "binary",
     "n_estimators": 100,
@@ -31,9 +31,8 @@ PARAMS = {
 
 
 class M3Classifier(ClassifierMixin, BaseEstimator):
-    # Native LightGBM missing values and categorical splits; no scaling is needed.
-    # Category levels are learned from observed training-fold values only, even if the
-    # input pandas Categorical carries a larger vocabulary in its dtype.
+    # LightGBM with native missing values and categories. Category levels come from the values
+    # seen in the training fold, not from a larger vocabulary in the input dtype.
 
     def __init__(self, params=None, imbalance="scale_pos_weight"):
         self.params = params
@@ -80,8 +79,6 @@ class M3Classifier(ClassifierMixin, BaseEstimator):
             column: sorted(X[column].dropna().astype("string").unique().tolist())
             for column in categorical_columns(X)
         }
-        from src.models.sampling import STRATEGIES, balance_training
-
         if self.imbalance not in STRATEGIES:
             raise ValueError(f"Unknown imbalance strategy: {self.imbalance}")
         self.scale_pos_weight_ = (
@@ -117,8 +114,7 @@ def model_fn(imbalance="scale_pos_weight", **params):
 
 
 def fit_m3(X, y, **params):
-    # X contains predictors only. Optional LightGBM overrides support the defence study,
-    # including one monotone constraint per original feature; no columns are expanded.
+    # X holds predictor columns only; params are LightGBM overrides.
     return model_fn(**params).fit(X, y)
 
 
@@ -131,7 +127,6 @@ def run_lightgbm(features_path, clients_path, split_dir, results_dir, n_jobs=2):
     table_path = results_dir / "tables/main_results.csv"
     previous = pd.read_csv(table_path) if table_path.exists() else pd.DataFrame()
 
-    # This shared loader uses read_splits() and selects training clients before fitting.
     X_train, y_train, folds = load_training(features_path, clients_path, split_dir)
     oof, row = cv_evaluate(
         partial(model_fn, n_jobs=n_jobs),
@@ -156,13 +151,7 @@ def run_lightgbm(features_path, clients_path, split_dir, results_dir, n_jobs=2):
             "preprocessing": "native_categorical_and_missing",
         }
     )
-    if "run_id" in previous:
-        previous = previous.loc[previous["run_id"].ne(run_id)]
-    table = (
-        pd.DataFrame([row])
-        if previous.empty
-        else pd.concat([previous, pd.DataFrame([row])], ignore_index=True)
-    )
+    table = replace_run_row(previous, row)
     oof_path = results_dir / f"oof/M3_{suffix}.parquet"
     write_frames({oof_path: oof, table_path: table})
     print(f"Saved training OOF predictions: {oof_path}")

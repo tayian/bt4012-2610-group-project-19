@@ -1,14 +1,6 @@
-# Hybrid RAG retrieval engine for STEG Fraud Analytics.
-#
-# Pipeline:
-#   1. Metadata hard-filtering (jurisdiction, counter_type, temporal [valid_from, valid_to),
-#      doc/section/field/value/region/client_catg, train-only split for precedent cases, and
-#      the client's own case card excluded; client_filters builds this for one client).
-#   2. Sparse retrieval: BM25Okapi top-20 over tokenized filtered chunks.
-#   3. Dense retrieval: sentence-transformers/all-MiniLM-L6-v2 cosine similarity top-20.
-#   4. Reciprocal Rank Fusion (RRF, k=60) combining dense top-20 and BM25 top-20 -> top-5.
-#   5. Optional 4th retrieval mode (hybrid_rerank): Cross-Encoder
-#      (cross-encoder/ms-marco-MiniLM-L-6-v2) reranking on the top-20 RRF candidates -> top-5.
+# Hybrid retrieval over data/corpus/chunks.jsonl: metadata filters first, then BM25 and dense
+# (all-MiniLM-L6-v2) top 20 fused with reciprocal rank fusion, optionally reranked by a
+# cross-encoder. client_filters builds the filters for one client.
 
 from __future__ import annotations
 
@@ -41,25 +33,13 @@ SOP_CLAUSE_RE = re.compile(r"\bsop-v\d{4}-(\d+\.\d+)\b")
 
 
 def tokenize(text: str) -> list[str]:
-    # Extract alphanumeric words, compound IDs, normalized field=value pairs, and clause numbers.
+    # Words, compound IDs, normalised field=value pairs and SOP clause numbers.
     lowered = text.lower()
     words = WORD_RE.findall(lowered)
     compounds = COMPOUND_RE.findall(lowered)
     code_pairs = [f"{f}={v}" for f, v in CODE_PAIR_RE.findall(lowered)]
     clauses = SOP_CLAUSE_RE.findall(lowered)
     return words + compounds + code_pairs + clauses
-
-
-def rrf(rankings: list[list[str]], k: int = RRF_K) -> list[str]:
-    # Reciprocal Rank Fusion (RRF) over multiple ranked chunk ID lists.
-    scores: dict[str, float] = {}
-    first_seen: dict[str, int] = {}
-    for ranking in rankings:
-        for rank, cid in enumerate(ranking, start=1):
-            scores[cid] = scores.get(cid, 0.0) + 1.0 / (k + rank)
-            if cid not in first_seen:
-                first_seen[cid] = len(first_seen)
-    return sorted(scores, key=lambda cid: (-scores[cid], first_seen[cid]))
 
 
 def rrf_scores(rankings: list[list[str]], k: int = RRF_K) -> dict[str, float]:
@@ -70,8 +50,14 @@ def rrf_scores(rankings: list[list[str]], k: int = RRF_K) -> dict[str, float]:
     return scores
 
 
+def rrf(rankings: list[list[str]], k: int = RRF_K) -> list[str]:
+    # Chunk IDs by fused score; the stable sort breaks ties by first appearance.
+    scores = rrf_scores(rankings, k)
+    return sorted(scores, key=lambda cid: -scores[cid])
+
+
 def load_chunks(path: Path | str | None = None) -> list[dict]:
-    # Load corpus chunks from data/corpus/chunks.jsonl (falling back to stub chunks if missing).
+    # Falls back to the stub corpus when the real one has not been built.
     target = Path(path) if path is not None else CHUNKS_PATH
     if not target.is_file() and path is None and STUB_CHUNKS_PATH.is_file():
         target = STUB_CHUNKS_PATH
@@ -97,36 +83,29 @@ def _is_valid_on(chunk: dict, alert_date: dt.date) -> bool:
     vt = _parse_date(chunk.get("valid_to"))
     if vt is None:
         return True
-    # Half-open window [valid_from, valid_to) when valid_to is Jan 1 (e.g. 2025-01-01 in sop_v2023),
-    # or inclusive when valid_to is Dec 31 (e.g. 2024-12-31 in fixtures/stubs).
+    # valid_to is exclusive when it is 1 January (sop_v2023 ends 2025-01-01) and inclusive
+    # otherwise (the fixtures end on 2024-12-31).
     if vt.month == 1 and vt.day == 1:
         return alert_date < vt
     return alert_date <= vt
 
 
+def _as_set(value: Any) -> set | None:
+    if value is None:
+        return None
+    return {value} if isinstance(value, str) else set(value)
+
+
 def filter_chunks(chunks: list[dict], filters: dict[str, Any] | None = None) -> list[dict]:
-    # Hard pre-retrieval metadata filter.
+    # Metadata filter applied before retrieval.
     f = filters or {}
     jurisdiction = f.get("jurisdiction", "TN")
     counter_type = f.get("counter_type")
     alert_raw = f.get("valid_on") or f.get("alert_date")
     alert_date = _parse_date(alert_raw) if alert_raw else None
 
-    doc_filter = f.get("doc")
-    if isinstance(doc_filter, str):
-        doc_set = {doc_filter}
-    elif doc_filter is not None:
-        doc_set = set(doc_filter)
-    else:
-        doc_set = None
-
-    section_filter = f.get("section")
-    if isinstance(section_filter, str):
-        section_set = {section_filter}
-    elif section_filter is not None:
-        section_set = set(section_filter)
-    else:
-        section_set = None
+    doc_set = _as_set(f.get("doc"))
+    section_set = _as_set(f.get("section"))
 
     version_filter = f.get("version")
     field_filter = f.get("field")
@@ -138,32 +117,28 @@ def filter_chunks(chunks: list[dict], filters: dict[str, Any] | None = None) -> 
 
     out: list[dict] = []
     for c in chunks:
-        # 1. Jurisdiction check (default TN).
         if jurisdiction and c.get("jurisdiction", "TN") != jurisdiction:
             continue
 
-        # 2. Non-leakage check on precedent case cards: strictly train split only (a card
-        # without a split is dropped, not assumed to be train).
+        # Precedent case cards must come from the training split (a card without a split is
+        # dropped, not assumed to be train).
         if c.get("doc") == "case" and c.get("split") != "train":
             continue
 
-        # 3. Exclude the target client itself from precedent cases.
+        # Never the client's own case card.
         if exclude_client and (
             c.get("client_id") == exclude_client or c.get("id") == f"CASE-{exclude_client}"
         ):
             continue
 
-        # 4. Counter type compatibility: 'ELEC' matches ('ELEC', 'both'); 'GAZ' matches ('GAZ', 'both').
         if counter_type in ("ELEC", "GAZ"):
             c_type = c.get("counter_type", "both")
             if c_type not in (counter_type, "both"):
                 continue
 
-        # 5. Temporal validity window [valid_from, valid_to).
         if alert_date is not None and not _is_valid_on(c, alert_date):
             continue
 
-        # 6. Document / section / version filters.
         if doc_set is not None and c.get("doc") not in doc_set:
             continue
         if section_set is not None and c.get("section") not in section_set:
@@ -171,13 +146,12 @@ def filter_chunks(chunks: list[dict], filters: dict[str, Any] | None = None) -> 
         if version_filter is not None and c.get("version") != version_filter:
             continue
 
-        # 7. Codebook field / value filters.
         if field_filter is not None and c.get("field") != field_filter:
             continue
         if value_filter is not None and str(c.get("value")) != str(value_filter):
             continue
 
-        # 8. Case card demographic filters (applied when present on the chunk).
+        # Case card demographic filters apply only to chunks that carry the field.
         if catg_filter is not None and c.get("client_catg") is not None:
             if str(c.get("client_catg")) != str(catg_filter):
                 continue
@@ -194,7 +168,7 @@ def filter_chunks(chunks: list[dict], filters: dict[str, Any] | None = None) -> 
 
 
 class HybridRetriever:
-    # In-memory hybrid retriever over chunks.jsonl with cached dense embeddings and lazy reranker.
+    # In-memory retriever; the dense model, embeddings and reranker load on first use.
 
     def __init__(
         self,
@@ -206,7 +180,7 @@ class HybridRetriever:
         self.chunks = list(chunks) if chunks is not None else load_chunks(chunks_path)
         self.id_to_idx = {c["id"]: i for i, c in enumerate(self.chunks)}
         self.id_to_chunk = {c["id"]: c for c in self.chunks}
-        # Weight the chunk heading line (3x) so defining chunks rank above passing cross-references.
+        # The heading line counts three times so defining chunks rank above cross-references.
         self.tokenized = []
         for c in self.chunks:
             txt = c.get("text", "")
@@ -250,8 +224,8 @@ class HybridRetriever:
         q_tokens = tokenize(query)
         corpus_tokens = [self.tokenized[self.id_to_idx[c["id"]]] for c in filtered]
         bm25 = BM25Okapi(corpus_tokens)
-        # Use Lucene-style non-negative IDF: log(1 + (N - df + 0.5)/(df + 0.5)) = log1p(exp(idf))
-        # so terms appearing in >50% of chunks (e.g. across the 300 case cards) stay positive.
+        # Lucene-style IDF, log1p(exp(idf)), keeps terms found in over half the chunks (such as
+        # words shared by the 300 case cards) positive.
         bm25.idf = {word: math.log1p(math.exp(idf)) for word, idf in bm25.idf.items()}
         raw_scores = np.asarray(bm25.get_scores(q_tokens), dtype=np.float64)
         order = np.argsort(-raw_scores, kind="stable")[:top_n]
@@ -309,7 +283,6 @@ class HybridRetriever:
             ranked_ids, score_map = self._dense_rank(query, filtered, top_k)
             return self._format_results(ranked_ids[:top_k], score_map, "dense")
 
-        # Hybrid: dense top-20 + BM25 top-20 -> RRF (k=60).
         dense_ids, _ = self._dense_rank(query, filtered, cand_n)
         bm25_ids, _ = self._bm25_rank(query, filtered, cand_n)
         fused_ids = rrf([dense_ids, bm25_ids], k=rrf_k)
@@ -318,7 +291,7 @@ class HybridRetriever:
         if norm_method == "hybrid":
             return self._format_results(fused_ids[:top_k], fused_scores, "hybrid")
 
-        # hybrid_rerank: Cross-Encoder rerank on top-20 RRF candidates before keeping top-5.
+        # hybrid_rerank: the cross-encoder reorders the fused candidates.
         top_candidates = fused_ids[:cand_n]
         if not top_candidates:
             return []

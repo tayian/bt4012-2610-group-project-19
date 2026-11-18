@@ -1,9 +1,6 @@
-# Build precedent case cards (data/corpus/case_cards.jsonl) for 300 training fraud clients.
-#
-# Non-leakage contract:
-# - Sampled strictly from training split clients (data/splits/train_ids.csv) with target == 1.
-# - Uses observed fields and computed features only (no invented on-site stories, tamper findings,
-#   or recovered amounts). Typology links are rule-based pattern matches on observed features.
+# Builds data/corpus/case_cards.jsonl: precedent case cards for 300 training fraud clients, from
+# observed fields and computed features only (no invented findings). Typology links are
+# rule-based pattern matches on those features.
 
 from __future__ import annotations
 
@@ -22,7 +19,6 @@ N_CASES = 300
 
 
 def _load_or_build_features(
-    interim_dir: Path,
     processed_dir: Path,
     clients: pd.DataFrame,
     invoices_clean: pd.DataFrame,
@@ -45,7 +41,6 @@ def _compute_invoice_summaries(
     inv_raw: pd.DataFrame,
     fraud_ids: set[str],
 ) -> dict[str, dict]:
-    # Filter both clean and raw invoices to candidate training fraud clients only for speed.
     ic = inv_clean[inv_clean["client_id"].isin(fraud_ids)].copy()
     ir = inv_raw[inv_raw["client_id"].isin(fraud_ids)].copy()
 
@@ -60,10 +55,10 @@ def _compute_invoice_summaries(
         max_coeff=("counter_coefficient", "max"),
     )
 
-    # Vectorised first-half vs second-half median cons_pm.
+    # Median cons_pm in the first and second half of each client's history.
     valid = ic[~ic["flag_partial_year"] & ic["cons_pm"].notna()][["client_id", "cons_pm"]].copy()
     v_counts = valid.groupby("client_id", sort=False)["cons_pm"].transform("size")
-    # Fallback to all non-null cons_pm rows for clients with <2 non-partial rows.
+    # Clients with fewer than 2 full-year rows use all their non-null rows instead.
     short_ids = set(dq.index) - set(valid[v_counts >= 2]["client_id"].unique())
     if short_ids:
         fallback = ic[ic["client_id"].isin(short_ids) & ic["cons_pm"].notna()][
@@ -79,7 +74,7 @@ def _compute_invoice_summaries(
     h2 = valid[pos >= mid].groupby("client_id", sort=False)["cons_pm"].median()
     cnt_per_client = valid.groupby("client_id", sort=False)["cons_pm"].size()
 
-    # Vectorised raw codes seen and specific code pattern counts.
+    # Raw codes seen and the code patterns the typology rules use.
     ir["cons_total"] = (
         ir["consommation_level_1"]
         + ir["consommation_level_2"]
@@ -102,27 +97,18 @@ def _compute_invoice_summaries(
     run_len = ir.groupby(run_id)["is_rem8"].transform("size").where(ir["is_rem8"], 0)
     rem8_run_max = run_len.groupby(ir["client_id"], sort=False).max()
 
-    statues_s = (
-        ir[["client_id", "statue_clean"]]
-        .drop_duplicates()
-        .sort_values(["client_id", "statue_clean"])
-        .groupby("client_id", sort=False)["statue_clean"]
-        .agg(list)
-    )
-    remarques_s = (
-        ir[["client_id", "remarque_clean"]]
-        .drop_duplicates()
-        .sort_values(["client_id", "remarque_clean"])
-        .groupby("client_id", sort=False)["remarque_clean"]
-        .agg(list)
-    )
-    tarifs_s = (
-        ir[["client_id", "tarif_clean"]]
-        .drop_duplicates()
-        .sort_values(["client_id", "tarif_clean"])
-        .groupby("client_id", sort=False)["tarif_clean"]
-        .agg(list)
-    )
+    def codes_per_client(col):
+        return (
+            ir[["client_id", col]]
+            .drop_duplicates()
+            .sort_values(["client_id", col])
+            .groupby("client_id", sort=False)[col]
+            .agg(list)
+        )
+
+    statues_s = codes_per_client("statue_clean")
+    remarques_s = codes_per_client("remarque_clean")
+    tarifs_s = codes_per_client("tarif_clean")
     code_counts = ir.groupby("client_id", sort=False).agg(stat1_pos=("is_stat1_pos", "sum"))
 
     out: dict[str, dict] = {}
@@ -222,7 +208,7 @@ def _match_typologies(rec: dict) -> list[str]:
     if rec["has_elec"] == 1 and (rec["tenure_years"] or 0.0) > 5.0 and mean_c < 15.0:
         matched.append("TYP-12")
 
-    # No rule matched: the card carries no typology rather than a guessed one.
+    # At most three; with no match the card carries no typology rather than a guessed one.
     return matched[:3]
 
 
@@ -232,7 +218,7 @@ def _select_stratified_cases(records: list[dict], n_cases: int, seed: int) -> li
     selected: list[str] = []
     selected_set: set[str] = set()
 
-    def add_Pool(pool_ids: list[str], quota: int):
+    def add_pool(pool_ids: list[str], quota: int):
         avail = sorted(cid for cid in pool_ids if cid not in selected_set)
         if not avail or quota <= 0:
             return
@@ -242,16 +228,16 @@ def _select_stratified_cases(records: list[dict], n_cases: int, seed: int) -> li
             selected.append(cid)
             selected_set.add(cid)
 
-    # 1. Ensure rare non-rollover backwards readings in training fraud are included (TYP-03).
+    # First the rare clients with backwards readings (TYP-03) and the rare categories 51 and 12.
     backwards_ids = [r["client_id"] for r in records if r["n_index_backwards"] > 0]
-    add_Pool(backwards_ids, min(15, len(backwards_ids)))
+    add_pool(backwards_ids, min(15, len(backwards_ids)))
 
-    # 2. Ensure coverage of the 4 spec pattern buckets + rare categories (client_catg 12, 51).
     catg_51 = [r["client_id"] for r in records if r["client_catg"] == "51"]
     catg_12 = [r["client_id"] for r in records if r["client_catg"] == "12"]
-    add_Pool(catg_51, 20)
-    add_Pool(catg_12, 10)
+    add_pool(catg_51, 20)
+    add_pool(catg_12, 10)
 
+    # Then the four main pattern groups.
     drop_ids = [
         r["client_id"]
         for r in records
@@ -261,12 +247,12 @@ def _select_stratified_cases(records: list[dict], n_cases: int, seed: int) -> li
     stat1_ids = [r["client_id"] for r in records if "TYP-05" in r["matched_typologies"]]
     rem8_ids = [r["client_id"] for r in records if "TYP-08" in r["matched_typologies"]]
 
-    add_Pool(drop_ids, 60)
-    add_Pool(recon_ids, 35)
-    add_Pool(stat1_ids, 55)
-    add_Pool(rem8_ids, 55)
+    add_pool(drop_ids, 60)
+    add_pool(recon_ids, 35)
+    add_pool(stat1_ids, 55)
+    add_pool(rem8_ids, 55)
 
-    # 3. Fill the remainder stratified across region so all regions are represented.
+    # Fill the rest stratified by region so every region is represented.
     remaining_needed = n_cases - len(selected)
     if remaining_needed > 0:
         by_region: dict[str, list[str]] = {}
@@ -278,11 +264,11 @@ def _select_stratified_cases(records: list[dict], n_cases: int, seed: int) -> li
         total_avail = sum(len(v) for v in by_region.values())
         for reg in regions:
             share = max(1, int(round(remaining_needed * len(by_region[reg]) / max(1, total_avail))))
-            add_Pool(by_region[reg], min(share, n_cases - len(selected)))
+            add_pool(by_region[reg], min(share, n_cases - len(selected)))
 
     if len(selected) < n_cases:
         rest = [r["client_id"] for r in records if r["client_id"] not in selected_set]
-        add_Pool(rest, n_cases - len(selected))
+        add_pool(rest, n_cases - len(selected))
 
     final_ids = sorted(selected[:n_cases])
     return [by_id[cid] for cid in final_ids]
@@ -403,9 +389,9 @@ def build_case_cards(
             "consommation_level_4",
         ],
     )
-    f0, f1 = _load_or_build_features(interim_dir, processed_dir, clients, inv_clean)
+    f0, f1 = _load_or_build_features(processed_dir, clients, inv_clean)
 
-    # Merge profile + v0 + v1 for training fraud clients only.
+    # Profile, v0 and v1 features for the training fraud clients.
     fraud_clients = clients[
         clients["client_id"].astype(str).isin(train_ids) & (clients["target"] == 1)
     ][["client_id", "target"]].copy()

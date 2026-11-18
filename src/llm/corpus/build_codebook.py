@@ -1,7 +1,6 @@
-# Build data/corpus/source_docs/codebook.md: one entry per code value, with facts computed
-# from the data and clearly labelled assumed meanings (STEG never published code definitions).
-#
-# Fraud rates use training clients only, so the test set never shapes the corpus.
+# Builds data/corpus/source_docs/codebook.md: one entry per code value with facts computed from
+# the data and clearly labelled assumed meanings (STEG never published code definitions).
+# Fraud rates use training clients only. Run with `python run.py codebook`.
 
 import argparse
 from pathlib import Path

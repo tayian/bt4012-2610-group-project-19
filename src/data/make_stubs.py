@@ -1,12 +1,6 @@
-# Regenerate the fake fixtures in data/stubs/ for interface tests.
-#
-# Only the 1,000 client IDs are real. Labels and raw invoices are random; everything after
-# them goes through the real pipeline code: src/data/load.py reads the fake raw CSVs,
-# clean_invoices cleans them, and features_v0 and features_v1 (with and without inspection
-# columns) are built by src/features/{aggregate,behavioural}.py. features_v2 is assembled by
-# src/features/combine.py from v1 and random peer and graph columns. The sequence tensor,
-# splits, scores, SHAP values, corpus chunks and briefs are random with the agreed shapes and
-# column names. Nothing here is a project result.
+# Regenerate the fake fixtures in data/stubs/ for interface tests: 1,000 real client IDs with
+# random labels and invoices, passed through the real load, clean and feature code.
+# Run: python3 -m src.data.make_stubs
 
 import argparse
 import json
@@ -195,9 +189,7 @@ def load_raw(clients, invoices):
 
 
 def make_features(rng, invoices, clients):
-    # v0 and v1 come from the real feature code; v2 is assembled by the real combine step from
-    # v1 and random values for the peer-residual and graph columns (which need labels and a
-    # graph, so they are not computed here).
+    # v0 and v1 use the real feature code; v2 combines v1 with random peer and graph columns.
     v0 = aggregate.build_features(invoices, clients)
     v1_full = behavioural.build_features(invoices, clients, inspection=True)
     n = len(v1_full)
@@ -274,7 +266,6 @@ def build_stubs(out, clients_csv):
     written = []
 
     def save(name, write):
-        # write(path) creates the file; the name is recorded for the manifest.
         path = out / name
         path.parent.mkdir(parents=True, exist_ok=True)
         write(path)
@@ -291,12 +282,11 @@ def build_stubs(out, clients_csv):
     save_parquet(clients, "data/interim/client.parquet")
     save_parquet(invoices, "data/interim/invoice_clean.parquet")
 
-    # Its own generator, so changing the feature columns leaves the other stubs' draws alone.
+    # Separate generators keep the other stubs' random draws fixed.
     features = make_features(np.random.default_rng([SEED, 2]), invoices, clients)
     for name, table in features.items():
         save_parquet(table, f"data/processed/{name}.parquet")
 
-    # Its own generator, so the other stub files keep their random draws.
     seq = np.random.default_rng([SEED, 1]).random((len(clients), 120, 3), dtype=np.float32)
     save("data/processed/seq.npy", lambda path: np.save(path, seq))
     save(
@@ -330,8 +320,7 @@ def build_stubs(out, clients_csv):
     final = final.astype({"split": object, "model_version": object})
     save_parquet(final, "results/final_scores.parquet")
 
-    # The v2 SHAP rows draw feature names from the table with the inspection-time columns, so
-    # those names appear in the fixtures too.
+    # v2 SHAP rows draw names from the table with inspection columns, so those appear too.
     shap_tables = {**features, "features_v2": features["features_v2_with_inspection"]}
     shap = {version: make_shap(rng, shap_tables[f"features_{version}"]) for version in VERSIONS}
     for version, table in shap.items():

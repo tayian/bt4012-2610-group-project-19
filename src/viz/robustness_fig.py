@@ -1,7 +1,5 @@
-# Robustness figure: recall@5% clean vs attacked, before and after defence, for one feature
-# version of results/tables/robustness.csv (python run.py robustness).
-#
-#   python3 -m src.viz.robustness_fig --features v0   -> results/figures/robustness_v0.png
+# Plot recall@5% on clean and attacked data, before and after defence, for one feature version.
+# Run: python3 -m src.viz.robustness_fig --features v0
 
 import argparse
 
@@ -31,7 +29,7 @@ SHORT = {
     "M7 + PGD adv. training": "M7\n+ PGD training",
     "M7 + mimicry augmentation": "M7\n+ mimicry aug.",
 }
-# Clean in neutral grey, then one hue per attack (lighter to darker as knowledge grows).
+# Grey for clean, then darker hues as the attacker knows more.
 ATTACKS = [
     ("clean", "Clean", "#8a8984"),
     ("uniform", "Uniform -30%", "#86b6ef"),

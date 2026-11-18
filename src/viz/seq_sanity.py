@@ -1,5 +1,6 @@
-# Sanity plots: 10 fraud and 10 non-fraud clients as monthly lines, plus class-level median
-# trajectory. Training clients only.
+# Sanity plot of the monthly sequences: 10 fraud and 10 non-fraud training clients, plus each
+# class's median trajectory, and a small table of summary numbers.
+# Run: python3 -m src.viz.seq_sanity
 
 import matplotlib
 import numpy as np
@@ -19,7 +20,7 @@ def main():
     pos = pd.Series(np.arange(len(ids)), index=ids)
     y = cli.loc[tr, "target"].values
     rng = np.random.default_rng(SEED)
-    # pick clients with at least 60 observed months (any invoice type) so lines are readable
+    # At least 60 observed months, so the lines are readable.
     tr_idx = pos[tr].values
     obs = (seq[tr_idx, :, 2] == 0).sum(1)
     elig = obs >= 60
@@ -33,7 +34,7 @@ def main():
         (axes[1], fr, "10 fraud clients", "#C44E52"),
     ]:
         for i in sel:
-            v = np.where(seq[i, :, 2] == 1, np.nan, seq[i, :, 0] + 0)
+            v = np.where(seq[i, :, 2] == 1, np.nan, seq[i, :, 0])
             ax.plot(x, v, lw=0.9, alpha=0.75, color=col)
         ax.set_title(title)
         ax.set_xlabel("months before last invoice")
@@ -51,7 +52,7 @@ def main():
     fig.tight_layout()
     fig.savefig("results/figures/seq_sanity.png", dpi=150)
 
-    # numbers behind the three bullets
+    # Summary numbers per class.
     s = seq[tr_idx]
     obs_m = (s[:, :, 2] == 0).sum(1)
     elec = np.where(s[:, :, 2] == 1, np.nan, s[:, :, 0])

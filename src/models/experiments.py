@@ -1,4 +1,4 @@
-# Shared experiment I/O, saved-fold evaluation and resumable completed-run checkpoints.
+# Shared experiment I/O for the tabular models: saved-fold evaluation with cached, resumable runs.
 
 import argparse
 import hashlib
@@ -12,8 +12,8 @@ import numpy as np
 import pandas as pd
 from sklearn.exceptions import ConvergenceWarning
 
-from src.eval.metrics import budget_metrics, cv_evaluate
-from src.eval.oof import feature_version, write_frames
+from src.eval.metrics import budget_metrics, cv_evaluate, fold_mean_std
+from src.eval.oof import feature_version, replace_run_row, write_frames
 from src.models.linear import load_training
 
 
@@ -50,6 +50,8 @@ class Context:
 
 
 def context(features, clients, splits, results):
+    # The fingerprint covers the training data, the model code and library versions, so a cached
+    # run is reused only when none of them changed.
     features = Path(features)
     X, y, folds = load_training(features, clients, splits)
     version, suffix = feature_version(features)
@@ -74,11 +76,8 @@ def metric_row(ctx, scores, model):
         budget_metrics(ctx.y[ctx.fold_ids == f], np.asarray(scores)[ctx.fold_ids == f])
         for f in range(5)
     ]
-    metrics = pd.DataFrame(rows)
     row = {"model": model, "feature_version": ctx.version, "n_clients": len(ctx.X), "n_folds": 5}
-    for column in metrics:
-        row[column + "_mean"] = float(metrics[column].mean())
-        row[column + "_std"] = float(metrics[column].std(ddof=1))
+    row.update(fold_mean_std(pd.DataFrame(rows)))
     return row
 
 
@@ -97,6 +96,7 @@ def coefficients(pipeline, fold, scope):
 
 
 class FitTracker:
+    # Wraps a fold estimator to fail on non-convergence, keep its coefficients and log progress.
     def __init__(self, estimator, fold, name, collect):
         self.estimator, self.fold, self.name, self.collect = estimator, fold, name, collect
 
@@ -163,13 +163,7 @@ def publish(ctx, oof, row, name):
     oof = oof.assign(model=name)
     table_path = ctx.results / "tables/main_results.csv"
     previous = pd.read_csv(table_path) if table_path.exists() else pd.DataFrame()
-    if "run_id" in previous:
-        previous = previous.loc[previous.run_id.ne(row["run_id"])]
-    table = (
-        pd.DataFrame([row])
-        if previous.empty
-        else pd.concat([previous, pd.DataFrame([row])], ignore_index=True)
-    )
+    table = replace_run_row(previous, row)
     write_frames({ctx.results / f"oof/{name}_{ctx.suffix}.parquet": oof, table_path: table})
     return row
 

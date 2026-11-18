@@ -1,13 +1,6 @@
-# Build the consolidated RAG knowledge corpus (data/corpus/chunks.jsonl).
-#
-# Combines:
-# 1. Playbook (data/corpus/source_docs/playbook.md) -> 12 typology chunks (TYP-01..TYP-12)
-# 2. Inspection SOPs (sop_v2023.md, sop_v2025.md)  -> 26 clause chunks (13 per version)
-# 3. Code Book (data/corpus/source_docs/codebook.md) -> 82 code chunks (one per code value)
-# 4. Precedent Case Cards (data/corpus/case_cards.jsonl) -> 300 training fraud case chunks
-#
-# Every chunk is validated to carry the 10 required fields:
-#   id, text, doc, section, version, valid_from, valid_to, counter_type, jurisdiction, synthetic
+# Builds data/corpus/chunks.jsonl from the playbook, the two SOP versions, the code book and the
+# precedent case cards, and checks every chunk carries REQUIRED_FIELDS.
+# Run with `python run.py corpus`.
 
 from __future__ import annotations
 
@@ -98,78 +91,37 @@ def parse_markdown_chunks(path: Path, default_doc: str) -> list[dict]:
         body_text = "\n".join(body_lines).strip()
         full_text = f"{header}\n{body_text}".strip() if body_text else header
 
+        # Per-document defaults, used when the metadata line does not set the field.
         if doc == "playbook":
-            section = str(meta.get("section", cid.lower()))
-            version = str(meta.get("version", "v1.0"))
-            valid_from = str(meta.get("valid_from", "2005-01-01"))
-            valid_to = meta.get("valid_to", None)
-            counter_type = str(meta.get("counter_type", "both"))
-            jurisdiction = str(meta.get("jurisdiction", "TN"))
-            synthetic = bool(meta.get("synthetic", False))
-            chunk = {
-                "id": cid,
-                "text": full_text,
-                "doc": doc,
-                "section": section,
-                "version": version,
-                "valid_from": valid_from,
-                "valid_to": valid_to,
-                "counter_type": counter_type,
-                "jurisdiction": jurisdiction,
-                "synthetic": synthetic,
-            }
+            section, version, valid_from, synthetic = cid.lower(), "v1.0", "2005-01-01", False
         elif doc == "sop":
-            # Extract clause number from SOP-vYYYY-X.X
+            # The clause number and version come from the ID, e.g. SOP-v2025-2.1.
             parts = cid.split("-", 2)
-            clause = parts[2] if len(parts) == 3 else cid
-            section = str(meta.get("section", clause))
-            version = str(meta.get("version", parts[1] if len(parts) >= 2 else "v2025"))
-            valid_from = str(meta.get("valid_from", "2025-01-01"))
-            valid_to = meta.get("valid_to", None)
-            counter_type = str(meta.get("counter_type", "both"))
-            jurisdiction = str(meta.get("jurisdiction", "TN"))
-            synthetic = bool(meta.get("synthetic", True))
-            chunk = {
-                "id": cid,
-                "text": full_text,
-                "doc": doc,
-                "section": section,
-                "version": version,
-                "valid_from": valid_from,
-                "valid_to": valid_to,
-                "counter_type": counter_type,
-                "jurisdiction": jurisdiction,
-                "synthetic": synthetic,
-            }
+            section = parts[2] if len(parts) == 3 else cid
+            version = parts[1] if len(parts) >= 2 else "v2025"
+            valid_from, synthetic = "2025-01-01", True
         elif doc == "codebook":
             field = str(meta.get("field", ""))
-            value = str(meta.get("value", ""))
-            section = str(meta.get("section", field))
-            version = str(meta.get("version", "v1.0"))
-            valid_from = str(meta.get("valid_from", "2005-01-01"))
-            valid_to = meta.get("valid_to", None)
-            counter_type = str(meta.get("counter_type", "both"))
-            jurisdiction = str(meta.get("jurisdiction", "TN"))
-            synthetic = bool(meta.get("synthetic", False))
-            assumed = bool(meta.get("assumed", False))
-            chunk = {
-                "id": cid,
-                "text": full_text,
-                "doc": doc,
-                "section": section,
-                "version": version,
-                "valid_from": valid_from,
-                "valid_to": valid_to,
-                "counter_type": counter_type,
-                "jurisdiction": jurisdiction,
-                "synthetic": synthetic,
-                "field": field,
-                "value": value,
-                "assumed": assumed,
-            }
+            section, version, valid_from, synthetic = field, "v1.0", "2005-01-01", False
         else:
             raise ValueError(f"Unsupported doc type {doc!r} in {path}")
 
+        chunk = {
+            "id": cid,
+            "text": full_text,
+            "doc": doc,
+            "section": str(meta.get("section", section)),
+            "version": str(meta.get("version", version)),
+            "valid_from": str(meta.get("valid_from", valid_from)),
+            "valid_to": meta.get("valid_to", None),
+            "counter_type": str(meta.get("counter_type", "both")),
+            "jurisdiction": str(meta.get("jurisdiction", "TN")),
+            "synthetic": bool(meta.get("synthetic", synthetic)),
+        }
+        if doc == "codebook":
+            chunk["field"] = field
+            chunk["value"] = str(meta.get("value", ""))
+            chunk["assumed"] = bool(meta.get("assumed", False))
         chunks.append(chunk)
 
     return chunks

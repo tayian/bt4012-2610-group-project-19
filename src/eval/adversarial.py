@@ -1,32 +1,9 @@
-# Adversarial robustness study (Deep Learning II). Threat model: docs/threat_model.md.
-#
-# A fraudulent client lowers the consumption declared on their own invoices by at most 30% in
-# total and tries to drop out of the top-5% inspection list. Every number is recall@5% on the
-# held-out CV fold (training clients only, test set untouched), using the shared tie-aware
-# metric, averaged over the 5 saved folds. Non-fraud clients keep their clean inputs; every
-# fraud client in the held-out fold is attacked.
-#
-# Attacks on the invoices, after which features and sequences are rebuilt with the same
-# pipeline code as everyone else's (src/features/aggregate.py for v0, behavioural.py for v1,
-# sequence.py):
-#   uniform  every invoice's consumption x 0.70
-#   smooth   a multiplier that ramps linearly from 1 to f_end over the client's invoices (an
-#            honest-looking slow decline), with f_end set so the total falls exactly 30%
-# and, for the CNN only, a white-box attack on its input:
-#   pgd      10 PGD steps on the sequence, each month only lowered, projected back onto the
-#            30% budget; the static branch is held fixed
-#
-# Defences: adversarial augmentation for M3 (one attacked copy of each training-fold fraud),
-# PGD adversarial training and mimicry augmentation for M7.
-#
-#   python3 -m src.eval.adversarial trees --features v0   # M3 study and defence
-#   python3 -m src.eval.adversarial cnn --features v0     # M7 study; needs python run.py cnn first
-#   python3 -m src.eval.adversarial all --features v0     (python run.py robustness)
-#
-# Writes results/tables/robustness_by_fold.csv and the summary results/tables/robustness.csv
-# (mean and std over folds per model and attack). Rows of other feature versions are kept.
+# Adversarial robustness of M3 and M7: frauds lower their declared consumption by up to 30% and
+# recall@5% is measured per saved fold, with and without defences.
+# Run: python3 -m src.eval.adversarial trees | cnn | all --features v0
 
 import argparse
+import json
 import os
 import pickle
 import time
@@ -42,11 +19,11 @@ from src.eval.oof import write_frames
 from src.features.sequence import build_sequence
 from src.models.cnn import SEQ_SCALE, DualCNN, load_seq, to_model_seq
 from src.models.common import SEED, TabularPrep, load_train
+from src.models.dl import train_model
 
 BUDGET = 0.30
 TOP = 0.05
-# Features an attacker moves by lowering declared consumption: F2, in v1 also the F4/F5
-# trajectory and self-deviation groups, and in v3/v4 the F12 recency and tariff-band columns.
+# Feature columns that move when an attacker lowers declared consumption.
 CONSUMPTION_PREFIX = (
     "cons_pm",
     "share_level",
@@ -64,8 +41,7 @@ SUMMARY = Path("results/tables/robustness.csv")
 
 
 def build_features(fv, inv, cli):
-    # The feature step for this version, run on (attacked) invoices of the given clients.
-    # Returns one row per client indexed by client_id, with the columns of features_<fv>.
+    # The same feature code as features_<fv>, run on (attacked) invoices; indexed by client_id.
     if fv == "v0":
         from src.features.aggregate import build_features as v0
 
@@ -90,14 +66,10 @@ def build_features(fv, inv, cli):
     return out.set_index("client_id")
 
 
-# Invoice attacks
 def _scale_levels(inv, factor):
-    # Lower each invoice's total to ceil(cons x factor) and recompute cons and cons_pm the way
-    # clean.py does (cons_pm = cons / months_valid, missing where the billing period is
-    # impossible). The units removed come off the highest tariff level first, as they would on
-    # a real bill: scaling every level by the same factor instead leaves level 2+ consumption
-    # while level 1 is below its band limit, a split no real invoice has and that a defence
-    # trained on such copies learns to spot.
+    # Lower each invoice's total to ceil(cons x factor), taking the units off the highest tariff
+    # level first as a real bill would; scaling every level equally gives level splits no real
+    # invoice has, which a defence learns to spot.
     out = inv.copy()
     levels = out[LEVELS].to_numpy(np.int64)
     total = levels.sum(axis=1)
@@ -110,12 +82,8 @@ def _scale_levels(inv, factor):
     removed = total - levels.sum(axis=1)
     out["cons"] = out[LEVELS].sum(axis=1)
     out["cons_pm"] = out["cons"] / out["months_valid"]
-    # A meter that records less also reads lower: each invoice's index difference falls by the
-    # units removed (divided by the meter coefficient), and every later reading on the same
-    # meter falls by the running total, so old_index still equals the previous new_index and
-    # index x coefficient still reconciles with cons as often as before. Leaving the readings
-    # as they were would give attacked bills a meter that keeps advancing while consumption
-    # falls, which the v3 meter-growth features (and a defence trained on such copies) spot.
+    # Meter readings fall by the running total of removed units, so readings still chain and
+    # reconcile with cons; otherwise the meter-growth features would expose the attack.
     coef = out["counter_coefficient"].to_numpy(np.int64)
     lower = np.where(coef > 0, removed // np.maximum(coef, 1), 0)
     order = out.sort_values(["client_id", "counter_type", "counter_number", "invoice_date"]).index
@@ -130,8 +98,7 @@ def _scale_levels(inv, factor):
     out["new_index"] = out["new_index"] - running
     out["old_index"] = out["old_index"] - (running - lower)
     out["idx_diff"] = out["idx_diff"] - lower
-    # A meter whose readings would go below zero starts higher instead (a constant per meter,
-    # so the differences stay as they are); negative readings would be another giveaway.
+    # A meter that would read below zero is shifted up by a constant, keeping its differences.
     key = [out["client_id"], out["counter_type"], out["counter_number"]]
     floor = out[["old_index", "new_index"]].min(axis=1).groupby(key).transform("min")
     shift = (-floor).clip(lower=0)
@@ -145,14 +112,13 @@ def attack_uniform(inv):
 
 
 def _smooth_factor(cons, budget=BUDGET):
-    # Linear ramp 1 -> f_end over the client's invoices (date order) such that sum(cons *
-    # factor) = (1 - budget) * sum(cons). Falls back to uniform if a ramp alone cannot reach
-    # the budget.
+    # A multiplier ramping linearly down from 1 over the client's invoices (an honest-looking
+    # decline) so the total falls by exactly the budget; uniform if a ramp cannot reach it.
     n = len(cons)
     if n == 1 or cons.sum() == 0:
         return np.full(n, 1 - budget)
-    w = np.arange(n) / (n - 1)  # 0..1
-    # factor = 1 - a*w  ->  a = budget * sum(c) / sum(c*w)
+    w = np.arange(n) / (n - 1)
+    # The factor is 1 - a * w, with a chosen so that sum(cons * factor) = (1 - budget) * sum(cons).
     a = budget * cons.sum() / max((cons * w).sum(), 1e-9)
     if a > 1:
         return np.full(n, 1 - budget)
@@ -209,7 +175,7 @@ def attacked_inputs(fv, cache="data/processed/attacked_{fv}_{attack}"):
 
 
 def recall_at(y, s, top=TOP):
-    # Shared tie-aware recall in the top `top` share of clients (src/eval/metrics.py).
+    # Tie-aware recall in the top share of clients, as in budget_metrics.
     y = np.asarray(y, dtype=float)
     return float(expected_tp_curve(y, s)[budget_size(len(y), top)] / y.sum())
 
@@ -236,10 +202,8 @@ def _log(rows, study, fv):
     write_frames({BY_FOLD: pd.concat([old, frame], ignore_index=True)})
 
 
-# Trees (M3)
-# Augmented M3 variants -> the attacks their training copies use. The single-attack variants
-# are the held-out-attack check: a defence counts as robust only if it also holds against the
-# attack it was not trained on.
+# Attacks used for each augmented M3's training copies. The single-attack variants check that a
+# defence also holds against the attack it was not trained on.
 AUGMENTED = {
     "M3 + adv. augmentation": ("uniform", "smooth"),
     "M3 + aug. uniform only": ("uniform",),
@@ -248,14 +212,9 @@ AUGMENTED = {
 
 
 def tree_study(fv="v0"):
-    # M3 as is, M3 without the consumption group (which group carries the vulnerability), and
-    # M3 with adversarial augmentation: each training-fold fraud gets one attacked copy (an
-    # attack drawn at random from the variant's list), label 1. fit_m3 recomputes
-    # scale_pos_weight after augmentation. Only training-fold frauds are augmented, so the
-    # held-out fold stays unseen. On v1 every variant uses the tuned M3 settings
-    # (results/tables/M3_tuned_params_v1.json), the model inside the final fusion.
-    import json
-
+    # M3, M3 without the consumption features, and M3 with one attacked copy of each
+    # training-fold fraud. Beyond v0 every variant uses the tuned M3 parameters.
+    # Imported here so tests can patch src.models.trees.fit_m3.
     from src.models.trees import fit_m3
 
     ids, X, y, folds = load_train(fv)
@@ -292,10 +251,9 @@ def tree_study(fv="v0"):
     return pd.DataFrame(rows)
 
 
-# CNN (M7)
 def project_budget(x_adv, x0, mask):
-    # Keep x_adv <= x0, >= 0, unchanged on masked months, and total raw declared consumption
-    # >= (1 - BUDGET) * original (per client).
+    # Keep 0 <= x_adv <= x0, masked months unchanged, and each client's total declared
+    # consumption at least (1 - BUDGET) of the original.
     x_adv = torch.minimum(torch.clamp(x_adv, min=0.0), x0)
     x_adv = torch.where(mask, x0, x_adv)
     raw0 = torch.expm1(x0 * SEQ_SCALE)
@@ -308,8 +266,7 @@ def project_budget(x_adv, x0, mask):
 
 
 def pgd_seq(model, S, Xs, steps=10, alpha=0.05):
-    # White-box PGD on the consumption channels of the sequence (channels 0, 1).
-    # S: (n, 3, 120) model input. Returns attacked S.
+    # White-box PGD on the two consumption channels of the (n, 3, 120) model input.
     model.eval()
     S = torch.as_tensor(S)
     Xs = torch.as_tensor(Xs)
@@ -336,8 +293,7 @@ def predict_batched(model, S, Xs, bs=4096):
 
 
 def pgd_augment(steps=5, alpha=0.05):
-    # Adversarial training hook for dl.train_model: PGD copies of the fraud examples in each
-    # batch, appended 1:1 with label 1.
+    # Adversarial training hook for train_model: PGD copies of each batch's frauds, label 1.
     def aug(xb, yb, model):
         pos = yb > 0.5
         if pos.sum() == 0:
@@ -366,16 +322,12 @@ def _evaluate_cnn(name, model, k, prep, X, S, y, ids, att):
 
 
 def cnn_study(fv="v0", folds_to_run=range(5)):
-    # The saved M7 fold models (python run.py cnn), then two defences trained per fold: PGD
-    # adversarial training, and mimicry augmentation (one uniform or smooth copy of each
-    # training-fold fraud, with sequence and static features rebuilt from the attacked
-    # invoices).
-    from src.models.dl import train_model
-
+    # The saved M7 fold models against two defences trained per fold: PGD adversarial training
+    # and mimicry augmentation with one attacked copy of each training-fold fraud.
     ids, X, y, folds = load_train(fv)
     S = load_seq(ids)
     att = attacked_inputs(fv)
-    # Resume: keep folds already finished by an earlier, interrupted run (three models each).
+    # Resume by keeping folds an interrupted run already finished (three models each).
     rows = []
     if BY_FOLD.exists():
         old = pd.read_csv(BY_FOLD)

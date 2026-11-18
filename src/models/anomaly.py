@@ -1,26 +1,19 @@
-# Unsupervised anomaly scorers, out-of-fold (run on v0 and v1).
-#
-# M5 Isolation forest: consumption and billing features (target never used), 300 trees,
-#    contamination 'auto', fitted on the training fold, scored on the held-out fold. Profile
-#    columns are left out: rare categories and missing-value patterns are "anomalous" without
-#    saying anything about fraud.
-# M6 Autoencoder: 120-month total cons_pm sequence (log1p) flattened + consumption and billing
-#    features; Dense in-64-16-64-in; trained on NON-FRAUD training-fold clients only; score =
-#    reconstruction MSE on the held-out fold.
-#
-#   python3 -m src.models.anomaly --features v1
+# Unsupervised anomaly scorers M5 (isolation forest) and M6 (autoencoder trained on non-fraud
+# clients), scored out-of-fold. Run: python3 -m src.models.anomaly --features v1
 
 import argparse
 
 import numpy as np
-import pandas as pd
 import torch
 import torch.nn as nn
 from sklearn.ensemble import IsolationForest
 
+from src.models.cnn import raw_seq
 from src.models.common import SEED, TabularPrep, load_train, save_run
 from src.models.dl import set_seed
 
+# Consumption and billing columns only: rare profile categories look anomalous without saying
+# anything about fraud.
 CONSUMPTION_BILLING_PREFIX = (
     "cons_pm_",
     "share_level",
@@ -52,7 +45,8 @@ def m5_iforest(X, folds):
         prep = TabularPrep().fit(X[tr])
         f = IsolationForest(n_estimators=300, contamination="auto", random_state=SEED, n_jobs=2)
         f.fit(prep.transform(X[tr]))
-        s[va] = -f.score_samples(prep.transform(X[va]))  # higher = more anomalous
+        # Negated so that a higher score means more anomalous.
+        s[va] = -f.score_samples(prep.transform(X[va]))
     return s
 
 
@@ -67,15 +61,14 @@ class AE(nn.Module):
 
 
 def total_seq(ids):
-    seq = np.load("data/processed/seq.npy", mmap_mode="r")
-    sid = np.load("data/processed/seq_client_ids.npy")
-    pos = pd.Series(np.arange(len(sid)), index=sid)[ids].values
-    s = np.array(seq[pos], dtype=np.float32)
+    # Total monthly consumption over both meter channels, log1p-scaled.
+    s = raw_seq(ids)
     tot = np.log1p(np.expm1(s[:, :, 0]) + np.expm1(s[:, :, 1]))
     return tot / 8.0
 
 
 def m6_autoencoder(ids, X, y, folds, epochs=25):
+    # Trained on non-fraud training-fold clients only; the score is the reconstruction error.
     cols = behaviour_columns(X)
     seq = total_seq(ids)
     s = np.zeros(len(y))
@@ -105,11 +98,8 @@ def m6_autoencoder(ids, X, y, folds, epochs=25):
             with torch.no_grad():
                 vl = ((model(Zt[val_i]) - Zt[val_i]) ** 2).mean().item()
             if vl < best - 1e-5:
-                best, best_state, bad = (
-                    vl,
-                    {k_: v.clone() for k_, v in model.state_dict().items()},
-                    0,
-                )
+                best, bad = vl, 0
+                best_state = {k_: v.clone() for k_, v in model.state_dict().items()}
             else:
                 bad += 1
                 if bad >= 3:
@@ -126,7 +116,6 @@ def main():
     p.add_argument("--features", default="v1", choices=["v0", "v1", "v2", "v3", "v4"])
     a = p.parse_args()
     ids, X, y, folds = load_train(a.features)
-    # Anomaly scores are not probabilities, so their Brier score is left empty.
     save_run(
         ids,
         folds,

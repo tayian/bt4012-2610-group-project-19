@@ -1,13 +1,5 @@
-# Benford's law on the invoice data (training clients only).
-#
-#   1. First digit of positive per-invoice consumption (cons), fraud vs non-fraud: observed vs
-#      Benford shares, chi-square goodness of fit and MAD with Nigrini's conformity band.
-#   2. The same per district and per district x class, ranked by MAD.
-#   3. Drill-down on the worst district x class group: first digit, then first two digits.
-#   4. Last digit of new_index: share ending in 0 or 5 against the 20% expected, by class.
-#
-# Outputs: results/tables/benford_*.csv, results/figures/benford_first_digit.png and
-# results/figures/benford_two_digit.png. The test clients are never read.
+# Benford first-digit and last-digit tests on training invoices, by class and by district.
+# Run: python3 -m src.features.benford_analysis
 
 import argparse
 from pathlib import Path
@@ -15,17 +7,16 @@ from pathlib import Path
 import matplotlib
 
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt  # noqa: E402
-import numpy as np  # noqa: E402
-import pandas as pd  # noqa: E402
-from scipy import stats  # noqa: E402
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from scipy import stats
 
-from src.data.load import LEVELS  # noqa: E402
-from src.features.behavioural import BENFORD_MIN_READINGS, leading_digits  # noqa: E402
-from src.viz import style  # noqa: E402
+from src.data.load import LEVELS
+from src.features.behavioural import BENFORD_MIN_READINGS, leading_digits
+from src.viz import style
 
-# Nigrini (2012) MAD bands: upper limits of close, acceptable and marginally acceptable
-# conformity; anything above is nonconformity.
+# Nigrini (2012) upper MAD limits for each conformity band.
 NIGRINI = {
     1: [(0.006, "close"), (0.012, "acceptable"), (0.015, "marginal"), (np.inf, "nonconformity")],
     2: [
@@ -49,8 +40,7 @@ def band(mad, n_digits):
 
 
 def digit_test(values, n_digits=1):
-    # Observed counts of the leading digits of positive values (values below 10 are left out of
-    # the two-digit test), chi-square goodness of fit against Benford and the MAD.
+    # Leading-digit counts, chi-square against Benford and the MAD (values too short are dropped).
     v = np.asarray(values)
     v = v[v >= 10 ** (n_digits - 1)]
     expected = expected_shares(n_digits)
@@ -78,8 +68,7 @@ def digit_test(values, n_digits=1):
 
 
 def expected_mad(n, n_digits=1):
-    # Mean |observed - expected| for a sample of n values that follow Benford exactly
-    # (normal approximation of each digit's share).
+    # Expected MAD of n values that follow Benford exactly (normal approximation).
     p = expected_shares(n_digits).to_numpy()
     return float(np.mean(np.sqrt(2 * p * (1 - p) / (np.pi * n))))
 
@@ -114,8 +103,8 @@ def tests_by(inv, groups, n_digits=1, min_n=0):
 
 
 def last_digit_test(inv):
-    # Readings of 0 are left out (a new meter, not a reading). "distinct readings" also drops
-    # bills with zero consumption, whose new_index repeats the previous one.
+    # Readings of 0 are new meters, so they are left out; zero-consumption bills repeat the
+    # previous new_index, so the second subset drops them too.
     rows = []
     for subset, mask in (
         ("new_index > 0", inv["new_index"] > 0),
@@ -147,8 +136,7 @@ def last_digit_test(inv):
 
 
 def caveats(inv):
-    # Numbers behind the caveats: how often tariff level 1 is full (cons then starts at the band
-    # limit), and how noisy a per-client MAD is with a typical number of readings.
+    # How often tariff level 1 is full, and how noisy a per-client MAD is at typical sizes.
     positive = inv[inv["cons"] > 0]
     per_client = positive.groupby("client_id").size()
     median_n = int(per_client.median())

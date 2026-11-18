@@ -1,5 +1,5 @@
-# Train/test holdout and cross-validation folds. They are created once from the raw client
-# labels and committed; every later run only validates and reuses them (never re-split).
+# Create the train/test split and CV folds once, then only validate and reuse them.
+# Run: python3 -m src.data.split
 
 import argparse
 import math
@@ -17,7 +17,6 @@ SPLIT_FILES = ("train_ids.csv", "test_ids.csv", "folds.csv")
 
 
 def read_clients(path):
-    # Raw client IDs and their binary fraud labels.
     clients = pd.read_csv(
         path, usecols=["client_id", "target"], dtype={"client_id": "string"}, keep_default_na=False
     )

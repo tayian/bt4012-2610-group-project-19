@@ -1,11 +1,6 @@
-# Peer-residual features (F8): does a client declare less than similar customers?
-#
-# A LightGBM regressor predicts each invoice's log1p(cons_pm) from tarif_type, client_catg,
-# region, invoice month and counter_type, trained on non-fraud clients only. The residual is
-# actual minus predicted (on the log scale, so it reads as a ratio to the peer level), averaged
-# and minimised per client. To keep labels out of a client's own features, the model for a
-# training client in fold k is fitted on non-fraud training clients of the other folds; test
-# clients use a model fitted on every non-fraud training client.
+# Peer-residual features: log1p(cons_pm) minus a LightGBM prediction fitted on non-fraud
+# clients of the other folds (all training folds for test clients), so no client sees its label.
+# Run: python3 -m src.features.peer
 
 import argparse
 from pathlib import Path
@@ -24,7 +19,7 @@ PARAMS = {
     "random_state": SEED,
     "n_jobs": 4,
     "verbosity": -1,
-    # Same result on every run (otherwise threads can change the last digits).
+    # Without these, threads can change the last digits between runs.
     "deterministic": True,
     "force_row_wise": True,
 }
@@ -46,15 +41,13 @@ def invoice_table(inv, clients):
             "y": np.log1p(inv["cons_pm"].to_numpy(np.float64)),
         }
     )
-    # Fixed category vocabularies from the codes themselves (no labels involved).
     for column in PREDICTORS:
         data[column] = data[column].astype("string").astype("category")
     return data
 
 
 def residual_features(data, groups, params=None):
-    # groups: list of (clients to score, non-fraud clients to fit on). Returns one row per
-    # scored client.
+    # groups: list of (clients to score, non-fraud clients to fit on).
     from lightgbm import LGBMRegressor
 
     out = []

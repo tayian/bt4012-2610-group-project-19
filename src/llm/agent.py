@@ -1,13 +1,6 @@
-# Investigation agents (plan 14.7 and 14.8): six tools with JSON schemas, a single agent (one
-# Gemini model with function calling, at most 8 tool calls) and a multi-agent workflow
-# (Planner -> Evidence Gatherer -> Brief Writer -> Auditor with one revision round). Both write
-# the same Inspector Brief schema as src/llm/briefs.py and log every run with RunLogger.
-#
-#   python3 -m src.llm.agent --systems single multi
-#   -> results/agent_logs/<system>/<client_id>.json, results/agent_logs/plots/*.png
-#      results/tables/agent_comparison.csv
-#
-# A run whose log already holds a brief is not repeated (use --force), so reruns cost nothing.
+# Investigation agents: a single function-calling agent and a multi-agent workflow (planner,
+# evidence gatherer, brief writer, auditor) that write the same Inspector Brief as briefs.py.
+# Run with `python3 -m src.llm.agent`; a client whose log already holds a brief is skipped.
 
 from __future__ import annotations
 
@@ -33,8 +26,8 @@ from src.llm.briefs import (
     cache_model,
     generate_with_retry,
     get_gemini_client,
-    parse_brief,
     top_clients,
+    try_parse_brief,
     usage_dict,
     write_brief,
 )
@@ -65,9 +58,7 @@ ROUND_SHARE_FLAG = 0.40
 AGENT_FILTER_KEYS = ("doc", "field", "value", "section")
 
 
-# Tools. Each takes plain arguments and returns a JSON-serialisable dict.
-
-
+# Each tool takes plain arguments and returns a JSON-serialisable dict.
 def get_client_profile(client_id: str) -> dict[str, Any]:
     snap = get_client_snapshot(client_id)
     return {"client_id": snap["client_id"], "split": snap["split"], **snap["profile"]}
@@ -152,6 +143,19 @@ def retrieve_evidence(
     return {"query": query, "chunks": [{k: h.get(k) for k in keep} for h in hits]}
 
 
+def with_years(history: dict[str, Any]) -> dict[str, Any]:
+    # Years as plain numbers: the number check ignores full dates, so a brief saying "drops in
+    # 2009" would otherwise count as an unsupported number.
+    years = sorted({int(d[:4]) for d in history.get("drop_dates", [])})
+    first, last = history.get("first_invoice"), history.get("last_invoice")
+    return {
+        **history,
+        "drop_years": years,
+        "first_year": int(first[:4]) if first else None,
+        "last_year": int(last[:4]) if last else None,
+    }
+
+
 def plot_history(client_id: str, out_dir: Path | str = PLOT_DIR) -> dict[str, Any]:
     # Consumption per month (cons_pm) per meter type; a drop is a reading below half the
     # median of the same meter type's previous three readings.
@@ -187,29 +191,18 @@ def plot_history(client_id: str, out_dir: Path | str = PLOT_DIR) -> dict[str, An
     fig.savefig(out, dpi=110)
     plt.close(fig)
     drops.sort()
-    out_dict = {
-        "client_id": str(client_id),
-        "path": str(out),
-        "n_invoices": int(len(inv)),
-        "first_invoice": str(pd.Timestamp(inv["invoice_date"].min()).date()) if len(inv) else None,
-        "last_invoice": str(pd.Timestamp(inv["invoice_date"].max()).date()) if len(inv) else None,
-        "n_drops": len(drops),
-        "drop_dates": [f"{d} ({c})" for d, c in drops[-10:]],
-    }
-    return with_years(out_dict)
-
-
-def with_years(history: dict[str, Any]) -> dict[str, Any]:
-    # Years as plain numbers: the number check ignores full dates, so a brief saying "drops in
-    # 2009" would otherwise count as an unsupported number.
-    years = sorted({int(d[:4]) for d in history.get("drop_dates", [])})
-    first, last = history.get("first_invoice"), history.get("last_invoice")
-    return {
-        **history,
-        "drop_years": years,
-        "first_year": int(first[:4]) if first else None,
-        "last_year": int(last[:4]) if last else None,
-    }
+    inv_dates = inv["invoice_date"]
+    return with_years(
+        {
+            "client_id": str(client_id),
+            "path": str(out),
+            "n_invoices": int(len(inv)),
+            "first_invoice": str(pd.Timestamp(inv_dates.min()).date()) if len(inv) else None,
+            "last_invoice": str(pd.Timestamp(inv_dates.max()).date()) if len(inv) else None,
+            "n_drops": len(drops),
+            "drop_dates": [f"{d} ({c})" for d, c in drops[-10:]],
+        }
+    )
 
 
 _CLIENT_ARG = {
@@ -479,13 +472,7 @@ def final_brief_from_history(
     config["system_instruction"] = SINGLE_AGENT_PROMPT
     resp = generate_with_retry(client, model, contents, config)
     logger.llm_call(usage_dict(resp), role="writer")
-    try:
-        return parse_brief(resp.text or "")
-    except Exception:
-        try:
-            return json.loads(resp.text or "")
-        except Exception:
-            return None
+    return try_parse_brief(resp.text or "")
 
 
 def run_single(
@@ -518,7 +505,7 @@ def audit(
     evidence: list[dict[str, Any]],
     judge: Any,
 ) -> tuple[bool, list[str], dict[str, Any]]:
-    # The 14.6 checks plus the LLM judge. Pass = every automatic check at 100% and no evidence
+    # The brief checks plus the LLM judge. Pass = every automatic check at 100% and no evidence
     # point judged 2 or below.
     if brief is None:
         return False, ["The brief is not valid JSON; return JSON matching the schema."], {}
@@ -617,17 +604,19 @@ def run_multi(
     return log.rec
 
 
-def _done(system: str, client_id: str, log_dir: str, model: str) -> bool:
-    path = Path(log_dir) / system / f"{client_id}.json"
-    if not path.is_file():
-        return False
-    rec = json.loads(path.read_text(encoding="utf-8"))
+def _finished(rec: dict[str, Any], model: str | None) -> bool:
+    # A log with a brief, no error, the same LLM (any if model is None) and the current model.
     return (
         rec.get("brief") is not None
         and not rec.get("error")
-        and rec.get("llm_model") == model
+        and (model is None or rec.get("llm_model") == model)
         and str(rec.get("model_version", "")).startswith(f"{SNAPSHOT_CONFIG['model_version']}|")
     )
+
+
+def _done(system: str, client_id: str, log_dir: str, model: str) -> bool:
+    path = Path(log_dir) / system / f"{client_id}.json"
+    return path.is_file() and _finished(json.loads(path.read_text(encoding="utf-8")), model)
 
 
 def compare(
@@ -640,20 +629,13 @@ def compare(
     # One row per system, over the clients every system has a finished run for (so a partly
     # finished system is never compared on a different set of clients).
     chunks = dict(get_retriever().id_to_chunk)
-    logs = {}
-    for system in systems:
-        logs[system] = {
-            log["client_id"]: log
-            for log in load_logs(system, log_dir)
-            if log.get("brief") is not None
-            and not log.get("error")
-            and (model is None or log.get("llm_model") == model)
-            and str(log.get("model_version", "")).startswith(f"{SNAPSHOT_CONFIG['model_version']}|")
+    logs = {
+        system: {
+            log["client_id"]: log for log in load_logs(system, log_dir) if _finished(log, model)
         }
+        for system in systems
+    }
     common = sorted(set.intersection(*(set(v) for v in logs.values()))) if logs else []
-
-    def evidence_fn(log):
-        return [chunks[i] for i in log["evidence_ids"] if i in chunks]
 
     rows = []
     for system in systems:
@@ -662,7 +644,7 @@ def compare(
             {
                 "brief": r["brief"],
                 "snapshot": scoring_snapshot(r["client_id"], r.get("tool_outputs") or {}),
-                "evidence": evidence_fn(r),
+                "evidence": [chunks[i] for i in r["evidence_ids"] if i in chunks],
             }
             for r in recs
         ]

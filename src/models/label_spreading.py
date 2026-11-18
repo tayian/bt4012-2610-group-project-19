@@ -1,9 +1,5 @@
-# M8 label spreading on the client graph (data/processed/knn_edges.parquet), out-of-fold.
-#
-# The same update as scikit-learn's LabelSpreading (alpha = 0.2, symmetric normalised graph,
-# at most 30 iterations), run on our saved graph instead of one rebuilt from raw features, so
-# every graph model uses the same edges. For fold k only the labels of training clients in the
-# other folds are given; the fold-k clients' scores are their spread fraud share.
+# M8 label spreading on the saved client graph, scored out-of-fold.
+# Run: python3 -m src.models.label_spreading
 
 import argparse
 from pathlib import Path
@@ -30,7 +26,8 @@ def normalised_adjacency(src, dst, n):
 
 
 def spread(s, labelled, y, alpha=ALPHA):
-    # F <- alpha * S F + (1 - alpha) * Y, with Y one-hot on the labelled nodes.
+    # scikit-learn's LabelSpreading update, F <- alpha * S F + (1 - alpha) * Y, run on the saved
+    # graph so every graph model uses the same edges.
     n = s.shape[0]
     base = np.zeros((n, 2))
     base[labelled, y.astype(int)] = 1.0

@@ -1,9 +1,6 @@
-# Client snapshot builder for RAG query rewriting and Inspector Brief generation.
-#
-# All upstream file paths are centralized in SNAPSHOT_CONFIG so they can be swapped
-# in one place. Risk scores come from the final model M10, the stack of tuned LightGBM and
-# wide-and-deep on features_v4 (out-of-fold on training clients). The SHAP drivers are the tuned
-# LightGBM component's (docs/decisions.md 9).
+# Client snapshot for query rewriting and Inspector Briefs. Risk scores are the final model's
+# (M10 on features_v4, out of fold on training clients) and the SHAP drivers are its tuned
+# LightGBM component's. All input paths are in SNAPSHOT_CONFIG.
 
 from __future__ import annotations
 
@@ -60,8 +57,8 @@ KEY_FEATURE_NAMES = (
     "round_reading_share",
 )
 
-# Signal features also reported at the top level of the snapshot (read from features_v1, with
-# the definitions in docs/feature_list.md; NaN stays None).
+# Features also reported at the top level of the snapshot (definitions in
+# docs/feature_list.md; NaN stays None).
 SIGNAL_FLOATS = ("benford_mad", "round_reading_share")
 SIGNAL_COUNTS = ("n_index_backwards", "n_recon_mismatch", "n_bad_months_number")
 
@@ -73,14 +70,13 @@ def _clean(value: Any, ndigits: int = 4) -> float | None:
 
 
 class SnapshotStore:
-    # Cached loader for client snapshots with training-only feature percentiles.
+    # Loads the inputs once and builds snapshots with training-only feature percentiles.
 
     def __init__(self, config: dict[str, Any] | None = None):
         self.config = {**SNAPSHOT_CONFIG, **(config or {})}
         self._loaded = False
         self._train_ids: set[str] = set()
         self._test_ids: set[str] = set()
-        self._features_df: pd.DataFrame | None = None
         self._features_by_id: dict[str, dict[str, Any]] = {}
         self._train_sorted_cols: dict[str, np.ndarray] = {}
         self._oof_by_id: dict[str, dict[str, Any]] = {}
@@ -90,10 +86,8 @@ class SnapshotStore:
         if self._loaded:
             return
 
-        raw_clients_path = Path(self.config["raw_clients_path"])
-        splits_dir = Path(self.config["splits_dir"])
-        raw_clients = read_clients(raw_clients_path)
-        train_df, test_df, _ = read_splits(splits_dir, raw_clients)
+        raw_clients = read_clients(Path(self.config["raw_clients_path"]))
+        train_df, test_df, _ = read_splits(Path(self.config["splits_dir"]), raw_clients)
         self._train_ids = set(train_df["client_id"].astype(str))
         self._test_ids = set(test_df["client_id"].astype(str))
 
@@ -101,7 +95,7 @@ class SnapshotStore:
         f0_path = Path(self.config["features_v0_path"])
         f1 = pd.read_parquet(f1_path)
 
-        # Merge profile columns from features_v0 if not already present in features_v1.
+        # Profile columns missing from the final feature table come from features_v0.
         profile_cols = [
             "client_catg",
             "district",
@@ -118,10 +112,9 @@ class SnapshotStore:
         else:
             features = f1.copy()
 
-        self._features_df = features
         self._features_by_id = {str(row["client_id"]): row for row in features.to_dict("records")}
 
-        # Precompute sorted training distributions for fast percentile lookup (strictly train_ids).
+        # Sorted training-client values per feature, for percentile lookups.
         train_mask = features["client_id"].astype(str).isin(self._train_ids)
         train_feats = features.loc[train_mask]
         numeric_cols = [
@@ -135,7 +128,7 @@ class SnapshotStore:
             if len(vals) > 0:
                 self._train_sorted_cols[col] = np.sort(vals)
 
-        # Load OOF risk scores and compute training percentile rank (0..100).
+        # Risk scores and their percentile rank (0 to 100).
         oof_path = Path(self.config["oof_path"])
         if oof_path.is_file():
             oof = pd.read_parquet(oof_path)
@@ -150,7 +143,6 @@ class SnapshotStore:
                     "feature_version": str(row.get("feature_version", "v0")),
                 }
 
-        # Load SHAP top-5 drivers per client.
         shap_path = Path(self.config["shap_path"])
         if shap_path.is_file():
             shap_df = pd.read_parquet(shap_path)
@@ -260,7 +252,7 @@ class SnapshotStore:
 
         shap_list = list(self._shap_by_id.get(cid, []))
 
-        # Include all standard key features plus any feature appearing in the client's SHAP top-5.
+        # The standard key features plus any feature in the client's SHAP top 5.
         feature_names = list(KEY_FEATURE_NAMES)
         for s_item in shap_list:
             fname = s_item["feature"]

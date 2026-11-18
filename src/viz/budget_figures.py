@@ -1,15 +1,6 @@
-# Budget figures and the cost-model table on the test set.
-#
-#   python3 -m src.viz.budget_figures
-#     results/figures/precision_vs_budget.png   report figure F4: precision against the share of
-#                                               clients inspected, one line per model
-#     results/figures/net_recovery.png          report figure F5: net recovery against budget
-#                                               for V/C = 5, 10 and 20, one panel per model
-#     results/tables/cost_model.csv             k*, its share of clients, precision, recall and
-#                                               net recovery at k*, per model and V/C ratio
-#
-# Reads results/test/*.parquet and the M10 test scores in results/final_scores.parquet.
-# Net recovery uses cost 1 per visit and value V/C per fraud found (docs/eval_protocol.md).
+# Precision and net-recovery curves against inspection budget on the test set, and the
+# cost-model table (cost 1 per visit, value V/C per fraud found; see docs/eval_protocol.md).
+# Run: python3 -m src.viz.budget_figures
 
 from pathlib import Path
 
@@ -25,7 +16,7 @@ from src.eval.oof import write_frames
 from src.models.fusion import VERSION
 from src.viz import style
 
-# Fixed colour per model; the final model is the darkest and drawn last.
+# The final model is the darkest and drawn last.
 MODELS = [
     ("M1", "M1 logistic regression", "#8a8984"),
     ("M9", "M9 CatBoost", "#86b6ef"),

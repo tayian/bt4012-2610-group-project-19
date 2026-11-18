@@ -1,8 +1,7 @@
-# Shared figure style so every report figure looks the same (300 dpi, one palette).
+# Shared figure style (palette and 300 dpi) for every report figure.
 
 import matplotlib as mpl
 
-# Categorical slots 1-2 of the validated reference palette; text never uses series colours.
 NON_FRAUD = "#2a78d6"
 FRAUD = "#eb6834"
 CLASS_COLORS = {0: NON_FRAUD, 1: FRAUD}

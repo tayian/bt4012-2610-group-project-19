@@ -1,10 +1,6 @@
-# Features v2: features_v1 + peer residuals (F8) + graph features (F10), minus redundant columns.
-#
-# Dropped from v1:
-#   - one feature of every pair with |Spearman rho| > 0.9 (the "drop" column of
-#     results/tables/corr_pairs.csv, from src/features/feature_stats.py)
-#   - features with near-zero importance in the M3 SHAP v0 drivers (LOW_IMPORTANCE)
-# features_v2_with_inspection also keeps the F9 columns, for the leakage comparison.
+# Build features_v2: features_v1 plus peer residuals and graph features, minus one feature of
+# each highly correlated pair (corr_pairs.csv) and the LOW_IMPORTANCE columns.
+# Run: python3 -m src.features.combine
 
 import argparse
 from pathlib import Path

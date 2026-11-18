@@ -1,17 +1,5 @@
-# Fit each final-table model once on all training clients and score the held-out test clients.
-#
-# This is the only place the test set is used. Every model keeps the settings it had in 5-fold
-# CV (the tuned M3 reads results/tables/M3_tuned_params_<version>.json), is refitted on the 108,394
-# training clients, and scores the 27,099 test clients once. Writes
-# results/test/<model>_<version>.parquet with the OOF columns (fold = -1).
-#
-#   python3 -m src.models.test_set trees        # M1, M3 default, M3 tuned, M9 (minutes)
-#   python3 -m src.models.test_set widedeep     # M7wd wide-and-deep (about an hour on CPU)
-#   python3 -m src.models.test_set shap         # top-5 SHAP drivers of the tuned M3 for test
-#                                               # clients, joined with the training OOF drivers
-#                                               # into results/shap_top5_final.parquet
-#
-# The fusion, metrics and bootstrap intervals are computed from these files by src.models.fusion.
+# Refit each final-table model on all training clients and score the held-out test set once.
+# Run: python3 -m src.models.test_set trees | widedeep | shap
 
 import argparse
 import json
@@ -20,6 +8,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from src.data.split import read_clients, read_splits
 from src.eval.oof import oof_frame, write_frames
 
 SEED = 4012
@@ -28,8 +17,6 @@ OUT = Path("results/test")
 
 def load_split(fv="v1"):
     # (train ids, X, y), (test ids, X, y) in the saved split order; X holds predictor columns only.
-    from src.data.split import read_clients, read_splits
-
     clients = read_clients("data/raw/client_train.csv")
     train, test, _ = read_splits("data/splits", clients)
     X = pd.read_parquet(f"data/processed/features_{fv}.parquet")
@@ -49,6 +36,7 @@ def save_scores(ids, scores, name, fv):
     print(f"{name}: {len(ids)} test scores -> {path}", flush=True)
 
 
+# Model libraries are imported inside each step so a step loads only what it needs.
 def run_trees(fv="v1", n_jobs=4):
     from src.models import linear, trees
     from src.models.catboost_model import M9Classifier
@@ -56,7 +44,7 @@ def run_trees(fv="v1", n_jobs=4):
     (tr_ids, Xtr, ytr), (te_ids, Xte, _) = load_split(fv)
     tuned = json.loads(Path(f"results/tables/M3_tuned_params_{fv}.json").read_text())
     models = {
-        "M1": lambda: linear.model_fn(),
+        "M1": linear.model_fn,
         "M3": lambda: trees.model_fn(n_jobs=n_jobs),
         "M3_tuned": lambda: trees.model_fn(**tuned, n_jobs=n_jobs),
         "M9": lambda: M9Classifier(thread_count=n_jobs),

@@ -1,53 +1,18 @@
-# F12 meter, tariff and recency features, and features_v3 = features_v1 + F12.
-#
-# v1 summarises consumption over a client's whole history. The time-robustness check showed
-# that recent behaviour carries much of the signal, and v1 never uses the tariff, meter-code,
-# coefficient or meter-index fields. F12 adds, per client:
-#   recency    cons_pm mean over the last 1 and 2 years of the client's own history, their
-#              ratio to the lifetime mean, the latest invoice's cons_pm, invoices in the last
-#              2 years, the first and last invoice year and the years between them
-#   tariff     number of tariff types and the share of invoices on the common ones (11, 40,
-#              10, 15), number of meter codes, the most common meter code, and whether any
-#              meter has a coefficient other than 1
-#   meter      number of distinct meter numbers per counter type, the largest new_index, and
-#              meter index growth per month (idx_diff / months_valid, mean and max)
-#   bands      mean consumption per month in tariff levels 1 to 4 and the share of invoices
-#              that reach level 3 or 4
-# Only invoice fields are used (no labels, no inspector-written columns), so F12 needs no
-# fold handling.
-#
-# features_v4 = v1 + F12 without CHANGE_SENSITIVE: the counts of meters, meter codes and
-# tariffs, the most common meter code, the largest meter index and the history dates. These
-# move when STEG replaces a meter or changes a tariff, and meter replacements cluster in
-# 2013-2019 and late in fraud clients' histories, which is what a replacement after a detected
-# fraud would look like (docs/decisions.md 8). Built from invoices up to 2012 only, they add
-# 0.016 PR-AUC; on the full history, 0.067. So v4 is the final table and v3 is kept only as
-# the leakage comparison, as features_v1_with_inspection is for F9. "Last N years" is relative to each client's own last invoice, so clients
-# whose billing stopped early are compared with themselves.
-#
-#   python3 -m src.features.meter_tariff
-#     -> data/processed/meter_tariff.parquet, data/processed/features_v3.parquet,
-#        data/processed/features_v4.parquet
-#   python3 -m src.features.meter_tariff --audit
-#     -> results/tables/f12_ablation.csv      tuned M3 on folds 0 and 1: v1, v3, v1 plus each
-#                                             F12 group and v3 minus each group
-#        results/tables/f12_change_timing.csv when meter-code, meter-number and tariff changes
-#                                             happen in a client's history, by class
-#        results/tables/f12_change_year.csv   fraud rate by the calendar year of the last change
-#   python3 -m src.features.meter_tariff --pre-cutoff
-#     -> results/tables/f12_pre_cutoff.csv  v1, v3 and v4 built from the full history and from
-#                                           invoices up to 2012 only, tuned M3 on 5 folds
-# The timing table is the first leakage check: meter replacements and tariff changes could follow a
-# detected fraud, and labels have no date. If they did, fraud clients' changes would cluster
-# at the end of their history; the table shows whether they do.
+# Build the meter, tariff and recency features (F12), features_v3 = v1 + F12, and features_v4 =
+# v3 without CHANGE_SENSITIVE columns, which move when a meter is replaced after a detected fraud.
+# Run: python3 -m src.features.meter_tariff [--audit | --pre-cutoff]
 
 import argparse
+import json
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-LEVELS = [f"consommation_level_{i}" for i in range(1, 5)]
+from src.data.load import LEVELS
+from src.features import aggregate
+from src.features.behavioural import build_features
+
 TARIFFS = [11, 40, 10, 15]
 COLUMNS = [
     "cons_pm_mean_last1y",
@@ -72,9 +37,28 @@ COLUMNS = [
     *[f"level_{i}_pm_mean" for i in range(1, 5)],
     "share_level_3_plus",
 ]
+# Counts and dates that change when STEG replaces a meter or changes a tariff (docs/decisions.md 8).
+CHANGE_SENSITIVE = [
+    "first_invoice_year",
+    "last_invoice_year",
+    "active_years",
+    "n_tarif_types",
+    "n_counter_codes",
+    "counter_code_mode",
+    "n_counter_numbers_elec",
+    "n_counter_numbers_gaz",
+    "new_index_max",
+]
+GROUPS = {
+    "recency": COLUMNS[:9],
+    "tariff": COLUMNS[9:17],
+    "meter": COLUMNS[17:22],
+    "bands": COLUMNS[22:],
+}
 
 
 def build(inv):
+    # One row per client; "last N years" is relative to the client's own last invoice.
     inv = inv.sort_values(["client_id", "invoice_date"]).reset_index(drop=True)
     g = inv.groupby("client_id", sort=False)
     last = g["invoice_date"].transform("max")
@@ -101,6 +85,7 @@ def build(inv):
         out[f"n_counter_numbers_{kind}"] = (
             inv.loc[rows].groupby("client_id")["counter_number"].nunique()
         )
+        out[f"n_counter_numbers_{kind}"] = out[f"n_counter_numbers_{kind}"].fillna(0)
     out["new_index_max"] = g["new_index"].max()
     growth = inv["idx_diff"] / inv["months_valid"]
     growth = growth.where(np.isfinite(growth))
@@ -111,34 +96,12 @@ def build(inv):
         out[f"level_{i}_pm_mean"] = per_month.groupby(inv["client_id"]).mean()
     high = (inv[LEVELS[2]] + inv[LEVELS[3]]) > 0
     out["share_level_3_plus"] = high.groupby(inv["client_id"]).mean()
-    for kind in ("elec", "gaz"):
-        out[f"n_counter_numbers_{kind}"] = out[f"n_counter_numbers_{kind}"].fillna(0)
     out["has_coefficient_not_1"] = out["has_coefficient_not_1"].astype(float)
     return out[COLUMNS].rename_axis("client_id").reset_index()
 
 
-CHANGE_SENSITIVE = [
-    "first_invoice_year",
-    "last_invoice_year",
-    "active_years",
-    "n_tarif_types",
-    "n_counter_codes",
-    "counter_code_mode",
-    "n_counter_numbers_elec",
-    "n_counter_numbers_gaz",
-    "new_index_max",
-]
-SAFE = [c for c in COLUMNS if c not in CHANGE_SENSITIVE]
-
-GROUPS = {
-    "recency": COLUMNS[:9],
-    "tariff": COLUMNS[9:17],
-    "meter": COLUMNS[17:22],
-    "bands": COLUMNS[22:],
-}
-
-
 def change_timing(inv, labels):
+    # When meter-code, meter-number and tariff changes happen in a client's history, by class.
     inv = inv.sort_values(["client_id", "counter_type", "invoice_date"])
     by_meter = inv.groupby(["client_id", "counter_type"])
     first = inv.groupby("client_id")["invoice_date"].transform("min")
@@ -171,9 +134,7 @@ def change_timing(inv, labels):
 
 
 def change_year(inv, labels):
-    # Fraud rate of clients by the calendar year of their last change of each field, and of
-    # clients with no change. Replacements after a detected fraud would show up as a jump in
-    # the fraud rate in the years when frauds were being detected.
+    # Fraud rate by the calendar year of each client's last change of each field.
     inv = inv.sort_values(["client_id", "counter_type", "invoice_date"])
     target = labels.set_index("client_id")["target"]
     rows = []
@@ -195,8 +156,8 @@ def change_year(inv, labels):
 
 
 def audit(n_jobs=4):
-    import json
-
+    # Tuned M3 on folds 0 and 1 for v1, v3, v1 plus each F12 group and v3 minus each group,
+    # plus the change timing tables.
     from sklearn.metrics import average_precision_score
 
     from src.eval.oof import write_frames
@@ -258,17 +219,12 @@ def audit(n_jobs=4):
 
 
 def pre_cutoff(cutoff="2012-12-31", n_jobs=4):
-    # Tuned M3 on v1, v3 and v4, each built from the full history and from invoices dated up to
-    # the cutoff. Meter replacements surge from 2013, so a feature group whose gain mostly
-    # disappears before the cutoff draws its signal from that later period.
-    import json
-
+    # Tuned M3 on v1, v3 and v4 built from the full history and from invoices up to the cutoff.
+    # Meter replacements surge from 2013, so a gain that vanishes before then is suspect.
     from sklearn.metrics import average_precision_score
 
     from src.eval.oof import write_frames
     from src.eval.time_robustness import history_up_to
-    from src.features import aggregate
-    from src.features.behavioural import build_features
     from src.models.test_set import load_split
     from src.models.trees import fit_m3
 

@@ -1,9 +1,5 @@
-# M4 MLP (Deep Learning I): 3 layers (256, 128, 64), ReLU, dropout 0.3, batch norm; focal loss
-# (gamma 2) vs weighted BCE; Adam lr 1e-3; early stop on validation PR-AUC. Run on v0 with
-# both losses, and on v1 with the chosen loss.
-#
-#   python3 -m src.models.mlp --features v0 --loss both
-#   python3 -m src.models.mlp --features v1 --loss bce
+# M4 MLP on the static features with weighted BCE or focal loss, on the saved folds.
+# Run: python3 -m src.models.mlp --features v1 --loss bce
 
 import argparse
 
