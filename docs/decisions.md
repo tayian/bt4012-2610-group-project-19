@@ -2,7 +2,8 @@
 
 Modelling decisions, the evidence for each, and what they mean for the report. All numbers are
 5-fold CV on the 108,394 training clients (mean +/- sample std over folds), from
-`results/tables/main_results.csv` unless stated. The test set has not been used.
+`results/tables/main_results.csv` unless stated. Sections 1 to 9 use cross-validation only;
+section 10 is the single test-set run.
 
 ## 1. Leakage A/B: headline models use features without the inspection columns
 
@@ -90,7 +91,7 @@ Brier gain only undoes the weighting: M3 without weighting already has the same 
 
 ## 5. Unsupervised models: report as a negative result
 
-M5 isolation forest is no better than random (v1 PR-AUC 0.050, ROC-AUC 0.47 against a 0.056
+M5 isolation forest is no better than random (v1 PR-AUC 0.050, ROC-AUC 0.48 against a 0.056
 base rate), on all features and on behaviour columns only; flipping the score sign does not
 help either. M6 autoencoder is weakly useful (0.094). Fraud clients in this data look ordinary
 (higher, more variable consumption, longer histories), so "anomalous" does not mean
@@ -157,7 +158,7 @@ same table):
 | M3 + augmentation, smooth only | 0.298 | **0.340** (held out) | 0.398 | 0.293 | **0.337** (held out) | 0.363 |
 
 - On v4, M3 loses 0.021 recall to the uniform attack and 0.049 (15%) to the smooth one. That is
-  more than on v3 (0.005 and 0.022), because v4's recency features (last one or two years
+  more than on v3 (0.006 and 0.022), because v4's recency features (last one or two years
   against the lifetime mean) are exactly what a gradual drop moves, and v3's meter counts,
   which the attack cannot touch, are gone. Hiding 30% of consumption still leaves most of the
   recall: without any consumption features the model keeps 0.302.
@@ -220,7 +221,10 @@ afterwards, added 0.10 PR-AUC on its own and was rejected for the same reason.
 The caveat that remains for the report: v1 itself loses half its PR-AUC when built from
 pre-2013 invoices (0.293 to 0.153). Part of that is simply less history, but consumption can
 also change after a detected fraud (a repaired meter reads the true consumption), and no
-feature built from undated labels can fully rule that out.
+feature built from undated labels can fully rule that out. The same applies to v1's `n_counters`
+(distinct meters on the account), which was kept because it is part of the base table, and is
+the top SHAP driver for most clients in the final model: a meter replaced after a detection
+raises it too.
 
 ## 9. Fusion: tuned M3 plus wide-and-deep on v4
 
@@ -255,10 +259,10 @@ Nothing was changed after this run.
 
 | Model | Test PR-AUC [95% CI] | ROC-AUC | Recall @5% | Precision @5% |
 |---|---|---|---|---|
-| M1 logistic regression | 0.193 [0.179, 0.210] | 0.816 | 0.209 | 0.233 |
+| M1 logistic regression | 0.193 [0.179, 0.210] | 0.815 | 0.209 | 0.233 |
 | M3 LightGBM, default | 0.276 [0.254, 0.299] | 0.844 | 0.306 | 0.342 |
-| M9 CatBoost | 0.274 [0.253, 0.296] | 0.843 | 0.299 | 0.334 |
-| M7wd wide-and-deep | 0.249 [0.231, 0.271] | 0.832 | 0.285 | 0.318 |
+| M9 CatBoost | 0.273 [0.253, 0.296] | 0.843 | 0.299 | 0.334 |
+| M7wd wide-and-deep | 0.249 [0.231, 0.270] | 0.832 | 0.285 | 0.318 |
 | M3 tuned | 0.294 [0.272, 0.318] | 0.850 | 0.316 | 0.353 |
 | **M10 final stack** | **0.294 [0.272, 0.318]** | **0.852** | **0.316** | **0.353** |
 
@@ -268,7 +272,8 @@ Nothing was changed after this run.
   carry over: tuned M3 alone would have done as well, and the report should say so.
 - Fairness (`fairness.csv`): at the cost-optimal budget no district or region is selected at
   more than twice its share of frauds. Calibration (`calibration_by_group.csv`): expected
-  calibration error 0.011 overall and at most 0.014 in any district, on test as on training.
+  calibration error 0.011 overall on both test and training OOF scores; the worst district is
+  0.014 on test and 0.018 on training OOF.
 - SHAP stability (`explanation_stability.csv`): across three seeds the top driver is the same
   for 98% of the top 5% of clients; score rank correlation 0.99.
 - Net recovery (`cost_model.csv`, `net_recovery.png`): with recovery worth 10 inspections, the

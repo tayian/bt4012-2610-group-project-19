@@ -1,13 +1,6 @@
-# Inspector Brief generation (prompt in plan 14.4, schema in 14.5) and the three-run comparison:
-# the same top-ranked clients briefed with no evidence, with unfiltered hybrid retrieval and with
-# metadata-filtered hybrid retrieval, each brief scored with src/llm/faithfulness.py.
-#
-#   python3 -m src.llm.briefs                 -> results/briefs/<run>/<client_id>.json
-#                                                results/tables/three_run_eval.csv
-#   python3 -m src.llm.briefs --lexical-judge -> offline judge (no API calls for scoring)
-#
-# Every LLM response is cached on disk (briefs per run, queries, judge scores), so a rerun only
-# calls the API for what is missing. The model is GEMINI_MODEL from .env.
+# Inspector Briefs for the top-ranked clients, written three ways (no evidence, hybrid
+# retrieval, filtered hybrid retrieval) and scored with faithfulness.py. Run with
+# `python3 -m src.llm.briefs` (add --lexical-judge to score offline); LLM responses are cached.
 
 from __future__ import annotations
 
@@ -31,15 +24,6 @@ from src.llm.query_rewriter import (
 from src.llm.retrieval import client_filters, get_retriever, rrf
 from src.llm.snapshot import SNAPSHOT_CONFIG, get_client_snapshot
 
-
-# A cached LLM response is reused only if both the LLM and the scoring model that produced the
-# snapshot match, so a new final model regenerates every brief instead of reusing stale scores.
-def _current(rec: dict[str, Any], model: str) -> bool:
-    return (
-        rec.get("model") == model and rec.get("model_version") == SNAPSHOT_CONFIG["model_version"]
-    )
-
-
 try:
     from dotenv import load_dotenv
 
@@ -60,6 +44,17 @@ PER_QUERY_K = 5
 # first fifth of the budget) is "high". Percentiles are over the training out-of-fold scores.
 HIGH_TIER_PCT = 99.0
 MEDIUM_TIER_PCT = 95.0
+
+RETRYABLE = (
+    "429",
+    "RESOURCE_EXHAUSTED",
+    "500",
+    "503",
+    "UNAVAILABLE",
+    "504",
+    "DEADLINE",
+    "timed out",
+)
 
 BRIEF_WRITER_SYSTEM_PROMPT = (
     "You write inspection briefs for a utility fraud team. The risk score comes "
@@ -101,7 +96,23 @@ class InspectorBrief(BaseModel):
     uncertainty: str
 
 
-# Gemini helpers shared with src/llm/agent.py
+class DailyQuotaExceeded(RuntimeError):
+    pass
+
+
+def _current(rec: dict[str, Any], model: str) -> bool:
+    # A cached LLM response is reused only if both the LLM and the scoring model behind the
+    # snapshot match, so a new final model regenerates every brief.
+    return (
+        rec.get("model") == model and rec.get("model_version") == SNAPSHOT_CONFIG["model_version"]
+    )
+
+
+def _load_current(path: Path, model: str) -> dict[str, Any] | None:
+    if not path.is_file():
+        return None
+    rec = json.loads(path.read_text(encoding="utf-8"))
+    return rec if _current(rec, model) else None
 
 
 def get_gemini_client(api_key: str | None = None) -> Any:
@@ -114,22 +125,6 @@ def get_gemini_client(api_key: str | None = None) -> Any:
     # Our own backoff below handles retries; the timeout stops a stuck call from hanging.
     http = types.HttpOptions(timeout=180_000, retry_options=types.HttpRetryOptions(attempts=1))
     return genai.Client(api_key=key, http_options=http)
-
-
-RETRYABLE = (
-    "429",
-    "RESOURCE_EXHAUSTED",
-    "500",
-    "503",
-    "UNAVAILABLE",
-    "504",
-    "DEADLINE",
-    "timed out",
-)
-
-
-class DailyQuotaExceeded(RuntimeError):
-    pass
 
 
 def _daily_quota(exc: Exception) -> bool:
@@ -174,9 +169,6 @@ def usage_dict(response: Any) -> dict[str, int]:
     return {"input_tokens": getattr(u, "prompt_token_count", 0) or 0, "output_tokens": out}
 
 
-# Snapshot and prompt
-
-
 def risk_tier(rank_pct: float | None) -> str:
     if rank_pct is None:
         return "low"
@@ -203,7 +195,7 @@ def brief_snapshot(snapshot: dict[str, Any]) -> dict[str, Any]:
 
 
 def format_evidence(evidence: list[dict[str, Any]]) -> str:
-    # Highest-ranked chunk last, nearest the instructions (plan 14.3 step 6).
+    # Highest-ranked chunk last, nearest the instructions.
     if not evidence:
         return "(no evidence retrieved: cite only [SNAPSHOT])"
     blocks = []
@@ -252,6 +244,17 @@ def parse_brief(text: str) -> dict[str, Any]:
     return InspectorBrief.model_validate_json(text).model_dump()
 
 
+def try_parse_brief(text: str) -> dict[str, Any] | None:
+    # Schema-checked brief, else any JSON the model returned, else None.
+    try:
+        return parse_brief(text)
+    except Exception:
+        try:
+            return json.loads(text)
+        except Exception:
+            return None
+
+
 def write_brief(
     snapshot: dict[str, Any],
     evidence: list[dict[str, Any]],
@@ -264,17 +267,7 @@ def write_brief(
         client, model, build_brief_prompt(snapshot, evidence, extra), brief_config(model)
     )
     raw = response.text or ""
-    try:
-        brief = parse_brief(raw)
-    except Exception:
-        try:
-            brief = json.loads(raw)
-        except Exception:
-            brief = None
-    return brief, raw, usage_dict(response)
-
-
-# Retrieval for the two RAG runs
+    return try_parse_brief(raw), raw, usage_dict(response)
 
 
 def top_clients(n: int = N_CLIENTS, oof_path: Path | str | None = None) -> list[str]:
@@ -291,26 +284,20 @@ def client_queries(
     cache_dir: Path = BRIEFS_DIR / "queries",
 ) -> dict[str, Any]:
     path = Path(cache_dir) / f"{snapshot['client_id']}.json"
-    if path.is_file():
-        record = json.loads(path.read_text(encoding="utf-8"))
-        if _current(record, model):
-            return record
+    record = _load_current(path, model)
+    if record is not None:
+        return record
+    meta = {"model": model, "model_version": SNAPSHOT_CONFIG["model_version"]}
     try:
         queries = rewrite_snapshot_to_queries(snapshot, model=model, client=client)
-        record = {
-            "queries": queries,
-            "source": "llm",
-            "model": model,
-            "model_version": SNAPSHOT_CONFIG["model_version"],
-        }
+        record = {"queries": queries, "source": "llm", **meta}
     except Exception as exc:
         if _daily_quota(exc):
             raise DailyQuotaExceeded(f"daily request quota for {model} is used up") from exc
         record = {
             "queries": fallback_queries_from_snapshot(snapshot),
             "source": "fallback",
-            "model": model,
-            "model_version": SNAPSHOT_CONFIG["model_version"],
+            **meta,
             "error": repr(exc)[:300],
         }
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -341,9 +328,6 @@ def run_filters(run: str, snapshot: dict[str, Any]) -> dict[str, Any] | None:
     return client_filters(snapshot) if run == "filtered_hybrid" else None
 
 
-# Three-run comparison
-
-
 def generate_run(
     run: str,
     client_ids: list[str],
@@ -356,11 +340,10 @@ def generate_run(
     records = []
     for cid in client_ids:
         path = Path(out_dir) / run / f"{cid}.json"
-        if path.is_file():
-            rec = json.loads(path.read_text(encoding="utf-8"))
-            if rec.get("brief") is not None and _current(rec, model):
-                records.append(rec)
-                continue
+        cached = _load_current(path, model)
+        if cached is not None and cached.get("brief") is not None:
+            records.append(cached)
+            continue
         snap = brief_snapshot(get_client_snapshot(cid))
         client = client or get_gemini_client()
         queries: list[str] = []
@@ -400,18 +383,20 @@ def cached_records(
     run: str, client_ids: list[str], model: str, out_dir: Path = BRIEFS_DIR
 ) -> list[dict[str, Any]]:
     # Saved records of this run and model, including LLM failures (brief is None).
-    out = []
-    for cid in client_ids:
-        path = Path(out_dir) / run / f"{cid}.json"
-        if path.is_file():
-            rec = json.loads(path.read_text(encoding="utf-8"))
-            if _current(rec, model):
-                out.append(rec)
-    return out
+    recs = [_load_current(Path(out_dir) / run / f"{cid}.json", model) for cid in client_ids]
+    return [r for r in recs if r is not None]
 
 
 def chunk_lookup() -> dict[str, dict[str, Any]]:
     return dict(get_retriever().id_to_chunk)
+
+
+def id_fields_ok(brief: dict[str, Any]) -> bool:
+    # applicable_rules must name SOP clauses and similar_cases precedent cards (the citation
+    # check only asks that the IDs were retrieved, not that they are the right kind).
+    rules = [str(r.get("rule_id", "")) for r in brief.get("applicable_rules", []) or []]
+    cases = [str(c) for c in brief.get("similar_cases", []) or []]
+    return all(r.startswith("SOP-") for r in rules) and all(c.startswith("CASE-") for c in cases)
 
 
 def score_records(
@@ -424,9 +409,8 @@ def score_records(
         snap = brief_snapshot(get_client_snapshot(rec["client_id"]))
         evidence = [chunks[i] for i in rec.get("evidence_ids", []) if i in chunks]
         own_card = f"CASE-{rec['client_id']}" in rec.get("evidence_ids", [])
-        expired = any(
-            c.get("doc") == "sop" and c.get("version") != "v2025" for c in evidence
-        )  # v2023 clauses expired on 2025-01-01, before the alert date
+        # v2023 clauses expired on 2025-01-01, before the alert date.
+        expired = any(c.get("doc") == "sop" and c.get("version") != "v2025" for c in evidence)
         base = {
             "client_id": rec["client_id"],
             "run": rec["run"],
@@ -451,14 +435,6 @@ def score_records(
             }
         )
     return rows
-
-
-def id_fields_ok(brief: dict[str, Any]) -> bool:
-    # applicable_rules must name SOP clauses and similar_cases precedent cards (the citation
-    # check only asks that the IDs were retrieved, not that they are the right kind).
-    rules = [str(r.get("rule_id", "")) for r in brief.get("applicable_rules", []) or []]
-    cases = [str(c) for c in brief.get("similar_cases", []) or []]
-    return all(r.startswith("SOP-") for r in rules) and all(c.startswith("CASE-") for c in cases)
 
 
 def summarise_runs(rows: list[dict[str, Any]], judge_name: str) -> pd.DataFrame:
@@ -524,7 +500,6 @@ def main() -> None:
     a.model = a.model or cache_model(cached) or DEFAULT_MODEL
     print(f"Brief model: {a.model}")
     client = None
-    records = []
     for run in a.runs:
         try:
             generate_run(run, ids, client=client, model=a.model)

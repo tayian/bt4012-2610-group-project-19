@@ -1,7 +1,6 @@
 # Clean invoices, flag impossible readings and write the data quality table.
-#
-# Nothing suspicious is deleted: impossible readings are often the fraud signal, so they are
-# kept and flagged. Only exact duplicate rows are dropped.
+# Impossible readings are often the fraud signal, so they are flagged, not deleted.
+# Run: python3 -m src.data.clean
 
 import argparse
 from pathlib import Path
@@ -13,7 +12,7 @@ from src.data.load import LEVELS
 
 STATUE_STATES = ["0", "1", "2", "3", "4", "5"]
 REMARQUE_STATES = ["6", "7", "8", "9"]
-MAX_MONTHS_VALID = 12  # plan rule F6: months_number <= 0 or > 12 is invalid
+MAX_MONTHS_VALID = 12  # months_number <= 0 or > 12 is flagged as invalid
 MAX_MONTHS_PLAUSIBLE = 120  # beyond 10 years the period is meaningless: months_valid is NaN
 PARTIAL_MONTH_RATIO = 0.5  # a month below half the previous year's median volume is incomplete
 CODE_FIELDS = ["counter_statue", "reading_remarque", "tarif_type", "counter_code"]
@@ -50,10 +49,8 @@ def standardise_codes(text, states):
 
 
 def final_year_status(dates, ratio=PARTIAL_MONTH_RATIO):
-    # Return (final_year, is_complete, worst_month, worst_ratio).
-    #
-    # Each month of the final year is compared with the median monthly invoice count of the
-    # year before it.
+    # Return (final_year, is_complete, worst_month, worst_ratio), comparing each month of the
+    # final year with the median monthly invoice count of the year before.
     years = dates.dt.year
     final = int(years.max())
     baseline = dates[years == final - 1].dt.month.value_counts().median()
@@ -67,8 +64,7 @@ def final_year_status(dates, ratio=PARTIAL_MONTH_RATIO):
 
 
 def clean_invoices(df, report=None):
-    # Return the cleaned invoice table; append data quality rows to `report` if given.
-    # Expects the output of src/data/load.py, whose text fields are already normalised.
+    # Return the cleaned invoices (input from src/data/load.py); quality rows go to `report`.
     n_raw = len(df)
     rows = [] if report is None else report
 
@@ -163,8 +159,7 @@ def clean_invoices(df, report=None):
 
 
 def code_values(inv_raw):
-    # Every distinct raw value and its count for the code fields (used by the RAG code book),
-    # most frequent first; ties are ordered by value so the file is the same on every run.
+    # Count of every raw value of the code fields, for the RAG code book; ties sorted by value.
     frames = []
     for field in CODE_FIELDS:
         counts = inv_raw[field].value_counts(dropna=False)

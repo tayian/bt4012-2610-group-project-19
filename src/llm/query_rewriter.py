@@ -1,16 +1,18 @@
-# Query rewriter: turns a client risk snapshot into 3 short search queries for RAG retrieval.
-#
-# Uses the Section 14.4 system prompt and Gemini structured JSON output (model: GEMINI_MODEL,
-# default gemini-3.1-flash-lite).
+# Query rewriter: turns a client snapshot into 3 short search queries with Gemini, with a
+# rule-based fallback. `python3 -m src.llm.query_rewriter` tries it on 5 sample clients.
 
 from __future__ import annotations
 
 import json
 import os
+import time
 from pathlib import Path
 from typing import Any
 
-from src.llm.retrieval import client_filters
+import numpy as np
+import pandas as pd
+
+from src.llm.retrieval import client_filters, get_retriever
 from src.llm.snapshot import SNAPSHOT_CONFIG, get_client_snapshot
 
 try:
@@ -20,9 +22,9 @@ try:
 except ImportError:
     pass
 
-# Project standard: GEMINI_MODEL from .env (see .env.example), else gemini-3.1-flash-lite.
 DEFAULT_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.1-flash-lite")
 SAMPLE_SEED = 4012
+DEFAULT_OUTPUT_PATH = Path("results/tables/query_rewriter_eval.json")
 
 QUERY_REWRITER_SYSTEM_PROMPT = (
     "You turn a utility-fraud risk snapshot into exactly 3 short search queries. "
@@ -30,8 +32,6 @@ QUERY_REWRITER_SYSTEM_PROMPT = (
     "or playbook would use. If a meter status or remark code appears, include "
     "the exact code in one query. Return a JSON list of 3 strings, nothing else."
 )
-
-DEFAULT_OUTPUT_PATH = Path("results/tables/query_rewriter_eval.json")
 
 
 def low_thinking(model: str) -> dict[str, Any]:
@@ -41,7 +41,6 @@ def low_thinking(model: str) -> dict[str, Any]:
 
 
 def format_snapshot_for_rewriter(snapshot: dict[str, Any]) -> str:
-    # Serialize the relevant fields of a client snapshot for the query rewriter LLM.
     compact = {
         "client_id": snapshot.get("client_id"),
         "alert_date": snapshot.get("alert_date"),
@@ -59,13 +58,12 @@ def format_snapshot_for_rewriter(snapshot: dict[str, Any]) -> str:
 
 
 def fallback_queries_from_snapshot(snapshot: dict[str, Any]) -> list[str]:
-    # Deterministic rule-based fallback returning 3 search queries from a client snapshot.
+    # Rule-based fallback: one query each for codes, the consumption pattern and data quality.
     codes_seen = snapshot.get("codes_seen", {}) or {}
     statues = [str(c) for c in codes_seen.get("counter_statue", []) if str(c) != "0"]
     remarques = [str(c) for c in codes_seen.get("reading_remarque", []) if str(c) != "6"]
     profile = snapshot.get("profile", {}) or {}
 
-    # Query 1: exact meter status or reading remark code query
     if statues and remarques:
         q1 = f"meter status counter_statue {statues[0]} and reading_remarque {remarques[0]} inspection protocol"
     elif statues:
@@ -76,7 +74,6 @@ def fallback_queries_from_snapshot(snapshot: dict[str, Any]) -> list[str]:
         catg = profile.get("client_catg", 11)
         q1 = f"client_catg {catg} counter_statue 0 reading_remarque 6 tariff classification check"
 
-    # Query 2: consumption / SHAP pattern query
     shap_top5 = snapshot.get("shap_top5", []) or []
     top_features = [str(item.get("feature", "")) for item in shap_top5]
     if any("gaz" in f for f in top_features) or (
@@ -88,7 +85,6 @@ def fallback_queries_from_snapshot(snapshot: dict[str, Any]) -> list[str]:
     else:
         q2 = "abrupt consumption drop meter bypass shunt or magnet slowdown"
 
-    # Query 3: forensic / data-quality / billing interval pattern
     benford = float(snapshot.get("benford_mad") or 0.0)
     round_share = float(snapshot.get("round_reading_share") or 0.0)
     # n_index_backwards already excludes exact meter rollovers.
@@ -134,9 +130,6 @@ def rewrite_snapshot_to_queries(
     allow_fallback: bool = False,
     max_retries: int = 4,
 ) -> list[str]:
-    # Turn a client risk snapshot into 3 short search queries using Gemini.
-    import time
-
     if client is None:
         try:
             from dotenv import load_dotenv
@@ -189,9 +182,6 @@ def select_sample_clients(n_clients: int = 5, seed: int = SAMPLE_SEED) -> list[s
     # Deterministic sample of training clients with OOF scores: about 3/5 fraud and 2/5
     # non-fraud, each class split into equal score bands with one client drawn per band, so
     # the sample covers high and low ranks rather than only the top of the list.
-    import numpy as np
-    import pandas as pd
-
     oof = pd.read_parquet(Path(SNAPSHOT_CONFIG["oof_path"]), columns=["client_id", "score"])
     labels = pd.read_parquet(
         Path(SNAPSHOT_CONFIG["interim_client_path"]), columns=["client_id", "target"]
@@ -216,9 +206,7 @@ def evaluate_rewriter_on_clients(
     client: Any | None = None,
     allow_fallback: bool = False,
 ) -> list[dict[str, Any]]:
-    # Run the query rewriter on 5 clients and verify downstream retrieval on each query.
-    from src.llm.retrieval import get_retriever
-
+    # Run the rewriter on sample clients and record the top 3 chunks each query retrieves.
     selected_ids = (
         client_ids if client_ids is not None else select_sample_clients(n_clients=n_clients)
     )

@@ -44,15 +44,14 @@ Optional LightGBM parameters can be passed as keyword arguments, for example
 `fit_m3(X_train, y_train, monotone_constraints=constraints)`.
 
 `PARAMS` contains the default LightGBM keyword arguments, excluding scale_pos_weight and
-monotone_constraints. It is not a claim that tuning has been completed. Call `fit_m3` so
-category handling and per-fit weighting are included. The compatibility module
+monotone_constraints. These are the untuned baseline settings; the tuned settings used by the
+final model are in `results/tables/M3_tuned_params_v4.json` (`python run.py tune`). Call
+`fit_m3` so category handling and per-fit weighting are included. The compatibility module
 `src.models.trees_standin` re-exports PARAMS and fit_m3 for existing imports.
 
-`src/eval/adversarial.py` now imports the shared fitter for both its tree studies. Its
-separate dependency on the attacked-invoice feature builder remains to be implemented.
-`src/eval/rescue.py` already reads `results/oof/M3_v0.parquet` when called with `--m3 v0`,
-so its input format needs no change. It also needs the anomaly-model OOF files.
-
-No shared file format changes, so the stub generator needs no modification.
+`src/eval/adversarial.py` uses the shared fitter for its tree studies and rebuilds the
+features from the attacked invoices itself. `src/eval/rescue.py` reads
+`results/oof/M3_v0.parquet` when called with `--m3 v0`, together with the anomaly-model OOF
+files.
 
 LightGBM reference: https://lightgbm.readthedocs.io/en/stable/pythonapi/lightgbm.LGBMClassifier.html

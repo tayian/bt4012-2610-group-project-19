@@ -1,3 +1,5 @@
+# Shared ranking and budget metrics, bootstrap intervals and the saved-fold CV evaluator.
+
 from fractions import Fraction
 
 import numpy as np
@@ -12,10 +14,8 @@ VALUE_COST_RATIOS = (5, 10, 20)
 
 
 def expected_tp_curve(y_true, scores):
-    # Expected true positives in the top k clients, for k = 0, 1, ..., n.
-    # Tied scores have no natural order, so a tie group of size m with p
-    # positives adds p * (clients taken from the group) / m. The result does
-    # not depend on the input row order.
+    # Expected true positives in the top k clients, for k = 0..n. Tied scores have no natural
+    # order, so a tie group of size m with p positives adds p / m per client taken from it.
     y = np.asarray(y_true, dtype=float)
     s = np.asarray(scores, dtype=float)
     order = np.argsort(-s, kind="stable")
@@ -132,107 +132,65 @@ def bootstrap_ci(y_true, scores, metric, n_boot=1000, seed=4012):
     return np.percentile(vals, [2.5, 97.5])
 
 
-def cv_evaluate(
-    model_fn,
-    X,
-    y,
-    folds,
-    *,
-    model="model",
-    feature_version="v0",
-):
-    # Evaluate a classifier using the five saved training folds.
-    #
-    # Inputs:
-    #   model_fn  returns a NEW unfitted classifier or Pipeline on each call
-    #             (must support fit(), predict_proba() and classes_)
-    #   X         training clients only: client_id plus predictor columns, no target
-    #   y         binary labels in the same row order as X (a Series must share X's index)
-    #   folds     saved folds.csv with client_id and fold (0 to 4), covering exactly X's clients
-    #
-    # Returns:
-    #   oof          DataFrame with client_id, fold, score, model, feature_version
-    #   metrics_row  dict of model metadata and each metric's mean and sample std
+def fold_mean_std(table):
+    # Each metric's mean and sample std over a table with one row per fold.
+    out = {}
+    for metric in table.columns:
+        out[f"{metric}_mean"] = float(table[metric].mean())
+        out[f"{metric}_std"] = float(table[metric].std(ddof=1))
+    return out
 
-    # Validate inputs before fitting any models.
+
+def cv_evaluate(model_fn, X, y, folds, *, model="model", feature_version="v0"):
+    # Fit a fresh model_fn() per saved fold on training clients (X has client_id, no target) and
+    # return the OOF frame and a row of each metric's mean and sample std.
+    # Inputs are validated before any model is fitted.
     if not isinstance(X, pd.DataFrame) or "client_id" not in X:
         raise ValueError("X must be a DataFrame with a client_id column.")
-
     if "target" in X:
         raise ValueError("Remove target from X and pass it separately as y.")
-
     if isinstance(y, pd.Series) and not y.index.equals(X.index):
         raise ValueError("y must have the same index and row order as X.")
-
     y = np.asarray(y)
-
     if y.ndim != 1 or len(y) != len(X) or not np.isin(y, [0, 1]).all():
         raise ValueError("y must contain one binary 0/1 label per X row.")
 
     ids = check_ids(X["client_id"], "X", unique=True)
     f = folds[["client_id", "fold"]].copy()
     f["client_id"] = check_ids(f["client_id"], "folds", unique=True)
-
     if set(ids) != set(f["client_id"]):
         raise ValueError("X must contain exactly the IDs in folds.csv; exclude test clients.")
-
     if set(f["fold"]) != set(range(N_FOLDS)):
         raise ValueError("folds must contain all five saved fold numbers, 0 through 4.")
-
-    # Align folds by client ID, regardless of CSV row order.
     fold_ids = ids.map(f.set_index("client_id")["fold"]).to_numpy(dtype=int)
-
-    # IDs identify clients; they are not model predictors.
     features = X.drop(columns="client_id")
-
     for fold in range(N_FOLDS):
         valid = fold_ids == fold
-
         if len(np.unique(y[valid])) != 2 or len(np.unique(y[~valid])) != 2:
             raise ValueError("Every training and validation partition must contain both classes.")
 
     scores = np.full(len(X), np.nan)
     fold_metrics = []
-
     for fold in range(N_FOLDS):
         train_idx = np.flatnonzero(fold_ids != fold)
         valid_idx = np.flatnonzero(fold_ids == fold)
-
-        # A fresh model/Pipeline for this fold.
         estimator = model_fn()
-
-        estimator.fit(
-            features.iloc[train_idx],
-            y[train_idx],
-        )
-
+        estimator.fit(features.iloc[train_idx], y[train_idx])
         positive = np.flatnonzero(np.asarray(estimator.classes_) == 1)
-
         if len(positive) != 1:
             raise ValueError("The estimator must expose positive class 1.")
-
         predicted = np.asarray(estimator.predict_proba(features.iloc[valid_idx]))[:, positive[0]]
-
         if not np.isfinite(predicted).all() or ((predicted < 0) | (predicted > 1)).any():
             raise ValueError("predict_proba must return finite probabilities in [0, 1].")
-
         scores[valid_idx] = predicted
-
         fold_metrics.append(budget_metrics(y[valid_idx], predicted))
 
     oof = oof_frame(ids, fold_ids, scores, model, feature_version)
-
-    table = pd.DataFrame(fold_metrics)
-
     metrics_row = {
         "model": model,
         "feature_version": feature_version,
         "n_clients": len(X),
         "n_folds": N_FOLDS,
+        **fold_mean_std(pd.DataFrame(fold_metrics)),
     }
-
-    for metric in table.columns:
-        metrics_row[f"{metric}_mean"] = float(table[metric].mean())
-        metrics_row[f"{metric}_std"] = float(table[metric].std(ddof=1))
-
     return oof, metrics_row

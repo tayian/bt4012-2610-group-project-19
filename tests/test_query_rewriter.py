@@ -1,4 +1,4 @@
-# Unit tests for src/llm/query_rewriter.py (Task 8: snapshot -> 3 search queries).
+# Tests for src/llm/query_rewriter.py, which turns a snapshot into three search queries.
 
 import json
 from pathlib import Path

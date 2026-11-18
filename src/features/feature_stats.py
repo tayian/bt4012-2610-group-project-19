@@ -1,13 +1,6 @@
-# Hypothesis tests and correlation redundancy for the v1 features, on training clients only.
-#
-#   results/tables/stat_tests.csv   one row per (feature, test), ranked by effect size
-#   results/tables/corr_pairs.csv   feature pairs with |Spearman rho| > 0.9 and the one to drop
-#   results/figures/corr_heatmap.png
-#
-# With about 108,000 training clients nearly every test is significant, so features are ranked
-# by effect size, not p-value. Categorical and binary features get chi-square + Cramer's V and
-# information gain; numeric features get Welch's t-test (with Cohen's d), Mann-Whitney U (with
-# the rank-biserial correlation); cons_pm_median across districts gets a one-way ANOVA (eta^2).
+# Hypothesis tests and Spearman redundancy pairs for the v1 features, on training clients only.
+# With about 108,000 clients nearly every test is significant, so features are ranked by effect size.
+# Run: python3 -m src.features.feature_stats
 
 import argparse
 from pathlib import Path
@@ -24,7 +17,7 @@ from src.data.split import read_splits
 from src.viz import style
 
 CORR_LIMIT = 0.9
-# Conventional cut-offs (Cohen 1988) for |effect| -> negligible / small / medium / large.
+# Cohen (1988) cut-offs for small, medium and large effects.
 LABELS = {
     "cohen_d": (0.2, 0.5, 0.8),
     "rank_biserial": (0.1, 0.3, 0.5),
@@ -143,8 +136,7 @@ def run_tests(features, y):
 
 
 def redundant_pairs(rho, strength):
-    # Pairs above the limit; of each pair, drop the feature with the weaker univariate signal
-    # (smaller |rank-biserial|), so the more informative one is kept.
+    # Of each pair above the limit, drop the feature with the smaller |rank-biserial|.
     cols = rho.columns
     upper = np.triu(np.abs(rho.to_numpy()) > CORR_LIMIT, k=1)
     rows = []

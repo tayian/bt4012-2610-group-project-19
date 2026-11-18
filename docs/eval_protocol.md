@@ -54,5 +54,5 @@ We do not know STEG’s true V/C, so we report results for V/C = 5, 10 and 20 (s
 ## 6. Comparing models fairly
 - A model counts as better only if its PR-AUC gain exceeds the fold-to-fold standard deviation.
 - Bootstrap: 1,000 resamples of test clients, report 2.5th and 97.5th percentiles.
-- Every ablation changes exactly one thing against the reference model (LightGBM on features v1).
+- Every ablation changes exactly one thing against the reference model of its stage: LightGBM on features v1 for the feature, imbalance and leakage ablations, and tuned LightGBM on `features_v4` (the tree part of the final model) for the fusion ablation.
 - Any proposed multi-stage pipeline is evaluated as a whole on the test set, never stage by stage.

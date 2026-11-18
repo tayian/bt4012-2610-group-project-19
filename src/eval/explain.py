@@ -1,5 +1,5 @@
-# Five signed Tree SHAP drivers per training client, explained by its held-out-fold model.
-
+# Top five signed Tree SHAP drivers per training client, from the model that held it out.
+# Run: python3 -m src.eval.explain --features <path> [--params <tuned M3 json>]
 
 import json
 from pathlib import Path
@@ -29,32 +29,31 @@ def positive_shap(explainer, prepared):
 def top_rows(ids, X, values):
     if X.shape[1] < 5:
         raise ValueError("The top-five SHAP contract needs at least five input features.")
-    # Stable feature-order tie breaking; contributions retain their signs in log-odds units.
+    # Ties break by feature order; contributions keep their signs, in log-odds.
     top = np.argsort(-np.abs(values), axis=1, kind="stable")[:, :5]
     rows = []
     for i, choices in enumerate(top):
         for rank, j in enumerate(choices, 1):
             raw = X.iloc[i, j]
-            # The existing numeric value contract includes the numeric v0 category codes.
-            # Fail clearly for text categories instead of silently substituting an invented value.
+            # Values must be numeric (v0 categories are codes); text categories fail here.
             value = np.nan if pd.isna(raw) else float(raw)
             rows.append((str(ids[i]), rank, str(X.columns[j]), value, float(values[i, j])))
     return pd.DataFrame(rows, columns=SHAP_COLUMNS)
 
 
 def run(ctx, n_jobs=2, batch_size=4096, params=None, name="M3"):
-    # params: LightGBM overrides (e.g. the tuned M3); name: the published OOF model to match.
-    params_m3 = params or {}
+    # params are LightGBM overrides (e.g. the tuned M3); name is the published OOF model to match.
     import shap
 
+    params_m3 = params or {}
     if batch_size < 1:
         raise ValueError("batch_size must be positive.")
     frames, score_frames = [], []
     for fold in range(5):
-        params = {"fold": fold, "n_jobs": n_jobs, "shap_version": shap.__version__}
+        settings = {"fold": fold, "n_jobs": n_jobs, "shap_version": shap.__version__}
         if params_m3:
-            params["m3_params"] = params_m3
-        cache = ctx.cache("M3_shap", params)
+            settings["m3_params"] = params_m3
+        cache = ctx.cache("M3_shap", settings)
         if (cache / "complete.json").exists():
             print(f"REUSE SHAP fold {fold + 1}/5", flush=True)
             frame = pd.read_parquet(cache / "top5.parquet")
@@ -82,7 +81,7 @@ def run(ctx, n_jobs=2, batch_size=4096, params=None, name="M3"):
                 ctx.version,
             )
             write_frames({cache / "top5.parquet": frame, cache / "scores.parquet": scores})
-            write_json(cache / "complete.json", params)
+            write_json(cache / "complete.json", settings)
             print(f"SHAP fold {fold + 1}/5 complete", flush=True)
         frames.append(frame)
         score_frames.append(scores)

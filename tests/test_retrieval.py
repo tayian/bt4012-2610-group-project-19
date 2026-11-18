@@ -1,4 +1,8 @@
-# Unit tests for src/llm/retrieval.py (metadata filtering, BM25, MiniLM dense, RRF, rerank).
+# Tests for chunk filtering and the four retrieval methods in src/llm/retrieval.py.
+
+from pathlib import Path
+
+import pandas as pd
 
 from src.llm.retrieval import (
     HybridRetriever,
@@ -8,6 +12,7 @@ from src.llm.retrieval import (
     retrieve,
     rrf,
 )
+from src.llm.retrieval_eval import load_benchmark_queries
 
 
 def test_load_and_filter_chunks_temporal_and_counter_type():
@@ -32,7 +37,7 @@ def test_load_and_filter_chunks_temporal_and_counter_type():
     assert "CODE-tarif_type-40" in gaz_ids
     assert "TYP-01" in gaz_ids
 
-    # Exclude target client from precedent case cards.
+    # The target client's own case card is excluded.
     any_case = next(c for c in chunks if c["doc"] == "case")
     cid = any_case["client_id"]
     filtered_cases = filter_chunks(chunks, {"doc": "case", "exclude_client_id": cid})
@@ -96,12 +101,6 @@ def test_all_four_retrieval_methods():
 
 
 def test_benchmark_queries_and_eval_table():
-    from pathlib import Path
-
-    import pandas as pd
-
-    from src.llm.retrieval_eval import load_benchmark_queries
-
     queries = load_benchmark_queries()
     assert len(queries) == 25
     chunks = {c["id"] for c in load_chunks()}

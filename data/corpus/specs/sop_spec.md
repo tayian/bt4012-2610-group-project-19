@@ -29,22 +29,22 @@ The two SOP documents (`source_docs/sop_v2023.md`, `source_docs/sop_v2025.md`) a
 
 ## 2. Clause Taxonomy (13 Clauses in Each Version)
 
-Feature names in backticks are pipeline columns; "planned" marks features not yet computed. Code meanings are assumptions (see the code book).
+Feature names in backticks are pipeline columns (all are built: F4, F7 and F8 in `docs/feature_list.md`). Code meanings are assumptions (see the code book).
 
 | Clause Number | Focus Area & Suspicion Trigger | `v2023` Thresholds (`[2023-01-01, 2025-01-01)`) | `v2025` Thresholds (`[2025-01-01, open)`) |
 | :--- | :--- | :--- | :--- |
 | **§1.1** | General Inspection Dispatch Priority | Top 10% risk rank dispatches within 45 days. | Top 5% risk rank dispatches within 14 days (tighter budget). |
 | **§1.2** | Dual-Meter Premises | Visual check of the second meter at the same address. | Mandatory audit of both meters within 48 hours (`has_elec == 1` and `has_gaz == 1`). |
-| **§2.1** | Sudden Year-on-Year Drop (`yoy_drop_max`, planned) | $\ge 70\%$ drop across 3 consecutive cycles. | $\ge 50\%$ drop across 2 consecutive cycles. |
-| **§2.2** | Persistent Zero Consumption (`zero_run_max`, planned) | 4 or more consecutive zero-consumption bills. | 2 or more consecutive zero-consumption bills. |
+| **§2.1** | Sudden Year-on-Year Drop (`yoy_drop_max`) | $\ge 70\%$ drop across 3 consecutive cycles. | $\ge 50\%$ drop across 2 consecutive cycles. |
+| **§2.2** | Persistent Zero Consumption (`zero_run_max`) | 4 or more consecutive zero-consumption bills. | 2 or more consecutive zero-consumption bills. |
 | **§2.3** | Index Delta vs Declared Consumption (`recon_gap`) | Discrepancy $> 200$ kWh on an invoice (`recon_gap > 200`). | Discrepancy $> 50$ kWh on an invoice (`recon_gap > 50`); smaller nonzero gaps are logged only. |
 | **§3.1** | Backwards Index Reading (`flag_index_backwards` and not `flag_index_rollover`) | Supervisor sign-off before field visit. | Immediate meter seizure and laboratory examination. |
 | **§3.2** | `counter_statue == 5` (assumed: suspected anomaly) | Site inspection within 30 calendar days. | Priority inspection within 7 days. |
 | **§3.3** | Consumption under `counter_statue == 1` (assumed: cut-off), confirmed by service-order history | Level 1 administrative warning letter. | Service termination with police escort, and referral for back-billing. |
 | **§4.1** | Consecutive `reading_remarque == 8` (assumed: estimated) | 5 or more consecutive invoices. | 3 or more consecutive invoices. |
 | **§4.2** | Consecutive `reading_remarque == 9` (assumed: not read; doubtful) | 4 consecutive invoices trigger an access notice. | 2 consecutive invoices trigger an access notice. |
-| **§5.1** | Benford's Law Digit Screening (`benford_mad`, `round_reading_share`, planned) | Advisory only; not grounds for action. | `benford_mad > 0.015` (Nigrini first-digit nonconformity) and `round_reading_share > 0.40` (project heuristic) trigger a reader-route audit. |
-| **§5.2** | Consumption Far Above Category Peers | Annual consumption $> 3\times$ the regional median for `client_catg 11`. | Consumption $> 2\times$ the regional median for `client_catg 11` and `peer_resid_mean > 2.0` (planned). |
+| **§5.1** | Benford's Law Digit Screening (`benford_mad`, `round_reading_share`) | Advisory only; not grounds for action. | `benford_mad > 0.015` (Nigrini first-digit nonconformity) and `round_reading_share > 0.40` (project heuristic) trigger a reader-route audit. |
+| **§5.2** | Consumption Far Above Category Peers | Annual consumption $> 3\times$ the regional median for `client_catg 11`. | Consumption $> 2\times$ the regional median for `client_catg 11` and `peer_resid_mean > 2.0`. |
 | **§6.1** | Required On-Site Evidence | Two photographs (dial face and terminal seal). | Dual clamp-ammeter reading, Gaussmeter reading, four geo-tagged photos, completed brief checklist. |
 
 ---

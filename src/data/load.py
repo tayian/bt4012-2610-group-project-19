@@ -1,7 +1,6 @@
-# Read the raw STEG CSVs with explicit dtypes, normalise the text fields once and save parquet.
-#
-# Every later step reads these files, so text is stripped and counter_type upper-cased here
-# and nowhere else. The raw client column `disrict` (a typo in the source) becomes `district`.
+# Read the raw STEG CSVs, strip text fields once and save them as parquet in data/interim.
+# The raw client column `disrict` (a typo in the source) becomes `district`.
+# Run: python3 -m src.data.load
 
 import argparse
 from pathlib import Path
@@ -39,7 +38,6 @@ def parse_dates(values, dayfirst_formats=("%d/%m/%Y", "%d/%m/%y")):
     out = pd.to_datetime(text, format="%Y-%m-%d", errors="coerce")
     bad = out.isna() & text.notna()
     for fmt in dayfirst_formats:
-        # Only rows still unparsed are tried with the next format.
         if not bad.any():
             break
         out[bad] = pd.to_datetime(text[bad], format=fmt, errors="coerce").to_numpy()

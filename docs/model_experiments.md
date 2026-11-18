@@ -1,4 +1,4 @@
-# Model experiments and SHAP handoff
+# Model experiments and SHAP
 
 The defaults use current features_v0 and the committed training clients/folds. All model
 inputs are loaded through linear.load_training(), which calls read_splits(). Every scored
@@ -13,7 +13,7 @@ python run.py shap
 python run.py imbalance random-forest lr-grid calibrate
 ```
 
-This order produces the SHAP handoff first. Each invocation builds its data/feature
+This order produces the SHAP drivers first. Each invocation builds its data/feature
 dependencies once. `python run.py model-experiments` runs the same full set in one call.
 The core `python run.py all` also builds baseline SHAP and runs the tests, while the longer
 searches run explicitly. Both workflows work from the two raw files in data/raw/.
@@ -147,9 +147,8 @@ also written to oof/M3_shap_reference_v0.parquet; tables/shap_metadata_v0.json r
 feature set, training fingerprint, scope and units. Five rows are produced for each of the
 108,394 training clients: 541,970 rows on the current course split.
 
-The columns and numeric value type match the existing stub SHAP contract. No stub format
-change is required. Share this contract with the brief/retrieval owner, especially the
-log-odds units and the scope of the explained model.
+The columns and numeric value type match the stub SHAP files in `data/stubs/`. The values
+are in log-odds units and explain the M3 scorer only.
 
 ## Checkpoints and results
 
@@ -163,9 +162,8 @@ Each published run upserts its own main_results.csv row and preserves other runs
 grid, isotonic and imbalance files have distinct model names. Do not substitute them for
 the baseline files without choosing the corresponding model deliberately.
 
-Run `python run.py format`, the experiment commands and `python run.py all` before handoff.
-The existing cost-curve code is reused through the standard budget metrics; no test set
-or duplicate cost implementation is introduced.
+The budget and cost metrics come from the shared code in `src/eval/metrics.py`, and these
+experiments never touch the test set.
 
 References:
 

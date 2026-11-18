@@ -1,20 +1,6 @@
-# Graph features (F10): guilt by association on a client behaviour graph.
-#
-# Nodes are all clients (train and test). Two kinds of edges, saved together in
-# data/processed/knn_edges.parquet so the graph models reuse the same graph:
-#   knn    each client -> its 10 nearest clients (cosine) on standardised F2 to F5 features
-#   meter  clients billed on the same real meter number (placeholders such as 0000 dropped)
-#
-# Label-based features are out-of-fold: a training client in fold k only sees the labels of
-# training clients in other folds, and test clients see every training label. Nobody sees their
-# own label. Per client:
-#   nbr_fraud_rate_k10      fraud rate among its kNN neighbours with a visible label
-#   degree                  number of distinct neighbours in the undirected graph (both kinds)
-#   community_size          size of its Louvain community on the undirected graph
-#   community_fraud_rate    visible fraud rate in that community, shrunk towards the overall
-#                           rate so tiny communities do not get extreme values
-#   n_meter_neighbours, meter_fraud_rate   the same idea over meter edges only
-# community_id is saved for reference but is an arbitrary label, so it is not a model feature.
+# Graph features: kNN edges on standardised behaviour features plus shared-meter edges, then
+# out-of-fold neighbour, community and meter fraud rates (no client sees its own label).
+# Run: python3 -m src.features.graph
 
 import argparse
 import re
@@ -62,8 +48,7 @@ def embed_columns(columns):
 
 
 def embedding(features, train_mask):
-    # Signed log1p (heavy tails), standardise with training-client statistics, missing -> 0
-    # (the training mean).
+    # Signed log1p for heavy tails, standardised on training clients; missing becomes 0.
     x = features.to_numpy(np.float64)
     x = np.sign(x) * np.log1p(np.abs(x))
     mean = np.nanmean(x[train_mask], axis=0)
@@ -120,6 +105,7 @@ def neighbour_rate(edges, y_visible, n):
 
 
 def community_rate(community, y_visible, prior):
+    # Visible fraud rate per community, shrunk towards the prior so small ones are not extreme.
     seen = ~np.isnan(y_visible)
     frauds = pd.Series(y_visible[seen]).groupby(community[seen]).sum()
     counts = pd.Series(1, index=np.flatnonzero(seen)).groupby(community[seen]).sum()

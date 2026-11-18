@@ -6,7 +6,7 @@
 | `interim/` | no | `client.parquet`, `invoice.parquet`, `invoice_clean.parquet` | `python run.py interim` |
 | `processed/` | no | `features_v0.parquet`, `features_v1[_with_inspection].parquet`, `features_v2[_with_inspection].parquet`, `meter_tariff.parquet`, `features_v3.parquet`, `features_v4.parquet`, `peer_residual.parquet`, `graph_features.parquet`, `knn_edges.parquet`, `seq.npy`, `seq_client_ids.npy` | `python run.py features`, `features-v1`, `features-v2`, `features-v3`, `seq` |
 | `splits/` | yes | `train_ids.csv`, `test_ids.csv`, `folds.csv` | Committed once; never re-split |
-| `corpus/` | yes | RAG source documents and specs | Written by hand, except `source_docs/codebook.md` (`python run.py codebook`) |
+| `corpus/` | yes | RAG source documents, specs, case cards and chunks | Written by hand, except `source_docs/codebook.md` (`python run.py codebook`) and `case_cards.jsonl` / `chunks.jsonl` (`python run.py corpus`) |
 | `stubs/` | yes | Fake versions of every contract file, for testing code before real files exist | `python run.py stubs` |
 | `checksums.txt` | yes | SHA-256, line count and size of each raw file | Written once |
 

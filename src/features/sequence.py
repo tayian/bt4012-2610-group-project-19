@@ -1,23 +1,6 @@
-# Sequence tensor (section 6): (n_clients, 120, 3) float32.
-#
-# Channels
-#   0  ELEC  log1p(monthly consumption, kWh) summed over all ELEC counters
-#   1  GAZ   log1p(monthly consumption) summed over all GAZ counters
-#   2  MASK  1.0 if no invoice of any type covers that month, else 0.0
-#
-# Method
-#   * An invoice dated in month t with months_valid m covers months t-m+1 .. t; its
-#     consumption is spread evenly (cons / m per month). months_valid comes from
-#     src/data/clean.py, so the months rule lives only there: invoices whose billing period is
-#     impossible (months_valid missing) are left out, exactly as their cons_pm is missing.
-#   * Each client is right-aligned on the month of its own last invoice, so the window is the
-#     client's last 120 calendar months (most clients end in 2019, but ~15% stop earlier, and
-#     ~10% have no bills at all in 2010-2019; a fixed calendar window would turn them into
-#     empty rows that a model could read as "no data means safe").
-#   * Months before a client's first invoice are masked (MASK=1, values 0).
-#
-# Works on any invoice dataframe with the clean columns; by default it reads the clean parquet:
-#   python3 -m src.features.sequence --invoices data/interim/invoice_clean.parquet
+# Build the monthly sequence tensor (n_clients, 120, 3): log1p ELEC and GAZ consumption and a
+# mask that is 1 where no invoice covers the month. Each invoice is spread evenly over its months.
+# Run: python3 -m src.features.sequence
 
 import argparse
 import time
@@ -25,25 +8,20 @@ import time
 import numpy as np
 import pandas as pd
 
-LEVELS = [
-    "consommation_level_1",
-    "consommation_level_2",
-    "consommation_level_3",
-    "consommation_level_4",
-]
+from src.data.load import LEVELS
+
 T = 120
 COLUMNS = ["client_id", "invoice_date", "counter_type", "months_valid", *LEVELS]
 
 
 def _usable(inv):
-    # Rows with a valid billing period, as in cons_pm.
+    # Rows with a valid billing period (months_valid comes from src/data/clean.py).
     inv = inv[COLUMNS]
     return inv[inv["months_valid"].notna()]
 
 
 def last_invoice_month(inv, client_ids):
-    # Calendar month (0 = January .. 11 = December) of each client's last usable invoice, the
-    # month every sequence is right-aligned on; -1 for clients without one.
+    # Calendar month (0 = January) of each client's last usable invoice; -1 if none.
     inv = _usable(inv)
     last = pd.to_datetime(inv["invoice_date"]).groupby(inv["client_id"].astype(str)).max()
     month = last.dt.month.reindex(np.asarray(client_ids).astype(str)) - 1
@@ -69,12 +47,14 @@ def build_sequence(inv: pd.DataFrame, client_ids=None, T=T):
     cons = inv[LEVELS].sum(axis=1).to_numpy(np.float64)
     is_gaz = (inv["counter_type"].astype(str).to_numpy() == "GAZ").astype(np.int64)
 
+    # Each client is right-aligned on its own last invoice, since many clients stop billing
+    # early and a fixed calendar window would leave them as empty rows.
     anchor = np.full(len(client_ids), -1, np.int64)
     np.maximum.at(anchor, cid, ym)
 
-    # explode each invoice into the months it covers
+    # Repeat each invoice once for every month it covers.
     rep = np.repeat(np.arange(len(m)), m)
-    offset = np.arange(len(rep)) - np.repeat(np.cumsum(m) - m, m)  # 0..m-1
+    offset = np.arange(len(rep)) - np.repeat(np.cumsum(m) - m, m)
     month = ym[rep] - offset
     pos = (T - 1) - (anchor[cid[rep]] - month)
     ok = pos >= 0

@@ -1,6 +1,5 @@
-# Shared helpers for the neural and anomaly models: data loading on the saved splits,
-# label-free preprocessing fitted on the training fold only, and the writer for OOF scores and
-# main_results rows.
+# Shared helpers for the neural, graph and anomaly models: loading the saved folds, fold-fitted
+# preprocessing, and writing OOF scores with their main_results row.
 
 from pathlib import Path
 
@@ -8,12 +7,11 @@ import numpy as np
 import pandas as pd
 
 from src.data.split import read_splits
+from src.eval.metrics import budget_metrics, fold_mean_std
 from src.eval.oof import oof_frame, write_frames
 
 SEED = 4012
-# v1 is the default for every model. The leakage comparison scores v1 against
-# v1_with_inspection, which adds features built from the inspector-written columns
-# (counter_statue, reading_remarque) once they exist.
+# The *_with_inspection tables add inspector-written columns and exist only for the leakage check.
 FEATURES = {
     "v0": "data/processed/features_v0.parquet",
     "v1": "data/processed/features_v1.parquet",
@@ -30,7 +28,6 @@ CAT_FREQ = ["district", "region"]
 def load_train(feature_version="v1"):
     # Training clients in fold order: (ids, X DataFrame, y, folds).
     cli = pd.read_parquet("data/interim/client.parquet")[["client_id", "target"]]
-    # read_splits checks the saved split files against the client table.
     _, _, folds = read_splits("data/splits", cli)
     folds["client_id"] = folds["client_id"].astype(str)
     cli["client_id"] = cli["client_id"].astype(str)
@@ -45,8 +42,8 @@ def load_train(feature_version="v1"):
 
 
 class TabularPrep:
-    # Fit on training fold only: one-hot client_catg, frequency-encode district/region, signed
-    # log1p, median impute + missing flags, standardise.
+    # Fitted on the training fold only: one-hot client_catg, frequency-encoded district and
+    # region, signed log1p, median imputation with missing flags, then standardisation.
 
     def fit(self, X: pd.DataFrame):
         self.num = [c for c in X.columns if c not in CAT_ONEHOT + CAT_FREQ]
@@ -86,14 +83,8 @@ class TabularPrep:
 def save_run(
     ids, folds, y, scores, model, feature_version, run_id, oof_name=None, probabilities=True, **meta
 ):
-    # Write one model's OOF scores and its row of results/tables/main_results.csv together.
-    #
-    # Metrics come from the shared src.eval.metrics.budget_metrics (tie-aware, with Brier and
-    # net recovery), per saved fold, as mean and sample std, so the rows line up with M1 and
-    # M3. A rerun replaces the row with the same run_id and keeps every other row. oof_name sets
-    # the OOF file name when one model has variants (M4focal_v0 next to M4_v0).
-    from src.eval.metrics import budget_metrics
-
+    # Write one model's OOF scores and its main_results row (replacing any row with the same
+    # run_id). oof_name names the OOF file when one model has variants, e.g. M4focal.
     y = np.asarray(y)
     scores = np.asarray(scores, dtype=np.float64)
     folds = np.asarray(folds)
@@ -109,9 +100,7 @@ def save_run(
         "n_clients": len(y),
         "n_folds": 5,
     }
-    for metric in table.columns:
-        row[f"{metric}_mean"] = float(table[metric].mean())
-        row[f"{metric}_std"] = float(table[metric].std(ddof=1))
+    row.update(fold_mean_std(table))
     row.update(
         {
             "run_id": run_id,

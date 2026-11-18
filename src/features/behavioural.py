@@ -1,13 +1,6 @@
-# Features v1: one row per client with every feature group that is known before an inspection.
-#
-#   F1 profile (from src/features/aggregate.py), F2 consumption level, F3 billing regularity,
-#   F4 trajectory, F5 robust self-deviation, F6 data validity, F7 Benford and digits.
-#
-# features_v1_with_inspection adds F9 (meter status and reading remark shares), which come from
-# the inspector-written columns counter_statue and reading_remarque, so it is only used for the
-# leakage comparison. Everything reads the clean invoice table from src/data/clean.py, so
-# impossible periods are already NaN in months_valid and cons_pm. NaN means a feature cannot be
-# computed for the client (no usable invoices, too few readings, no variation).
+# Build features_v1 (profile, consumption, billing, trajectory, validity and digit features) and
+# features_v1_with_inspection, which adds inspector-written status shares for the leakage check.
+# Run: python3 -m src.features.behavioural
 
 import argparse
 from pathlib import Path
@@ -98,15 +91,19 @@ def consumption_features(x, key, upper, total, suffix=""):
     return out.add_suffix(suffix)
 
 
-def _meter_order(inv, key):
-    # Row order that sorts invoices by meter, then date, and a mask for "same meter as the row
-    # before". Meters are (client, counter_number, counter_type).
+def _meter_day(inv):
+    # Meter code (client, counter_number, counter_type) and invoice date in ns for every row.
     meter = (
         inv.groupby(["client_id", "counter_number", "counter_type"], sort=False, dropna=False)
         .ngroup()
         .to_numpy()
     )
-    day = inv["invoice_date"].to_numpy().view("i8")
+    return meter, inv["invoice_date"].to_numpy().view("i8")
+
+
+def _meter_order(inv, key):
+    # Row order by meter then date, a "same meter as the row before" mask, and the client keys.
+    meter, day = _meter_day(inv)
     order = np.lexsort((day, meter))
     meter = meter[order]
     same = np.r_[False, meter[1:] == meter[:-1]]
@@ -125,12 +122,7 @@ def billing_features(inv, key):
     out["months_number_max"] = by_month.max()
 
     # Gaps are measured per meter: two meters billed on different days are not gaps.
-    meter = (
-        inv.groupby(["client_id", "counter_number", "counter_type"], sort=False, dropna=False)
-        .ngroup()
-        .to_numpy()
-    )
-    day = inv["invoice_date"].to_numpy().view("i8")
+    meter, day = _meter_day(inv)
     first = np.flatnonzero(~pd.DataFrame({"meter": meter, "day": day}).duplicated().to_numpy())
     order = first[np.lexsort((day[first], meter[first]))]
     meter, day = meter[order], day[order]
@@ -146,9 +138,8 @@ def billing_features(inv, key):
 
 
 def trajectory_features(inv, key, series):
-    # F4 and F5. Each client's own history is judged per meter type (series = client x
-    # counter_type), because ELEC and GAZ bills have different scales; the per-series values
-    # are then combined per client (worst drop, steepest decline, largest deviation).
+    # F4 and F5, per client and meter type (series), since ELEC and GAZ have different scales;
+    # the per-series values are then combined per client.
     x = inv["cons_pm"]
     ok = x.notna()
     client_of = key.groupby(series).first()
@@ -166,13 +157,14 @@ def trajectory_features(inv, key, series):
         drop = np.where(prev & (prev_v > 0), 1 - v / prev_v, np.nan)
     yoy = pd.Series(drop).groupby(client_of.reindex(s).to_numpy()).max()
 
-    # slope_last3y: least-squares slope of cons_pm per year over the last three years of the
-    # series; the steepest decline (minimum) across the client's meter types.
+    # slope_last3y: least-squares slope of cons_pm per year over the series' last three years;
+    # the minimum across the client's meter types.
     t = (inv["invoice_date"] - inv["invoice_date"].min()).dt.days / 365.25
     recent = ok & (t >= t.groupby(series).transform("max") - SLOPE_YEARS)
     ts, xs, gs = t[recent], x[recent], series[recent]
-    sums = pd.DataFrame({"n": 1.0, "t": ts, "x": xs, "tt": ts * ts, "tx": ts * xs}).groupby(gs)
-    sums = sums.sum()
+    sums = (
+        pd.DataFrame({"n": 1.0, "t": ts, "x": xs, "tt": ts * ts, "tx": ts * xs}).groupby(gs).sum()
+    )
     denom = sums["n"] * sums["tt"] - sums["t"] ** 2
     with np.errstate(divide="ignore", invalid="ignore"):
         slope = (sums["n"] * sums["tx"] - sums["t"] * sums["x"]) / denom
@@ -196,8 +188,7 @@ def trajectory_features(inv, key, series):
     out["robust_z_max"] = per_client["z"].max()
     out["n_robust_z_gt3"] = sums["z_gt"].where(sums["has_z"] > 0)
 
-    # zero_run_max / zero_share: bills with zero consumption, runs counted per meter in date
-    # order.
+    # zero_run_max and zero_share: zero-consumption bills, runs counted per meter in date order.
     zero = inv["cons"].eq(0).to_numpy()
     order, same, client = _meter_order(inv, key)
     z_sorted = zero[order]
@@ -211,8 +202,7 @@ def trajectory_features(inv, key, series):
 
 
 def validity_features(inv, key):
-    # F6: physically impossible or inconsistent readings. Exact meter rollovers (a 5-digit
-    # meter passing 99999) are not counted as backwards readings.
+    # F6: impossible or inconsistent readings; exact meter rollovers are not backwards readings.
     flags = pd.DataFrame(
         {
             "n_index_backwards": inv["flag_index_backwards"] & ~inv["flag_index_rollover"],
@@ -226,8 +216,7 @@ def validity_features(inv, key):
 
 
 def leading_digits(values, n_digits=1):
-    # First n_digits digits of positive whole numbers (cons and new_index are integer counts),
-    # in exact integer arithmetic. Values with fewer digits are returned unchanged.
+    # First n_digits digits of positive whole numbers, in exact integer arithmetic.
     v = np.asarray(values).astype(np.int64)
     width = np.searchsorted(10 ** np.arange(1, 19), v, side="right") + 1
     return v // 10 ** np.maximum(width - n_digits, 0)
@@ -253,8 +242,7 @@ def digit_features(inv, key):
 
 
 def inspection_features(inv, key):
-    # F9: shares of each standardised meter status and reading remark, and how often the
-    # status changes on the same meter.
+    # F9: shares of each meter status and reading remark, and status changes on the same meter.
     out = []
     for field, states, prefix in (
         ("counter_statue", STATUE_STATES, "statue_share_"),
@@ -271,8 +259,7 @@ def inspection_features(inv, key):
 
 
 def build_features(inv, clients, inspection=False):
-    # One row per client in `clients` order. `inv` is invoice_clean.parquet and `clients` is
-    # client.parquet (profile columns are taken from it, never the target).
+    # One row per client in `clients` order; NaN where a feature cannot be computed.
     if inv["client_id"].isna().any():
         raise ValueError("invoices with a missing client_id cannot be grouped")
     missing = set(INVOICE_COLUMNS) - set(inv.columns)

@@ -32,6 +32,15 @@ def oof_frame(client_ids, folds, scores, model, version):
     )[OOF_COLUMNS]
 
 
+def replace_run_row(previous, row):
+    # The results table with any earlier row of the same run_id replaced by row.
+    if "run_id" in previous:
+        previous = previous.loc[previous["run_id"].ne(row["run_id"])]
+    if previous.empty:
+        return pd.DataFrame([row])
+    return pd.concat([previous, pd.DataFrame([row])], ignore_index=True)
+
+
 def write_frames(frames):
     # Write each {path: DataFrame} as .csv or .parquet. Every file goes to a temporary path
     # first and is renamed only once all are written, so a failed run keeps the old files.

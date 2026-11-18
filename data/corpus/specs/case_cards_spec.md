@@ -3,7 +3,7 @@
 **Document ID:** `DOC-04-CASE-CARDS-SPEC`  
 **Workstream:** LLM, RAG & agents  
 **Corpus Layer:** Case precedents for analogous reasoning  
-**Status:** Draft specification (generator not yet written)  
+**Status:** Implemented in `src/llm/corpus/case_cards.py`  
 
 ---
 
@@ -101,4 +101,4 @@ The card says nothing about how the fraud was committed or what was recovered, b
    - backwards index readings that are not rollovers (`TYP-03` analogues)
    - invoices under `counter_statue` 1 with nonzero consumption (`TYP-05` analogues; the code meaning is assumed)
    - long runs of `reading_remarque` 8 (`TYP-08` analogues; the code meaning is assumed)
-3. Write `data/corpus/case_cards.jsonl` with the planned generator script `src/llm/build_case_cards.py`.
+3. Write `data/corpus/case_cards.jsonl` with `src/llm/corpus/case_cards.py`; `src/llm/corpus/build_chunks.py --rebuild-cases` (`python run.py corpus`) calls it and then adds the cards to `chunks.jsonl`.

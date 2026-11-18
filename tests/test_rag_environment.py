@@ -1,6 +1,5 @@
-# Checks that the RAG libraries work on this machine, using the project's own playbook.
-# BM25 and reciprocal rank fusion run offline; the embedding test downloads
-# all-MiniLM-L6-v2 (~90 MB) on first run and is skipped if the model cannot be loaded.
+# Checks that the RAG libraries work here on the project's playbook.
+# The embedding test downloads MiniLM on first run and is skipped if it cannot load.
 
 import re
 import unittest

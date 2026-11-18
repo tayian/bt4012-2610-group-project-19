@@ -1,6 +1,5 @@
 # Checks that the Gemini API key works and returns schema-valid structured output.
-# Skipped when google-genai is not installed or GEMINI_API_KEY is not set (see .env.example),
-# so teammates without a key are not blocked. One small request per run.
+# Skipped when google-genai or GEMINI_API_KEY is missing; one small request per run.
 
 import os
 import unittest

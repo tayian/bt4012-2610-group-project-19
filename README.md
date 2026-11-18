@@ -33,7 +33,7 @@ pip install -r requirements.txt
 
 Once the environment is active, `python` refers to it on every system, so the rest of the steps are the same everywhere.
 
-**3. Add the data.** Download and unzip the `steg_project_data` folder that comes with this project. Copy the two files in its `raw/` folder, `client_train.csv` and `invoice_train.csv`, into this repo's `data/raw/` folder. These are the only data files you need; everything else is built from them. If a file is missing or different, `python run.py all` stops at the first step and says so.
+**3. Add the data.** The `steg_project_data` folder is provided with the submission, as a zip alongside the report. Unzip it. Copy the two files in its `raw/` folder, `client_train.csv` and `invoice_train.csv`, into this repo's `data/raw/` folder. These are the only data files you need; everything else is built from them. If a file is missing or different, `python run.py all` stops at the first step and says so.
 
 Optional shortcut: `steg_project_data` also holds the files the pipeline builds. Copy its `interim/` folder into `data/interim/` and its `processed/` folder into `data/processed/` to skip rebuilding them. Its `README.txt` lists every file.
 
@@ -45,7 +45,7 @@ The data are STEG's training files from the Zindi *Fraud Detection in Electricit
 python run.py all
 ```
 
-This takes about 15 minutes on a laptop. It checks the two data files, rebuilds every table, figure and model result in the repo, and finishes by running the tests. When it is done, every table, figure and result matches ours exactly. If your installed package versions differ from ours, `git status` may still list some `.parquet`, `.png` or notebook files as modified: libraries such as pyarrow and matplotlib write their version number into these files, so the bytes change while the contents stay identical.
+This takes about 15 minutes on a laptop and needs an internet connection the first time, because the retrieval evaluation downloads two small models (`all-MiniLM-L6-v2` and the `ms-marco-MiniLM-L-6-v2` cross-encoder) from Hugging Face. It checks the two data files, rebuilds the data, the feature tables (including `features_v4`), the baseline models and their SHAP drivers, the RAG corpus and the retrieval evaluation, and finishes by running the tests. The files it writes match the committed ones. The final model and most numbers in the report come from `python run.py final` and the other steps listed under [Reproducing the final results](#reproducing-the-final-results). If your installed package versions differ from ours, `git status` may still list some `.parquet`, `.png` or notebook files as modified: libraries such as pyarrow and matplotlib write their version number into these files, so the bytes change while the contents stay identical.
 
 **macOS note.** If LightGBM fails to import with a `libomp.dylib` error, run `brew install libomp`.
 
@@ -72,6 +72,8 @@ python run.py test-llm
 | Meter, tariff and recency features | `python run.py features-v3` | `data/processed/meter_tariff.parquet`, `features_v3.parquet` and `features_v4.parquet` (the final model's table) |
 | Graph model | `python run.py label-spreading` | `results/oof/M8_v1.parquet` and its row in `main_results.csv` |
 | RAG code book | `python run.py codebook` | `data/corpus/source_docs/codebook.md` |
+| RAG corpus | `python run.py corpus` | `data/corpus/case_cards.jsonl` (300 precedent case cards) and `data/corpus/chunks.jsonl` |
+| Retrieval evaluation | `python run.py retrieval-eval` | `results/tables/retrieval_eval.csv` and `retrieval_eval_by_query.csv` (downloads the retrieval models once) |
 | Test fixtures | `python run.py stubs` | `data/stubs/` |
 | Exploratory analysis | `python run.py eda` | `notebooks/01_eda.ipynb`, `results/tables/basics.csv`, `descriptive.csv`, EDA figures |
 | Baseline model | `python run.py baseline` | `results/tables/main_results.csv`, `results/oof/M1_v0.parquet` |
@@ -84,26 +86,37 @@ Each command also runs the steps it depends on, so you can run any one on its ow
 The heavier model experiments run explicitly with `python run.py model-experiments`:
 the LR regularisation grid, random-forest grid, isotonic calibration and imbalance
 comparison, plus SHAP. Completed candidates are checkpointed locally and reused on a
-matching rerun. The routine `all` command runs the core pipeline, SHAP and tests.
+matching rerun. The routine `all` command runs the core pipeline, SHAP, the RAG corpus and tests.
 See [docs/model_experiments.md](docs/model_experiments.md) for the commands, output names
 and evaluation rules.
 
 ## Reproducing the final results
 
-`python run.py all` rebuilds the data, features and baseline models. The final model and every
-number in the report come from one more command:
+`python run.py all` rebuilds the data, features, baseline models and the retrieval evaluation.
+The final model and its results come from:
 
 ```bash
 python run.py final
 ```
 
-It tunes LightGBM on `features_v4`, trains CatBoost and the wide-and-deep CNN, runs the fusion
-ablation that selects the final model, scores the held-out test set, and reruns the fairness,
-calibration, stability, budget and robustness analyses. It takes about 6 hours on a laptop CPU
-(most of it the wide-and-deep CNN and the Optuna search). Every model's out-of-fold and test
-scores are committed in `results/`, so the tables and figures can be checked without rerunning.
-The Inspector Brief steps (`briefs`, `agents`) are separate because they need a Gemini key; their
-LLM responses are committed too, so `python run.py briefs` rescores them without API calls.
+It tunes LightGBM on `features_v4` (`tune`), trains CatBoost (`catboost`) and the wide-and-deep
+CNN (`wide-deep-final`), runs the fusion ablation that selects the final model (`fusion`), scores
+the held-out test set (`test-set`), and reruns the fairness, calibration, stability, budget and
+robustness analyses (`responsible`, `budget-figures`, `robustness-final`). It takes about 6 hours
+on a laptop CPU (most of it the wide-and-deep CNN and the Optuna search).
+
+`fusion` also reads the out-of-fold scores of the other models in the ablation. These are
+committed, so it runs on a fresh clone; to rebuild them too, run `python run.py mlp --mlp-loss focal`
+(M4), `cnn` (M7), `graphsage` (M8sage) and `anomaly` (M5, M6) first. `label-spreading` (M8) is
+already part of `all`. The other numbers in the
+report come from separate steps: `benford`, `eda-figures`, `time-robustness`,
+`features-v3-audit`, `rescue`, `pu`, `briefs` and `agents` (see the tables below).
+
+The out-of-fold and test scores behind the final model and the reported tables are committed
+in `results/`, so the tables and figures can be checked without rerunning; some exploratory
+runs are kept only locally. The Inspector Brief steps (`briefs`, `agents`) need a Gemini key;
+their LLM responses are committed too, so `python run.py briefs` rescores them without API
+calls.
 
 ## Final model, evaluation and Inspector Briefs
 
@@ -119,6 +132,7 @@ no API calls.
 | `python run.py time-robustness` | Tuned M3 on invoices up to 2016 against the full history |
 | `python run.py tune` | Tunes LightGBM (M3) with Optuna on `features_v4`, 30 trials (about an hour) |
 | `python run.py catboost` | CatBoost (M9) on `features_v4` |
+| `python run.py wide-deep-final` | Wide-and-deep CNN (M7wd) on `features_v4`, the second model in the final stack (about 3 h on CPU) |
 | `python run.py fusion` | Fusion ablation and the M10 stacker's out-of-fold scores (needs the model OOF files) |
 | `python run.py robustness-final` | Consumption-hiding attacks on the final feature table, with defences |
 | `python run.py test-set` | Refits on all training clients and scores the held-out test set once (`test_results.csv`) |
@@ -159,18 +173,33 @@ data/
   interim/      cleaned parquet files (built by python run.py interim)
   processed/    feature tables (built by the feature steps)
   splits/       the fixed train/test split and folds (in git, never re-split)
-  corpus/       documents for the RAG system (in git)
+  corpus/       documents, case cards and chunks for the RAG system (in git)
   stubs/        small fake versions of every shared file, for testing (in git)
   checksums.txt fingerprints of the two raw files
-docs/           evaluation protocol, cleaning rules, RAG design, sources, threat model, notes
-notebooks/      01_eda.ipynb (exploratory analysis)
-results/        tables/, figures/, oof/ (out-of-fold model scores), models/ (fold models, not in git)
+configs/        final.json: the final model's components, stack weights and seed
+docs/           decisions, evaluation protocol, features, cleaning rules, RAG and LLM design, notes
+notebooks/      01_eda.ipynb (exploratory analysis), 02_benford.ipynb (Benford tests)
+results/
+  tables/       every reported table (main_results.csv, test_results.csv, ...)
+  figures/      every reported figure
+  oof/          out-of-fold scores per model and feature version
+  test/         test-set scores of the final-table models
+  briefs/       cached Inspector Briefs, rewritten queries and judge scores
+  agent_logs/   cached single-agent and multi-agent runs and history plots
+  coefficients/ logistic regression coefficients
+  final_scores.parquet         final model scores for every client (train OOF and test)
+  shap_top5_<version>.parquet  five SHAP drivers per client (shap_top5_final for the final model)
+  models/, runs/               fold models and experiment checkpoints (local only, not in git)
 src/
   data/         loading, cleaning, raw-data check, split, stubs
-  features/     baseline, consumption/billing and monthly sequence features
-  models/       logistic regression, LightGBM, MLP, 1D-CNN, anomaly models, PU learning, shared preprocessing
-  eval/         metrics, out-of-fold files, robustness study, rescue analysis
-  llm/          RAG corpus tools and the Inspector Brief evaluation harness
+  features/     baseline, behaviour, peer-residual, graph, meter/tariff (F12), Benford and sequence features
+  models/       logistic regression, random forest, LightGBM and its Optuna tuning, CatBoost, MLP,
+                1D-CNN and wide-and-deep CNN, GraphSAGE, label spreading, anomaly models,
+                PU learning, imbalance handling, the fusion stack and the one-off test-set run
+  eval/         metrics, out-of-fold files, SHAP, calibration, robustness, rescue analysis,
+                time robustness, fairness and other responsible-AI checks
+  llm/          RAG corpus tools, retrieval, client snapshots, query rewriter, Inspector Briefs,
+                single and multi-agent systems, and the faithfulness evaluation
   viz/          shared figure style and plots
 tests/          unit and integration tests (python run.py test)
 ```
@@ -212,15 +241,20 @@ API keys live in a local `.env` file, which is never committed. `.env.example` i
 # Gemini API key for the Inspector Briefs
 GEMINI_API_KEY=your_gemini_api_key_here
 # Model used for every Inspector Brief
-GEMINI_MODEL=gemini-2.5-flash
+GEMINI_MODEL=gemini-3.1-flash-lite
 ```
 
 ## Documentation
 
 | File | What it covers |
 |---|---|
+| [docs/decisions.md](docs/decisions.md) | Every modelling decision, the evidence for it, and the test-set results |
 | [docs/eval_protocol.md](docs/eval_protocol.md) | Split, leakage rules, metrics and cost model |
 | [docs/data_cleaning.md](docs/data_cleaning.md) | Every loading and cleaning rule |
+| [docs/feature_list.md](docs/feature_list.md) | Every feature table and feature (F1 to F12) |
+| [docs/lightgbm.md](docs/lightgbm.md) | The LightGBM baseline (M3) and the shared tree interface |
+| [docs/model_experiments.md](docs/model_experiments.md) | LR and random-forest grids, calibration, imbalance comparison and SHAP |
+| [docs/analysis_notes.md](docs/analysis_notes.md) | Benford tests, the second EDA pass and the time-robustness check |
 | [docs/rag_pipeline.md](docs/rag_pipeline.md) | How the RAG corpus becomes an Inspector Brief |
 | [docs/llm_stack.md](docs/llm_stack.md) | LLM, embedding and retrieval choices |
 | [docs/sources.md](docs/sources.md) | Literature behind the fraud typologies |

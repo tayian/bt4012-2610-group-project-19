@@ -19,6 +19,7 @@ from src.models.forest import model_fn as forest_model
 from src.models.forest import search as forest_search
 from src.models.imbalance import run as imbalance
 from src.models.lr_search import search as lr_search
+from src.models.sampling import balance_training
 from src.models.trees import M3Classifier, fit_m3, run_lightgbm
 
 
@@ -133,8 +134,6 @@ class ExperimentTests(unittest.TestCase):
         self.assertEqual(counts["none"]["fitted_positive"], int(y.eq(1).sum()))
 
     def test_smote_preserves_original_rows_and_valid_category_levels(self):
-        from src.models.sampling import balance_training
-
         ctx = self.ctx()
         fitted = fit_m3(ctx.X.drop(columns="client_id"), ctx.y, n_jobs=1)
         prepared = fitted._prepare(ctx.X.drop(columns="client_id"))

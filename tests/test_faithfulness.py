@@ -1,9 +1,8 @@
-# Smoke tests for the brief evaluation harness on the 5 hand-written sample briefs.
-# Run: python3 -m pytest tests/test_faithfulness.py -q
+# Smoke tests for the brief scoring on the five hand-written sample briefs.
 
 import json
-import os
 import tempfile
+from pathlib import Path
 
 from src.llm.agent_eval import RunLogger, load_logs
 from src.llm.faithfulness import (
@@ -14,7 +13,7 @@ from src.llm.faithfulness import (
     score_run,
 )
 
-FX = json.load(open(os.path.join(os.path.dirname(__file__), "fixtures/sample_briefs.json")))
+FX = json.loads((Path(__file__).parent / "fixtures/sample_briefs.json").read_text())
 SNAP = {s["client_id"]: s for s in FX["snapshots"]}
 EV = FX["evidence"]
 

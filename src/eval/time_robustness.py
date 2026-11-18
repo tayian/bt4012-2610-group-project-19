@@ -1,11 +1,5 @@
-# Time robustness: does tuned M3 still work when the features only see older invoices?
-#
-# features_v1 is rebuilt from invoices dated up to the cutoff (default 2016-12-31) with the same
-# build_features as the full table, and tuned M3 (saved parameters, trees.model_fn) is scored on
-# the same five saved training folds as the full-history features. Metrics come from the
-# shared budget_metrics per fold (mean and sample std), on all training clients and on the
-# clients that have at least one invoice before the cutoff. Nothing is written to
-# main_results.csv or results/oof/.
+# Time robustness: tuned M3 scored on features rebuilt from invoices up to a cutoff date, against
+# the full-history features, on the same saved folds. Run: python3 -m src.eval.time_robustness
 
 import argparse
 import json
@@ -36,7 +30,7 @@ def history_up_to(inv, cutoff):
 
 
 def fold_summary(y, scores, fold_ids, mask=None):
-    # budget_metrics on each saved fold (optionally only the rows in mask), as mean and std.
+    # budget_metrics per saved fold, optionally on the rows in mask only, as mean and sample std.
     y, scores = np.asarray(y), np.asarray(scores)
     mask = np.ones(len(y), bool) if mask is None else np.asarray(mask)
     rows = [

@@ -27,5 +27,4 @@ project-includes = [
     "**/*.py*",
     "**/*.ipynb",
 ]
-python-interpreter-path = "BT4012ProjectEnv/Scripts/python.exe"
 search-path = ["."]

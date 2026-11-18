@@ -1,4 +1,5 @@
-# Build 15 quick client features (features_v0) from the loaded clients and cleaned invoices.
+# Build the 15 baseline client features (features_v0) from clients and cleaned invoices.
+# Run: python3 -m src.features.aggregate
 
 import argparse
 from pathlib import Path
@@ -17,7 +18,6 @@ INVOICE_COLUMNS = [
 ]
 PROFILE_COLUMNS = ["client_id", "client_catg", "district", "region", "creation_date"]
 FEATURE_COLUMNS = [
-    # F1: profile and meters (7)
     "client_catg",
     "district",
     "region",
@@ -25,12 +25,10 @@ FEATURE_COLUMNS = [
     "has_elec",
     "has_gaz",
     "n_counters",
-    # F2: consumption per month (4)
     "cons_pm_mean",
     "cons_pm_std",
     "cons_pm_min",
     "cons_pm_max",
-    # F3: billing (4)
     "n_invoices",
     "invoices_per_year",
     "months_number_mean",
@@ -39,12 +37,7 @@ FEATURE_COLUMNS = [
 
 
 def build_features(invoices, clients):
-    # Return one row per client, with client_id plus 15 predictors.
-    #
-    # `invoices` is invoice_clean.parquet (exact duplicates dropped, months_valid and cons_pm
-    # already NaN for impossible periods) and `clients` is client.parquet. No labels, split
-    # assignments, global statistics, encoders or scalers are used. Consumption channels are
-    # combined for this small v0 feature set.
+    # One row per client: client_id plus 15 predictors. Uses no labels or global statistics.
     for name, frame, columns in (
         ("invoice", invoices, INVOICE_COLUMNS),
         ("client", clients, PROFILE_COLUMNS),
@@ -53,7 +46,7 @@ def build_features(invoices, clients):
         if missing:
             raise ValueError(f"Missing {name} columns: {sorted(missing)}")
 
-    # Select profile fields explicitly: target is never included.
+    # Profile fields are listed explicitly so the target is never included.
     profile = clients[PROFILE_COLUMNS].copy()
     profile["client_id"] = check_ids(profile["client_id"], "clients", unique=True)
     inv = invoices[INVOICE_COLUMNS].copy()
@@ -65,8 +58,8 @@ def build_features(invoices, clients):
             "Check that both files belong to the same dataset (train or test)."
         )
 
+    # Kept as strings; they are encoded inside each CV fold later.
     for column in ("client_catg", "district", "region"):
-        # Preserve these as categories for encoding INSIDE each CV fold later.
         profile[column] = profile[column].astype("string")
     # Nullable booleans, so clients without invoices become NA (then 0) after the merge.
     inv["_has_elec"] = inv["counter_type"].eq("ELEC").fillna(False).astype("boolean")

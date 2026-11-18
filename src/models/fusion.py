@@ -1,23 +1,6 @@
-# M10 fusion: combine the models' out-of-fold scores in parallel, then score the test set once.
-#
-# Each model's scores are turned into percentile ranks within the fold that produced them
-# (scores from different models, and from different folds, are not on the same scale). Two
-# combiners are compared on the saved folds:
-#   rank average   the mean of the ranks
-#   LR stacker     logistic regression on the ranks, fitted on four folds and scored on the
-#                  fifth, so every stacked score is still out-of-fold
-# The ablation adds one model group at a time to the reference model (tuned M3 on VERSION).
-# The tabular models (M3, M9, M7wd) use the final feature table; the sequence, graph and
-# anomaly models keep their v1 runs, since their inputs do not include the F12 features.
-#
-#   python3 -m src.models.fusion cv      -> results/tables/fusion_ablation.csv,
-#                                           results/oof/M10_<VERSION>.parquet + its main_results row
-#   python3 -m src.models.fusion test    -> results/tables/test_results.csv (bootstrap 95% CIs),
-#                                           results/tables/test_fusion_gain.csv,
-#                                           results/final_scores.parquet, configs/final.json
-#
-# The test step needs results/test/*.parquet from src.models.test_set. Test ranks are taken
-# over the test clients, and the stacker is refitted on all training OOF ranks.
+# M10 fusion: stack the models' per-fold percentile ranks, compare model groups on the saved
+# folds, then refit the chosen stack and score the test set once.
+# Run: python3 -m src.models.fusion cv (then test)
 
 import argparse
 import json
@@ -34,7 +17,8 @@ from src.models.common import save_run
 
 SEED = 4012
 VERSION = "v4"
-# Model name -> OOF/test file stem. Tuned M3 is the reference for every ablation.
+# OOF file stem per model. The sequence, graph and anomaly models keep their earlier feature
+# versions because their inputs do not use the v4 additions.
 FILES = {
     "M3_tuned": f"M3_tuned_{VERSION}",
     "M9": f"M9_{VERSION}",
@@ -59,9 +43,8 @@ ABLATION = [
     ["M3_tuned", "M9", "M7wd", "M7", "M4"],
     list(FILES),
 ]
-# The final model: the smallest set whose stacked gain over M3 is positive in every fold. On v1
-# v1 and on v4 that is M3_tuned + M7wd; on the leaky v3 no stack qualified.
-# STACK is the stack scored on the test set (equal to FINAL when the stack is adopted).
+# FINAL is the smallest stack whose gain over tuned M3 is positive in every fold; STACK is the
+# stack scored on the test set.
 FINAL = ["M3_tuned", "M7wd"]
 STACK = ["M3_tuned", "M7wd"]
 TEST_MODELS = ["M1", "M3", "M3_tuned", "M9", "M7wd"]
@@ -69,6 +52,8 @@ FINAL_NAME = "M10" if len(FINAL) > 1 else FINAL[0]
 
 
 def load_oof(models):
+    # Scores are ranked within each fold, since raw scores from different folds and models are
+    # not on the same scale.
     cli = pd.read_parquet("data/interim/client.parquet")[["client_id", "target"]]
     cli["client_id"] = cli["client_id"].astype(str)
     frame = None
@@ -86,6 +71,7 @@ def stacker():
 
 
 def stack_oof(ranks, y, folds, models):
+    # Fit on four folds and score the fifth, so every stacked score stays out-of-fold.
     out = np.zeros(len(y))
     for k in range(5):
         fit = stacker().fit(ranks.loc[folds != k, models], y[folds != k])
@@ -138,6 +124,7 @@ def run_cv():
 
 
 def test_ranks(models):
+    # Raw test scores of each model joined with the labels; they are ranked by the caller.
     frame = None
     for name in models:
         o = pd.read_parquet(f"results/test/{name}_{VERSION}.parquet")[["client_id", "score"]]
@@ -254,7 +241,10 @@ def main():
     p = argparse.ArgumentParser(description="M10 fusion on the saved folds, then the test set.")
     p.add_argument("step", choices=["cv", "test"])
     a = p.parse_args()
-    run_cv() if a.step == "cv" else run_test()
+    if a.step == "cv":
+        run_cv()
+    else:
+        run_test()
 
 
 if __name__ == "__main__":

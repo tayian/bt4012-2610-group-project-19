@@ -1,15 +1,16 @@
-# Unit tests for src/llm/agent.py: each tool alone, the tool budget, and both agent systems
-# end to end with a scripted fake Gemini client (no network, no model download).
+# Tests for the agent tools and both agent systems, using a scripted fake Gemini client.
 
 import json
 import os
+from pathlib import Path
 from types import SimpleNamespace
 
 from src.llm import agent, briefs
 from src.llm.agent_eval import load_logs
+from src.llm.faithfulness import score_brief
 from src.llm.retrieval import HybridRetriever
 
-FX = json.load(open(os.path.join(os.path.dirname(__file__), "fixtures/sample_briefs.json")))
+FX = json.loads((Path(__file__).parent / "fixtures/sample_briefs.json").read_text())
 CID = "train_Client_100109"
 
 
@@ -157,8 +158,6 @@ def test_drop_years_count_as_snapshot_numbers():
     snap = agent.scoring_snapshot(CID, {"plot_history": hist})
     brief = _good_brief()
     brief["evidence"][0]["point"] = "Consumption dropped sharply in 2009."
-    from src.llm.faithfulness import score_brief
-
     assert score_brief(brief, snap, [])["number_accuracy_rate"] == 1.0
 
 

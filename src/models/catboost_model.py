@@ -1,9 +1,4 @@
-# M9 CatBoost: the challenger to M3 LightGBM, with native categorical handling.
-#
-# client_catg, district and region (whichever are present) go to CatBoost as categories; it
-# encodes them with ordered target statistics inside each training fold. The positive class is
-# weighted by negatives / positives of the training fold, as for M3. Writes
-# results/oof/M9_<version>.parquet and its main_results.csv row through the shared evaluate().
+# M9 CatBoost with native categorical handling, the challenger to M3 LightGBM, on the saved folds.
 
 from functools import partial
 
@@ -40,10 +35,12 @@ class M9Classifier(ClassifierMixin, BaseEstimator):
         return X
 
     def fit(self, X, y):
+        # Imported here so the other models run without catboost installed.
         from catboost import CatBoostClassifier
 
         y = np.asarray(y)
         self.cat_columns_ = categorical_columns(X)
+        # Positive class weighted by negatives / positives of the training fold, as for M3.
         weight = (y == 0).sum() / max(1, (y == 1).sum())
         self.model_ = CatBoostClassifier(
             **{**PARAMS, **(self.params or {})},

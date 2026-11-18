@@ -1,5 +1,4 @@
-# Hand-made inputs for the sequence tensor, the neural models, PU learning, the attacks and the
-# shared OOF/results writer used by the deep-learning models.
+# Hand-made inputs for the sequence tensor, neural models, PU learning, attacks and results writer.
 
 import os
 import tempfile

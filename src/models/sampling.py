@@ -35,8 +35,7 @@ def balance_training(X, y, strategy, seed):
     nums = [c for c in X if c not in cats]
     if not nums:
         raise ValueError("SMOTENC requires numeric features as well as categories.")
-    # Imputation/scaling is used only for neighbour search and synthetic generation.
-    # Preserve the original real rows, including their native missing values, for fitting.
+    # Imputation and scaling are only for the neighbour search; real rows keep their missing values.
     aux = X.copy()
     imputer = SimpleImputer(strategy="median", keep_empty_features=True)
     scaler = StandardScaler()

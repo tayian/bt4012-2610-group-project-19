@@ -1,11 +1,5 @@
-# M8sage: GraphSAGE on the client graph (data/processed/knn_edges.parquet), out-of-fold.
-#
-# Two SAGEConv layers (64 hidden) and a linear head, trained full-graph with weighted BCE
-# (pos_weight = negatives / positives). Node features are the behaviour columns of features_v2
-# (consumption, billing, trajectory, validity, digits), standardised as in src/features/graph.py.
-# The label-based graph columns and the peer residuals are left out, so labels only enter
-# through the loss. For fold k the loss uses training clients of the other folds (10% of them
-# held out for early stopping on PR-AUC, as in src/models/dl.py); fold-k clients are scored.
+# M8sage: GraphSAGE on the client k-NN graph, scored out-of-fold. Labels enter only through the
+# loss on training clients of the other folds. Run: python3 -m src.models.graphsage
 
 import argparse
 import copy
@@ -48,6 +42,7 @@ class GraphSAGE(nn.Module):
 
 
 def node_columns(columns):
+    # Behaviour columns only; the label-based graph and peer columns are left out.
     skip = {"client_id", "client_catg", "region", *GRAPH_FEATURES, *PEER_FEATURES}
     return [c for c in columns if c not in skip]
 

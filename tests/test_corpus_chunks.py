@@ -1,4 +1,4 @@
-# Unit tests for data/corpus/case_cards.jsonl and data/corpus/chunks.jsonl.
+# Checks on the saved case cards and chunks in data/corpus.
 
 import json
 from pathlib import Path
