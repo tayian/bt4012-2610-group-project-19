@@ -33,7 +33,11 @@ pip install -r requirements.txt
 
 Once the environment is active, `python` refers to it on every system, so the rest of the steps are the same everywhere.
 
-**3. Add the data.** Copy the two data files, `client_train.csv` and `invoice_train.csv`, into `data/raw/`. They are the STEG training files released for the Zindi *Fraud Detection in Electricity and Gas Consumption* challenge (135,493 clients and 4,476,749 invoices up to December 2019) and were provided by the course; team members can also download them from the shared `steg_project_data` folder. These are the only data files you need; everything else is built from them. If a file is missing or different, `python run.py all` stops at the first step and says so.
+**3. Add the data.** Download and unzip the `steg_project_data` folder that comes with this project. Copy the two files in its `raw/` folder, `client_train.csv` and `invoice_train.csv`, into this repo's `data/raw/` folder. These are the only data files you need; everything else is built from them. If a file is missing or different, `python run.py all` stops at the first step and says so.
+
+Optional shortcut: `steg_project_data` also holds the files the pipeline builds. Copy its `interim/` folder into `data/interim/` and its `processed/` folder into `data/processed/` to skip rebuilding them. Its `README.txt` lists every file.
+
+The data are STEG's training files from the Zindi *Fraud Detection in Electricity and Gas Consumption* challenge: 135,493 clients and 4,476,749 invoices up to December 2019.
 
 **4. Run everything**
 
@@ -41,7 +45,7 @@ Once the environment is active, `python` refers to it on every system, so the re
 python run.py all
 ```
 
-This takes about 10 minutes. It checks the two data files, rebuilds every table, figure and model result in the repo, and finishes by running the tests. When it is done, every table, figure and result matches ours exactly. If your installed package versions differ from ours, `git status` may still list some `.parquet`, `.png` or notebook files as modified: libraries such as pyarrow and matplotlib write their version number into these files, so the bytes change while the contents stay identical.
+This takes about 15 minutes on a laptop. It checks the two data files, rebuilds every table, figure and model result in the repo, and finishes by running the tests. When it is done, every table, figure and result matches ours exactly. If your installed package versions differ from ours, `git status` may still list some `.parquet`, `.png` or notebook files as modified: libraries such as pyarrow and matplotlib write their version number into these files, so the bytes change while the contents stay identical.
 
 **macOS note.** If LightGBM fails to import with a `libomp.dylib` error, run `brew install libomp`.
 
@@ -64,7 +68,8 @@ python run.py test-llm
 | Behaviour features | `python run.py features-v1` | `data/processed/features_v1.parquet` and `features_v1_with_inspection.parquet` |
 | Feature statistics | `python run.py feature-stats` | `results/tables/stat_tests.csv`, `corr_pairs.csv`, `results/figures/corr_heatmap.png` |
 | Peer-residual and graph features | `python run.py peer`, `python run.py graph` | `data/processed/peer_residual.parquet`, `graph_features.parquet`, `knn_edges.parquet` |
-| Final features | `python run.py features-v2` | `data/processed/features_v2.parquet` and `features_v2_with_inspection.parquet` |
+| Peer and graph feature table | `python run.py features-v2` | `data/processed/features_v2.parquet` and `features_v2_with_inspection.parquet` |
+| Meter, tariff and recency features | `python run.py features-v3` | `data/processed/meter_tariff.parquet`, `features_v3.parquet` and `features_v4.parquet` (the final model's table) |
 | Graph model | `python run.py label-spreading` | `results/oof/M8_v1.parquet` and its row in `main_results.csv` |
 | RAG code book | `python run.py codebook` | `data/corpus/source_docs/codebook.md` |
 | Test fixtures | `python run.py stubs` | `data/stubs/` |
