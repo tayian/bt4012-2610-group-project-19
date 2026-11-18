@@ -244,10 +244,8 @@ def _judge_key(point: str, cited_texts: list[str], model: str = "") -> str:
 
 
 def make_gemini_judge(model=None, client=None, cache_path=None, max_retries=6):
-    # Gemini LLM judge with its own prompt (not the brief writer's). Scores are cached on disk
-    # by (claim, cited text), so rescoring costs nothing. judge.prime(brief, snapshot, evidence)
-    # scores all of a brief's points in one call; a failed call falls back to lexical_judge and
-    # is counted in judge.n_fallback. Imported here because briefs.py imports this module.
+    # Gemini judge with its own prompt; scores are cached by (claim, cited text).
+    # A failed call falls back to lexical_judge. Imported here because briefs.py imports this module.
     from src.llm.briefs import DailyQuotaExceeded, _daily_quota, _retryable, get_gemini_client
     from src.llm.query_rewriter import low_thinking
 
