@@ -29,7 +29,7 @@ What a source says and how this project uses it are kept apart below: "Core cont
   * Proposes a wide component (memorising global features) combined with a deep CNN over consumption data arranged by week.
 * **Project Mapping:**
   * Design reference for the sequence model over the 120-month `seq.npy` tensor (built by the deep-learning workstream).
-  * Motivates trajectory features such as `yoy_drop_max` and `slope_last3y` (planned).
+  * Motivates trajectory features such as `yoy_drop_max` and `slope_last3y`.
   * Playbook: `TYP-01`, `TYP-09`.
 
 ---
@@ -75,7 +75,7 @@ What a source says and how this project uses it are kept apart below: "Core cont
 * **Core Contribution:**
   * Uses conformity of consumption data with Benford's Law (leading digits, $P(d=1) \approx 30.1\%$) to flag likely theft, combined with a game-theoretic model of utility and thief behaviour.
 * **Project Mapping:**
-  * Justifies the planned `benford_mad` feature and the `benford_check` agent tool.
+  * Justifies the `benford_mad` feature and the `benford_check` agent tool.
   * Playbook: `TYP-04`, `TYP-08`.
 
 ---
@@ -143,17 +143,17 @@ What a source says and how this project uses it are kept apart below: "Core cont
 
 Generated from the citations in `data/corpus/source_docs/playbook.md`. Keep the two in sync.
 
-| Typology ID | Mechanism | Sources cited in the playbook | Key features (planned features marked) |
+| Typology ID | Mechanism | Sources cited in the playbook | Key features |
 | :--- | :--- | :--- | :--- |
-| **`TYP-01`** | Meter Bypass / Shunt | `[SRC-01]`, `[SRC-04]` | `cons_pm_mean` collapse; `yoy_drop_max`, `zero_run_max` (planned); `share_level_2_plus` |
-| **`TYP-02`** | Magnet Slowdown | `[SRC-06]`, `[SRC-09]`, `[SRC-10]` | Lower `cons_pm_median` without zeros; low `cons_pm_std`; `robust_z_max` (planned) |
+| **`TYP-01`** | Meter Bypass / Shunt | `[SRC-01]`, `[SRC-04]` | `cons_pm_mean` collapse; `yoy_drop_max`, `zero_run_max`; `share_level_2_plus` |
+| **`TYP-02`** | Magnet Slowdown | `[SRC-06]`, `[SRC-09]`, `[SRC-10]` | Lower `cons_pm_median` without zeros; low `cons_pm_std`; `robust_z_max` |
 | **`TYP-03`** | Index Rollback | `[SRC-06]`, `[SRC-09]` | `flag_index_backwards` without `flag_index_rollover`; `flag_recon_mismatch`, `recon_gap` |
-| **`TYP-04`** | Meter-Reader Collusion | `[SRC-04]`, `[SRC-05]`, `[SRC-07]` | `benford_mad > 0.015`, `round_reading_share > 0.40` (both planned) |
-| **`TYP-05`** | Illegal Reconnection | `[SRC-02]`, `[SRC-04]` | Consumption under `counter_statue 1` (assumed cut-off); `n_statue_changes` (planned) |
+| **`TYP-04`** | Meter-Reader Collusion | `[SRC-04]`, `[SRC-05]`, `[SRC-07]` | `benford_mad > 0.015`, `round_reading_share > 0.40` |
+| **`TYP-05`** | Illegal Reconnection | `[SRC-02]`, `[SRC-04]` | Consumption under `counter_statue 1` (assumed cut-off); `n_statue_changes` (F9, leakage comparison only) |
 | **`TYP-06`** | Jammed / Defective Meter | `[SRC-02]` | `cons == 0` runs; `counter_statue` 3/4 (assumed); `flag_bad_months_number`, `has_missing_months` |
-| **`TYP-07`** | Tariff Misclassification | `[SRC-02]`, `[SRC-10]` | High `cons_pm_mean` within `client_catg 11`; `peer_resid_mean` (planned) |
-| **`TYP-08`** | Estimated Reading Abuse | `[SRC-02]`, `[SRC-05]`, `[SRC-07]` | Runs of `reading_remarque 8` (assumed estimated); low `cons_pm_std`; `benford_mad` (planned) |
-| **`TYP-09`** | Catch-Up Billing | `[SRC-01]`, `[SRC-09]` | `sudden_spike_share` (planned); `cons_pm_max / (cons_pm_min + 1)`; `recon_gap` |
+| **`TYP-07`** | Tariff Misclassification | `[SRC-02]`, `[SRC-10]` | High `cons_pm_mean` within `client_catg 11`; `peer_resid_mean` |
+| **`TYP-08`** | Estimated Reading Abuse | `[SRC-02]`, `[SRC-05]`, `[SRC-07]` | Runs of `reading_remarque 8` (assumed estimated); low `cons_pm_std`; `benford_mad` |
+| **`TYP-09`** | Catch-Up Billing | `[SRC-01]`, `[SRC-09]` | `sudden_spike_share`; `cons_pm_max / (cons_pm_min + 1)`; `recon_gap` |
 | **`TYP-10`** | Neutral Disconnection / Inversion | `[SRC-06]`, `[SRC-10]` | ELEC zeros while `cons_pm_mean_gaz` continues; non-rollover backwards readings |
 | **`TYP-11`** | CT/PT Tampering | `[SRC-06]`, `[SRC-10]` | `counter_coefficient > 1` accounts; step drop in `cons_pm_mean` |
-| **`TYP-12`** | Service Drop Tapping | `[SRC-02]`, `[SRC-04]` | Near-zero `cons_pm_mean`, long `tenure_years`; `nbr_fraud_rate_k10` (planned) |
+| **`TYP-12`** | Service Drop Tapping | `[SRC-02]`, `[SRC-04]` | Near-zero `cons_pm_mean`, long `tenure_years`; `nbr_fraud_rate_k10` |
