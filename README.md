@@ -33,7 +33,7 @@ pip install -r requirements.txt
 
 Once the environment is active, `python` refers to it on every system, so the rest of the steps are the same everywhere.
 
-**3. Add the data.** Copy the two data files provided with this project, `client_train.csv` and `invoice_train.csv`, into `data/raw/`. These are the only data files you need; everything else is built from them. If a file is missing or different, `python run.py all` stops at the first step and says so.
+**3. Add the data.** Copy the two data files, `client_train.csv` and `invoice_train.csv`, into `data/raw/`. They are the STEG training files released for the Zindi *Fraud Detection in Electricity and Gas Consumption* challenge (135,493 clients and 4,476,749 invoices up to December 2019) and were provided by the course; team members can also download them from the shared `steg_project_data` folder. These are the only data files you need; everything else is built from them. If a file is missing or different, `python run.py all` stops at the first step and says so.
 
 **4. Run everything**
 
@@ -42,6 +42,10 @@ python run.py all
 ```
 
 This takes about 10 minutes. It checks the two data files, rebuilds every table, figure and model result in the repo, and finishes by running the tests. When it is done, every table, figure and result matches ours exactly. If your installed package versions differ from ours, `git status` may still list some `.parquet`, `.png` or notebook files as modified: libraries such as pyarrow and matplotlib write their version number into these files, so the bytes change while the contents stay identical.
+
+**macOS note.** If LightGBM fails to import with a `libomp.dylib` error, run `brew install libomp`.
+
+**Tested with** Python 3.10.6 on macOS. `requirements.txt` gives minimum versions; `requirements-lock.txt` lists the exact versions that produced the committed results.
 
 **5. (Optional) LLM features.** Only needed for the Inspector Briefs. Make a copy of `.env.example` named `.env`, put your Gemini API key in it, then check that the key works:
 
@@ -78,6 +82,23 @@ comparison, plus SHAP. Completed candidates are checkpointed locally and reused 
 matching rerun. The routine `all` command runs the core pipeline, SHAP and tests.
 See [docs/model_experiments.md](docs/model_experiments.md) for the commands, output names
 and evaluation rules.
+
+## Reproducing the final results
+
+`python run.py all` rebuilds the data, features and baseline models. The final model and every
+number in the report come from one more command:
+
+```bash
+python run.py final
+```
+
+It tunes LightGBM on `features_v4`, trains CatBoost and the wide-and-deep CNN, runs the fusion
+ablation that selects the final model, scores the held-out test set, and reruns the fairness,
+calibration, stability, budget and robustness analyses. It takes about 6 hours on a laptop CPU
+(most of it the wide-and-deep CNN and the Optuna search). Every model's out-of-fold and test
+scores are committed in `results/`, so the tables and figures can be checked without rerunning.
+The Inspector Brief steps (`briefs`, `agents`) are separate because they need a Gemini key; their
+LLM responses are committed too, so `python run.py briefs` rescores them without API calls.
 
 ## Final model, evaluation and Inspector Briefs
 

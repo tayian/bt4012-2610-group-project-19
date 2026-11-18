@@ -22,7 +22,13 @@ V4 = "data/processed/features_v4.parquet"
 def commands(s):
     # Each step: (steps it needs first, commands to run, one-line description).
     raw_check = [] if s.skip_raw_check else ["check-raw"]
-    dl_step = {"v0": "features", "v1": "features-v1", "v2": "features-v2"}[s.dl_features]
+    dl_step = {
+        "v0": "features",
+        "v1": "features-v1",
+        "v2": "features-v2",
+        "v3": "features-v3",
+        "v4": "features-v3",
+    }[s.dl_features]
     experiment_args = [
         "--features",
         s.features_v0,
@@ -318,6 +324,11 @@ def commands(s):
             [[PY, "-m", "src.models.catboost_model", "--features", V4]],
             "M9 CatBoost with native categoricals on the saved folds",
         ),
+        "wide-deep-final": (
+            ["features-v3", "splits", "seq"],
+            [[PY, "-m", "src.models.cnn", "--features", VERSION, "--arch", "widedeep"]],
+            "Wide-and-deep CNN (M7wd) on the final feature table (about 3 h on CPU)",
+        ),
         "fusion": (
             [],
             [[PY, "-m", "src.models.fusion", "cv"]],
@@ -466,6 +477,20 @@ def commands(s):
             ],
             "Train weighted LightGBM (M3) on features_v0; writes OOF scores and metrics",
         ),
+        "final": (
+            [
+                "tune",
+                "catboost",
+                "wide-deep-final",
+                "fusion",
+                "test-set",
+                "responsible",
+                "budget-figures",
+                "robustness-final",
+            ],
+            [],
+            "Rebuild the final model and every reported result end to end (about 6 h on CPU)",
+        ),
         "mlp": (
             [dl_step, "splits"],
             [[PY, "-m", "src.models.mlp", "--features", s.dl_features, "--loss", s.mlp_loss]],
@@ -592,7 +617,7 @@ def main():
     parser.add_argument("--results-dir", default="results")
     parser.add_argument("--lr-max-iter", type=int, default=15000)
     parser.add_argument("--tree-jobs", type=int, default=2)
-    parser.add_argument("--dl-features", choices=["v0", "v1", "v2"], default="v1")
+    parser.add_argument("--dl-features", choices=["v0", "v1", "v2", "v3", "v4"], default="v1")
     parser.add_argument("--mlp-loss", choices=["bce", "focal", "both"], default="bce")
     parser.add_argument("--pu-m3", default="v0", help="version of the M3 OOF file used by pu")
     parser.add_argument(
