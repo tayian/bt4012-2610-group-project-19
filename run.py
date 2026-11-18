@@ -47,6 +47,7 @@ def commands(s):
                 "features",
                 "features-v1",
                 "features-v2",
+                "features-v3",
                 "label-spreading",
                 "codebook",
                 "corpus",
