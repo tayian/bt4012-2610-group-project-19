@@ -1,5 +1,4 @@
-# Small hand-made graphs for the peer-residual, graph and v2 feature steps: labels must stay
-# out-of-fold and the placeholder meter numbers must not create edges.
+# Small hand-made graphs: labels must stay out-of-fold and placeholder meters must not link clients.
 
 import unittest
 

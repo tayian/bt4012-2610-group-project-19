@@ -1,4 +1,4 @@
-# Unit tests for src/llm/snapshot.py and get_client_snapshot(client_id).
+# Tests for the client snapshot built in src/llm/snapshot.py.
 
 import pandas as pd
 
@@ -48,7 +48,6 @@ def test_get_client_snapshot_structure_and_values():
     assert isinstance(snap["risk_rank_pct"], float)
     assert 0.0 <= snap["risk_rank_pct"] <= 100.0
 
-    # Profile checks.
     prof = snap["profile"]
     for k in (
         "client_catg",
@@ -64,21 +63,19 @@ def test_get_client_snapshot_structure_and_values():
         assert k in prof
     assert prof["n_invoices"] > 0
 
-    # Key features + training percentiles.
+    # Key features with their training percentiles.
     kf = snap["key_features"]
     assert "cons_pm_mean" in kf
     assert "value" in kf["cons_pm_mean"]
     assert "train_pct" in kf["cons_pm_mean"]
     assert 0.0 <= kf["cons_pm_mean"]["train_pct"] <= 100.0
 
-    # SHAP top 5 drivers.
     shap5 = snap["shap_top5"]
     assert len(shap5) == 5
     assert [s["rank"] for s in shap5] == [1, 2, 3, 4, 5]
     for s in shap5:
         assert "feature" in s and "value" in s and "shap_value" in s
 
-    # Benford and invalid-reading counts.
     assert 0.0 <= snap["benford_mad"] <= 1.0
     assert 0.0 <= snap["round_reading_share"] <= 1.0
     for k in (
@@ -92,7 +89,7 @@ def test_get_client_snapshot_structure_and_values():
         assert k in snap["invalid_reading_counts"]
         assert isinstance(snap[k], int)
 
-    # Compatibility with faithfulness.py number extraction.
+    # The faithfulness checker must find the snapshot's numbers.
     flat = _flatten_numbers(snap)
     assert snap["risk_score"] in flat
     assert snap["risk_rank_pct"] in flat

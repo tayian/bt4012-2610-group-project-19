@@ -1,8 +1,7 @@
-# Unit tests for src/llm/briefs.py and the Gemini judge in src/llm/faithfulness.py. The LLM and
-# the dense retriever are replaced by stubs, so no network or model download is needed.
+# Tests for brief writing and the Gemini judge; the LLM and retriever are stubs.
 
 import json
-import os
+from pathlib import Path
 from types import SimpleNamespace
 
 import pandas as pd
@@ -12,7 +11,7 @@ from src.llm import briefs
 from src.llm.faithfulness import make_gemini_judge, score_brief
 from src.llm.snapshot import SNAPSHOT_CONFIG, get_client_snapshot
 
-FX = json.load(open(os.path.join(os.path.dirname(__file__), "fixtures/sample_briefs.json")))
+FX = json.loads((Path(__file__).parent / "fixtures/sample_briefs.json").read_text())
 CID = "train_Client_100109"
 
 
@@ -226,10 +225,8 @@ def test_cache_model_picks_the_saved_model(tmp_path):
 
 
 def test_cached_brief_from_an_old_scoring_model_is_not_reused():
-    from src.llm.briefs import _current
-
     now = SNAPSHOT_CONFIG["model_version"]
-    assert _current({"model": "m", "model_version": now}, "m")
-    assert not _current({"model": "m", "model_version": "M10_v1"}, "m")
-    assert not _current({"model": "m"}, "m")
-    assert not _current({"model": "other", "model_version": now}, "m")
+    assert briefs._current({"model": "m", "model_version": now}, "m")
+    assert not briefs._current({"model": "m", "model_version": "M10_v1"}, "m")
+    assert not briefs._current({"model": "m"}, "m")
+    assert not briefs._current({"model": "other", "model_version": now}, "m")
