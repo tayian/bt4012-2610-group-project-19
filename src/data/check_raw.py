@@ -1,6 +1,5 @@
-# Check that data/raw holds the two course files, byte for byte, before anything reads them.
-#
-# data/checksums.txt lists each file's SHA-256, line count (header included) and size.
+# Check that data/raw holds the two course files, byte for byte, against data/checksums.txt.
+# Run: python3 -m src.data.check_raw
 
 import argparse
 import hashlib
@@ -24,7 +23,6 @@ def read_checksums(path):
 
 
 def file_facts(path, chunk=1 << 20):
-    # SHA-256, line count and size, read in one pass.
     digest, lines, size, last = hashlib.sha256(), 0, 0, b"\n"
     with open(path, "rb") as handle:
         while block := handle.read(chunk):
@@ -36,7 +34,7 @@ def file_facts(path, chunk=1 << 20):
 
 
 def check_raw(raw_dir, checksums):
-    # Return warnings for extra files; raise ValueError if a listed file is missing or differs.
+    # Raise if a listed file is missing or differs; return warnings for extra files.
     raw_dir = Path(raw_dir)
     expected = read_checksums(checksums)
     problems = []
@@ -59,7 +57,9 @@ def check_raw(raw_dir, checksums):
     if problems:
         raise ValueError("\n".join([*problems, DOWNLOAD.format(raw_dir=raw_dir)]))
     extra = sorted(
-        p.name for p in raw_dir.iterdir() if p.name not in expected and p.name != ".DS_Store"
+        p.name
+        for p in raw_dir.iterdir()
+        if p.name not in expected and p.name not in (".DS_Store", ".gitkeep")
     )
     return [f"{raw_dir / name} is not used by the pipeline." for name in extra]
 
