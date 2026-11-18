@@ -33,7 +33,11 @@ pip install -r requirements.txt
 
 Once the environment is active, `python` refers to it on every system, so the rest of the steps are the same everywhere.
 
-**3. Add the data.** Copy the two data files, `client_train.csv` and `invoice_train.csv`, into `data/raw/`. They are the STEG training files released for the Zindi *Fraud Detection in Electricity and Gas Consumption* challenge (135,493 clients and 4,476,749 invoices up to December 2019) and were provided by the course; team members can also download them from the shared `steg_project_data` folder. These are the only data files you need; everything else is built from them. If a file is missing or different, `python run.py all` stops at the first step and says so.
+**3. Add the data.** Download and unzip the `steg_project_data` folder that comes with this project. Copy the two files in its `raw/` folder, `client_train.csv` and `invoice_train.csv`, into this repo's `data/raw/` folder. These are the only data files you need; everything else is built from them. If a file is missing or different, `python run.py all` stops at the first step and says so.
+
+Optional shortcut: `steg_project_data` also holds the files the pipeline builds. Copy its `interim/` folder into `data/interim/` and its `processed/` folder into `data/processed/` to skip rebuilding them. Its `README.txt` lists every file.
+
+The data are STEG's training files from the Zindi *Fraud Detection in Electricity and Gas Consumption* challenge: 135,493 clients and 4,476,749 invoices up to December 2019.
 
 **4. Run everything**
 

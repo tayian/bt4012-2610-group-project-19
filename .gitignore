@@ -23,7 +23,7 @@ results/models/
 # Completed experiment checkpoints are local caches; published OOF and tables are separate.
 /results/runs/
 
-# Data is never committed (plan 4.6): download it from the shared drive (see data/README.md).
+# Data is never committed: it comes in the steg_project_data folder (see README step 3).
 # Only data/splits/, data/corpus/ and data/stubs/ are tracked.
 /data/raw/*
 !/data/raw/.gitkeep
