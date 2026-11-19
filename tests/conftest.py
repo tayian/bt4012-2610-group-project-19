@@ -6,6 +6,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 BUILT = [
+    "data/raw/client_train.csv",
     "data/interim/client.parquet",
     "data/interim/invoice_clean.parquet",
     "data/processed/features_v1.parquet",
