@@ -1,7 +1,7 @@
 # LightGBM baseline
 
-Run `python run.py lightgbm` from the repo root after installing `requirements.txt` and
-placing the course CSVs in `data/raw/`. This command rebuilds the current features_v0 through
+Run `python run.py lightgbm` from the repo root after installing `requirements.txt`; it
+unpacks the raw files in `data/raw/` first. This command rebuilds the current features_v0 through
 the existing load, clean and feature steps. `python run.py all` also includes LightGBM.
 For an existing current feature table, run `python -m src.models.trees` to fit without
 rebuilding it. Both commands default to two CPU threads; use `--tree-jobs` with run.py or
