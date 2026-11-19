@@ -61,7 +61,6 @@ def commands(s):
                 "codebook",
                 "corpus",
                 "retrieval-eval",
-                "stubs",
                 "eda",
                 "baseline",
                 "lightgbm",
@@ -148,11 +147,6 @@ def commands(s):
                 [PY, "-m", "src.data.clean", "--interim", s.interim],
             ],
             "Load and clean the raw files into data/interim/ and write the data quality tables",
-        ),
-        "stubs": (
-            raw_check,
-            [[PY, "-m", "src.data.make_stubs", "--clients", s.clients]],
-            "Rebuild the fake test fixtures in data/stubs/",
         ),
         "eda": (
             ["interim", "splits"],

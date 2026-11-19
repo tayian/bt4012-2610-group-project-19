@@ -147,8 +147,7 @@ also written to oof/M3_shap_reference_v0.parquet; tables/shap_metadata_v0.json r
 feature set, training fingerprint, scope and units. Five rows are produced for each of the
 108,394 training clients: 541,970 rows on the current course split.
 
-The columns and numeric value type match the stub SHAP files in `data/stubs/`. The values
-are in log-odds units and explain the M3 scorer only.
+The values are in log-odds units and explain the M3 scorer only.
 
 ## Checkpoints and results
 

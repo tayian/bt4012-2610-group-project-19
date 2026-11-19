@@ -74,7 +74,6 @@ python run.py test-llm
 | RAG code book | `python run.py codebook` | `data/corpus/source_docs/codebook.md` |
 | RAG corpus | `python run.py corpus` | `data/corpus/case_cards.jsonl` (300 precedent case cards) and `data/corpus/chunks.jsonl` |
 | Retrieval evaluation | `python run.py retrieval-eval` | `results/tables/retrieval_eval.csv` and `retrieval_eval_by_query.csv` (downloads the retrieval models once) |
-| Test fixtures | `python run.py stubs` | `data/stubs/` |
 | Exploratory analysis | `python run.py eda` | `notebooks/01_eda.ipynb`, `results/tables/basics.csv`, `descriptive.csv`, EDA figures |
 | Baseline model | `python run.py baseline` | `results/tables/main_results.csv`, `results/oof/M1_v0.parquet` |
 | LightGBM model | `python run.py lightgbm` | `results/tables/main_results.csv`, `results/oof/M3_v0.parquet` |
@@ -174,7 +173,6 @@ data/
   processed/    feature tables (built by the feature steps)
   splits/       the fixed train/test split and folds (in git, never re-split)
   corpus/       documents, case cards and chunks for the RAG system (in git)
-  stubs/        small fake versions of every shared file, for testing (in git)
   checksums.txt fingerprints of the two raw files
 configs/        final.json: the final model's components, stack weights and seed
 docs/           decisions, evaluation protocol, features, cleaning rules, RAG and LLM design, notes
@@ -191,7 +189,7 @@ results/
   shap_top5_<version>.parquet  five SHAP drivers per client (shap_top5_final for the final model)
   models/, runs/               fold models and experiment checkpoints (local only, not in git)
 src/
-  data/         loading, cleaning, raw-data check, split, stubs
+  data/         loading, cleaning, raw-data check, split
   features/     baseline, behaviour, peer-residual, graph, meter/tariff (F12), Benford and sequence features
   models/       logistic regression, random forest, LightGBM and its Optuna tuning, CatBoost, MLP,
                 1D-CNN and wide-and-deep CNN, GraphSAGE, label spreading, anomaly models,

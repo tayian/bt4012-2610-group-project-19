@@ -79,7 +79,7 @@ def check_raw(raw_dir, checksums):
         for p in raw_dir.iterdir()
         if p.name not in expected
         and p.name.removesuffix(".gz") not in expected
-        and p.name not in (".DS_Store", ".gitkeep")
+        and p.name != ".DS_Store"
     )
     return [f"{raw_dir / name} is not used by the pipeline." for name in extra]
 
