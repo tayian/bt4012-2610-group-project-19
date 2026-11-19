@@ -33,9 +33,9 @@ pip install -r requirements.txt
 
 Once the environment is active, `python` refers to it on every system, so the rest of the steps are the same everywhere.
 
-**3. Add the data.** The `steg_project_data` folder is provided with the submission, as a zip alongside the report. Unzip it. Copy the two files in its `raw/` folder, `client_train.csv` and `invoice_train.csv`, into this repo's `data/raw/` folder. These are the only data files you need; everything else is built from them. If a file is missing or different, `python run.py all` stops at the first step and says so.
+**3. The data.** The two raw files are in the repo, gzipped: `data/raw/client_train.csv.gz` and `data/raw/invoice_train.csv.gz`. The first step of `python run.py all` (`check-raw`) unpacks them into `data/raw/` and checks them against `data/checksums.txt`, so there is nothing to copy. Everything else is built from these two files.
 
-Optional shortcut: `steg_project_data` also holds the files the pipeline builds. Copy its `interim/` folder into `data/interim/` and its `processed/` folder into `data/processed/` to skip rebuilding them. Its `README.txt` lists every file.
+Optional shortcut: the `steg_project_data` folder provided with the submission also holds the files the pipeline builds. Copy its `interim/` folder into `data/interim/` and its `processed/` folder into `data/processed/` to skip rebuilding them. Its `README.txt` lists every file.
 
 The data are STEG's training files from the Zindi *Fraud Detection in Electricity and Gas Consumption* challenge: 135,493 clients and 4,476,749 invoices up to December 2019.
 
@@ -61,7 +61,7 @@ python run.py test-llm
 
 | Step | Command | Produces |
 |---|---|---|
-| Check the raw data | `python run.py check-raw` | Confirms `data/raw/` holds the exact course files (`data/checksums.txt`) |
+| Check the raw data | `python run.py check-raw` | Unpacks the gzipped raw files and confirms they are the exact course files (`data/checksums.txt`) |
 | Check the split | `python run.py splits` | Validates the committed train/test split in `data/splits/` |
 | Clean | `python run.py interim` | `data/interim/*.parquet`, `results/tables/data_quality.csv`, `code_values.csv` |
 | Baseline features | `python run.py features` | `data/processed/features_v0.parquet` |
@@ -169,7 +169,7 @@ no API calls.
 
 ```text
 data/
-  raw/          the two course CSVs (not in git; see Quick start)
+  raw/          the two course CSVs, gzipped (check-raw unpacks them)
   interim/      cleaned parquet files (built by python run.py interim)
   processed/    feature tables (built by the feature steps)
   splits/       the fixed train/test split and folds (in git, never re-split)

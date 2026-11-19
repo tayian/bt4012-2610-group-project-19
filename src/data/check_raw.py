@@ -1,14 +1,17 @@
 # Check that data/raw holds the two course files, byte for byte, against data/checksums.txt.
+# The files are committed gzipped; a missing CSV is unpacked from its .csv.gz first.
 # Run: python3 -m src.data.check_raw
 
 import argparse
+import gzip
 import hashlib
+import shutil
 import sys
 from pathlib import Path
 
 DOWNLOAD = (
-    "Copy the provided data files client_train.csv and invoice_train.csv into {raw_dir}/ "
-    "(see Quick start in README.md)."
+    "Copy the provided data files client_train.csv and invoice_train.csv (or their .csv.gz) "
+    "into {raw_dir}/ (see Quick start in README.md)."
 )
 
 
@@ -33,10 +36,25 @@ def file_facts(path, chunk=1 << 20):
     return {"sha256": digest.hexdigest(), "lines": lines + (last != b"\n"), "bytes": size}
 
 
+def unpack(path):
+    # Write path from path.gz if only the gzipped copy is there; the temp name avoids half files.
+    packed = path.with_name(path.name + ".gz")
+    if path.is_file() or not packed.is_file():
+        return False
+    partial = path.with_name(path.name + ".partial")
+    with gzip.open(packed, "rb") as source, open(partial, "wb") as target:
+        shutil.copyfileobj(source, target, 1 << 20)
+    partial.replace(path)
+    return True
+
+
 def check_raw(raw_dir, checksums):
     # Raise if a listed file is missing or differs; return warnings for extra files.
     raw_dir = Path(raw_dir)
     expected = read_checksums(checksums)
+    for name in expected:
+        if unpack(raw_dir / name):
+            print(f"Unpacked {raw_dir / name}.gz")
     problems = []
     for name, facts in expected.items():
         path = raw_dir / name
@@ -59,7 +77,9 @@ def check_raw(raw_dir, checksums):
     extra = sorted(
         p.name
         for p in raw_dir.iterdir()
-        if p.name not in expected and p.name not in (".DS_Store", ".gitkeep")
+        if p.name not in expected
+        and p.name.removesuffix(".gz") not in expected
+        and p.name not in (".DS_Store", ".gitkeep")
     )
     return [f"{raw_dir / name} is not used by the pipeline." for name in extra]
 

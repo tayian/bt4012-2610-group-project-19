@@ -1,5 +1,6 @@
 # The raw file check on small temporary files (the real 344 MB file is never hashed here).
 
+import gzip
 import hashlib
 import subprocess
 import sys
@@ -36,6 +37,13 @@ class CheckRawTests(unittest.TestCase):
         self.assertEqual(check_raw(self.raw, self.checksums), [])
         for name, (_, n_lines) in CONTENT.items():
             self.assertEqual(file_facts(self.raw / name)["lines"], n_lines)
+
+    def test_gzipped_file_is_unpacked(self):
+        data = CONTENT["invoice_train.csv"][0]
+        (self.raw / "invoice_train.csv").unlink()
+        (self.raw / "invoice_train.csv.gz").write_bytes(gzip.compress(data))
+        self.assertEqual(check_raw(self.raw, self.checksums), [])
+        self.assertEqual((self.raw / "invoice_train.csv").read_bytes(), data)
 
     def test_missing_file_says_where_to_put_it(self):
         (self.raw / "invoice_train.csv").unlink()

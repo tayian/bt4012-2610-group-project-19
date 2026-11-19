@@ -2,7 +2,7 @@
 
 | Folder | In git? | Contents | How to get it |
 |---|---|---|---|
-| `raw/` | no | `client_train.csv`, `invoice_train.csv` (the two course files) | Copy the provided data files here; `python run.py check-raw` compares them with `checksums.txt` |
+| `raw/` | gzipped only | `client_train.csv.gz`, `invoice_train.csv.gz` (the two course files) | Committed; `python run.py check-raw` unpacks them to `.csv` and compares them with `checksums.txt` |
 | `interim/` | no | `client.parquet`, `invoice.parquet`, `invoice_clean.parquet` | `python run.py interim` |
 | `processed/` | no | `features_v0.parquet`, `features_v1[_with_inspection].parquet`, `features_v2[_with_inspection].parquet`, `meter_tariff.parquet`, `features_v3.parquet`, `features_v4.parquet`, `peer_residual.parquet`, `graph_features.parquet`, `knn_edges.parquet`, `seq.npy`, `seq_client_ids.npy` | `python run.py features`, `features-v1`, `features-v2`, `features-v3`, `seq` |
 | `splits/` | yes | `train_ids.csv`, `test_ids.csv`, `folds.csv` | Committed once; never re-split |
