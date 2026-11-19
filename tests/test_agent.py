@@ -5,6 +5,8 @@ import os
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 from src.llm import agent, briefs
 from src.llm.agent_eval import load_logs
 from src.llm.faithfulness import score_brief
@@ -94,6 +96,7 @@ def always5(point, cited_texts):
 # Each tool alone
 
 
+@pytest.mark.needs_data
 def test_get_client_profile():
     out = agent.get_client_profile(CID)
     for k in ("client_catg", "region", "tenure_years", "n_counters", "n_invoices", "counter_type"):
@@ -101,6 +104,7 @@ def test_get_client_profile():
     assert out["client_id"] == CID and out["split"] == "train"
 
 
+@pytest.mark.needs_data
 def test_get_risk_score():
     out = agent.get_risk_score(CID)
     assert 0 <= out["risk_score"] <= 1 and 0 <= out["risk_rank_pct"] <= 100
@@ -109,6 +113,7 @@ def test_get_risk_score():
     assert "not a verified probability" in out["note"]
 
 
+@pytest.mark.needs_data
 def test_explain_shap():
     out = agent.explain_shap(CID)
     assert [d["rank"] for d in out["drivers"]] == [1, 2, 3, 4, 5]
@@ -116,6 +121,7 @@ def test_explain_shap():
         assert d["direction"] == ("raises risk" if d["shap_value"] > 0 else "lowers risk")
 
 
+@pytest.mark.needs_data
 def test_benford_check():
     out = agent.benford_check(CID)
     assert out["n_positive_readings"] >= 0
@@ -144,6 +150,7 @@ def test_retrieve_evidence_returns_ids_and_metadata():
         assert c["id"] and c["doc"] == "codebook" and "text" in c and "version" in c
 
 
+@pytest.mark.needs_data
 def test_plot_history_writes_png(tmp_path):
     out = agent.plot_history(CID, out_dir=tmp_path)
     assert out["path"].endswith(f"{CID}.png") and os.path.getsize(out["path"]) > 1000
@@ -152,6 +159,7 @@ def test_plot_history_writes_png(tmp_path):
     assert out["drop_years"] == sorted({int(d[:4]) for d in out["drop_dates"]})
 
 
+@pytest.mark.needs_data
 def test_drop_years_count_as_snapshot_numbers():
     # Old logs lack drop_years; scoring derives them so a correct year is not flagged.
     hist = {"path": "x.png", "drop_dates": ["2009-05-19 (ELEC)"], "first_invoice": "2006-01-20"}
@@ -173,6 +181,7 @@ def test_tool_schemas_match_functions():
 # The toolbox and the loop
 
 
+@pytest.mark.needs_data
 def test_toolbox_binds_client_and_filters():
     retr = StubRetriever()
     box = agent.ToolBox(CID, retriever=retr)
@@ -191,6 +200,7 @@ def test_toolbox_binds_client_and_filters():
     assert set(snap["tool_outputs"]) == {"get_client_profile"}
 
 
+@pytest.mark.needs_data
 def test_tool_loop_stops_at_budget(tmp_path):
     many = [_resp(calls=[_call("get_risk_score", client_id=CID)] * 3) for _ in range(6)]
     fake = SimpleNamespace(models=ScriptedModels(many, [_good_brief()]))
@@ -204,6 +214,7 @@ def test_tool_loop_stops_at_budget(tmp_path):
 # Both systems end to end
 
 
+@pytest.mark.needs_data
 def test_run_single_logs_brief(tmp_path):
     turns = [
         _resp(
@@ -225,6 +236,7 @@ def test_run_single_logs_brief(tmp_path):
     assert not agent._done("single", CID, str(tmp_path), "other-model")
 
 
+@pytest.mark.needs_data
 def test_run_multi_revises_once_then_passes(tmp_path):
     turns = [_resp(calls=[_call("explain_shap", client_id=CID)]), _resp("notes")]
     bad = {**_good_brief(), "risk_score": 0.12345}
@@ -244,6 +256,7 @@ def test_run_multi_revises_once_then_passes(tmp_path):
     assert roles[0] == "planner" and roles[-1] == "writer_revision"
 
 
+@pytest.mark.needs_data
 def test_run_multi_flags_human_review_and_compare(tmp_path):
     turns = [_resp("nothing found")]
     bad = {**_good_brief(), "risk_score": 0.12345}
@@ -253,6 +266,7 @@ def test_run_multi_flags_human_review_and_compare(tmp_path):
     assert len(load_logs("multi", str(tmp_path))) == 1
 
 
+@pytest.mark.needs_data
 def test_compare_table(tmp_path, monkeypatch):
     fake = SimpleNamespace(models=ScriptedModels([_resp("DONE")], [_good_brief()]))
     agent.run_single(CID, fake, "m", log_dir=str(tmp_path), retriever=StubRetriever())
