@@ -35,8 +35,6 @@ Once the environment is active, `python` refers to it on every system, so the re
 
 **3. The data.** The two raw files are in the repo, gzipped: `data/raw/client_train.csv.gz` and `data/raw/invoice_train.csv.gz`. The first step of `python run.py all` (`check-raw`) unpacks them into `data/raw/` and checks them against `data/checksums.txt`, so there is nothing to copy. Everything else is built from these two files.
 
-Optional shortcut: the `steg_project_data` folder provided with the submission also holds the files the pipeline builds. Copy its `interim/` folder into `data/interim/` and its `processed/` folder into `data/processed/` to skip rebuilding them. Its `README.txt` lists every file.
-
 The data are STEG's training files from the Zindi *Fraud Detection in Electricity and Gas Consumption* challenge: 135,493 clients and 4,476,749 invoices up to December 2019.
 
 **4. Run everything**
