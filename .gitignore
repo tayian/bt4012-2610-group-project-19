@@ -11,8 +11,6 @@ __pycache__/
 *$py.class
 .ipynb_checkpoints/
 *.parquet
-# The fake stub tables are tracked (python run.py stubs).
-!/data/stubs/**/*.parquet
 results/oof/*.parquet
 results/agent_logs/*.json
 # Fold models and checkpoints from the neural models (python run.py cnn) and the robustness study.
@@ -22,7 +20,6 @@ results/models/
 
 # The raw files are committed gzipped (check-raw unpacks them); built data is not committed.
 /data/raw/*
-!/data/raw/.gitkeep
 !/data/raw/*.csv.gz
 /data/interim/
 /data/processed/

@@ -15,7 +15,6 @@ import numpy as np
 from rank_bm25 import BM25Okapi
 
 CHUNKS_PATH = Path("data/corpus/chunks.jsonl")
-STUB_CHUNKS_PATH = Path("data/stubs/data/corpus/chunks.jsonl")
 
 DENSE_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 RERANK_MODEL_NAME = "cross-encoder/ms-marco-MiniLM-L-6-v2"
@@ -57,10 +56,7 @@ def rrf(rankings: list[list[str]], k: int = RRF_K) -> list[str]:
 
 
 def load_chunks(path: Path | str | None = None) -> list[dict]:
-    # Falls back to the stub corpus when the real one has not been built.
     target = Path(path) if path is not None else CHUNKS_PATH
-    if not target.is_file() and path is None and STUB_CHUNKS_PATH.is_file():
-        target = STUB_CHUNKS_PATH
     if not target.is_file():
         raise FileNotFoundError(f"Corpus chunks file not found: {target}")
     return [

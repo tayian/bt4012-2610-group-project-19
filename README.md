@@ -45,7 +45,7 @@ The data are STEG's training files from the Zindi *Fraud Detection in Electricit
 python run.py all
 ```
 
-This takes about 15 minutes on a laptop and needs an internet connection the first time, because the retrieval evaluation downloads two small models (`all-MiniLM-L6-v2` and the `ms-marco-MiniLM-L-6-v2` cross-encoder) from Hugging Face. It checks the two data files, rebuilds the data, the feature tables (including `features_v4`), the baseline models and their SHAP drivers, the RAG corpus and the retrieval evaluation, and finishes by running the tests. The files it writes match the committed ones. The final model and most numbers in the report come from `python run.py final` and the other steps listed under [Reproducing the final results](#reproducing-the-final-results). If your installed package versions differ from ours, `git status` may still list some `.parquet`, `.png` or notebook files as modified: libraries such as pyarrow and matplotlib write their version number into these files, so the bytes change while the contents stay identical.
+This takes about 15 to 25 minutes on a laptop and needs an internet connection the first time, because the retrieval evaluation downloads two small models (`all-MiniLM-L6-v2` and the `ms-marco-MiniLM-L-6-v2` cross-encoder) from Hugging Face. It checks the two data files, rebuilds the data, the feature tables (including `features_v4`), the baseline models and their SHAP drivers, the RAG corpus and the retrieval evaluation, and finishes by running the tests. The files it writes match the committed ones. The final model and most numbers in the report come from `python run.py final` and the other steps listed under [Reproducing the final results](#reproducing-the-final-results). If your installed package versions differ from ours, `git status` may still list some `.parquet`, `.png` or notebook files as modified: libraries such as pyarrow and matplotlib write their version number into these files, so the bytes change while the contents stay identical.
 
 **macOS note.** If LightGBM fails to import with a `libomp.dylib` error, run `brew install libomp`.
 
@@ -74,7 +74,6 @@ python run.py test-llm
 | RAG code book | `python run.py codebook` | `data/corpus/source_docs/codebook.md` |
 | RAG corpus | `python run.py corpus` | `data/corpus/case_cards.jsonl` (300 precedent case cards) and `data/corpus/chunks.jsonl` |
 | Retrieval evaluation | `python run.py retrieval-eval` | `results/tables/retrieval_eval.csv` and `retrieval_eval_by_query.csv` (downloads the retrieval models once) |
-| Test fixtures | `python run.py stubs` | `data/stubs/` |
 | Exploratory analysis | `python run.py eda` | `notebooks/01_eda.ipynb`, `results/tables/basics.csv`, `descriptive.csv`, EDA figures |
 | Baseline model | `python run.py baseline` | `results/tables/main_results.csv`, `results/oof/M1_v0.parquet` |
 | LightGBM model | `python run.py lightgbm` | `results/tables/main_results.csv`, `results/oof/M3_v0.parquet` |
@@ -174,7 +173,6 @@ data/
   processed/    feature tables (built by the feature steps)
   splits/       the fixed train/test split and folds (in git, never re-split)
   corpus/       documents, case cards and chunks for the RAG system (in git)
-  stubs/        small fake versions of every shared file, for testing (in git)
   checksums.txt fingerprints of the two raw files
 configs/        final.json: the final model's components, stack weights and seed
 docs/           decisions, evaluation protocol, features, cleaning rules, RAG and LLM design, notes
@@ -191,7 +189,7 @@ results/
   shap_top5_<version>.parquet  five SHAP drivers per client (shap_top5_final for the final model)
   models/, runs/               fold models and experiment checkpoints (local only, not in git)
 src/
-  data/         loading, cleaning, raw-data check, split, stubs
+  data/         loading, cleaning, raw-data check, split
   features/     baseline, behaviour, peer-residual, graph, meter/tariff (F12), Benford and sequence features
   models/       logistic regression, random forest, LightGBM and its Optuna tuning, CatBoost, MLP,
                 1D-CNN and wide-and-deep CNN, GraphSAGE, label spreading, anomaly models,

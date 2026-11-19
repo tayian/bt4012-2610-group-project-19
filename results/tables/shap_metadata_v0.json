@@ -1,7 +1,7 @@
 {
   "model": "M3",
   "feature_set": "features_v0",
-  "data_fingerprint": "770250e1d236c60e091e",
+  "data_fingerprint": "d00dcf0891b1524a6b8a",
   "scope": "training clients, out-of-fold explanations",
   "units": "raw log-odds",
   "rank": "descending absolute SHAP, signs preserved",
