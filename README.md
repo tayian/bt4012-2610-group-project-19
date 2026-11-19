@@ -79,7 +79,7 @@ python run.py test-llm
 | Baseline model | `python run.py baseline` | `results/tables/main_results.csv`, `results/oof/M1_v0.parquet` |
 | LightGBM model | `python run.py lightgbm` | `results/tables/main_results.csv`, `results/oof/M3_v0.parquet` |
 | Baseline explanations | `python run.py shap` | `results/shap_top5_v0.parquet`, five OOF drivers per training client |
-| Tests | `python run.py test` | Runs every test |
+| Tests | `python run.py test` | Runs every test; the 22 that read built data skip until `python run.py all` has run |
 
 Each command also runs the steps it depends on, so you can run any one on its own. `python run.py --list` shows every step.
 

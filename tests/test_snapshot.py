@@ -1,6 +1,7 @@
 # Tests for the client snapshot built in src/llm/snapshot.py.
 
 import pandas as pd
+import pytest
 
 from src.llm.faithfulness import _flatten_numbers
 from src.llm.retrieval import get_client_snapshot
@@ -21,6 +22,7 @@ def test_snapshot_config_centralized():
     assert required_keys.issubset(set(SNAPSHOT_CONFIG.keys()))
 
 
+@pytest.mark.needs_data
 def test_signals_read_from_features_v1_and_nan_kept_missing():
     f1 = pd.read_parquet(SNAPSHOT_CONFIG["features_v1_path"]).set_index("client_id")
     row = f1.loc["train_Client_100109"]
@@ -39,6 +41,7 @@ def test_signals_read_from_features_v1_and_nan_kept_missing():
     assert snap["key_features"]["benford_mad"] == {"value": None, "train_pct": None}
 
 
+@pytest.mark.needs_data
 def test_get_client_snapshot_structure_and_values():
     snap = get_client_snapshot("train_Client_100109")
     assert snap["client_id"] == "train_Client_100109"

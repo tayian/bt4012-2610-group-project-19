@@ -5,6 +5,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pandas as pd
+import pytest
 
 from src.llm.query_rewriter import (
     DEFAULT_MODEL,
@@ -18,6 +19,7 @@ from src.llm.query_rewriter import (
 from src.llm.snapshot import get_client_snapshot
 
 
+@pytest.mark.needs_data
 def test_select_sample_clients_and_formatting():
     clients = select_sample_clients(n_clients=5)
     assert len(clients) == 5
@@ -42,6 +44,7 @@ def test_select_sample_clients_and_formatting():
     assert all(isinstance(q, str) and len(q.strip()) > 0 for q in fb)
 
 
+@pytest.mark.needs_data
 def test_rewrite_snapshot_with_mock_client():
     called = {}
 

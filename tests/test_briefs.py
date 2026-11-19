@@ -79,6 +79,7 @@ def test_risk_tier_by_rank_percentile():
     assert briefs.risk_tier(None) == "low"
 
 
+@pytest.mark.needs_data
 def test_brief_snapshot_and_prompt_order():
     snap = briefs.brief_snapshot(get_client_snapshot(CID))
     assert snap["risk_tier"] == briefs.risk_tier(snap["risk_rank_pct"])
@@ -101,6 +102,7 @@ def test_top_clients_are_highest_oof_scores():
     assert str(SNAPSHOT_CONFIG["oof_path"]).endswith("M10_v4.parquet")
 
 
+@pytest.mark.needs_data
 def test_write_brief_uses_schema_and_parses():
     snap = briefs.brief_snapshot(get_client_snapshot(CID))
     client = fake_client(json.dumps(_brief_for(snap)))
@@ -114,6 +116,7 @@ def test_write_brief_uses_schema_and_parses():
     assert res["schema_valid"] and res["citation_valid_rate"] == 1.0
 
 
+@pytest.mark.needs_data
 def test_generate_run_caches_and_filters(tmp_path):
     snap = briefs.brief_snapshot(get_client_snapshot(CID))
     good = json.dumps(_brief_for(snap))
@@ -152,6 +155,7 @@ def test_generate_run_caches_and_filters(tmp_path):
     assert again[0]["brief"] == recs[0]["brief"] and client3.models.calls == []
 
 
+@pytest.mark.needs_data
 def test_generate_run_records_llm_failure(tmp_path):
     client = fake_client(ValueError("400 bad request"))
     recs = briefs.generate_run(

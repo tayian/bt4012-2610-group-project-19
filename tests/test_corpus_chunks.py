@@ -3,6 +3,8 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from src.data.split import read_clients, read_splits
 from src.llm.corpus.build_chunks import REQUIRED_FIELDS
 
@@ -72,6 +74,7 @@ def test_sop_versions_and_validity():
         assert c["synthetic"] is True
 
 
+@pytest.mark.needs_data
 def test_case_cards_non_leakage_and_observed_only():
     clients = read_clients(Path("data/raw/client_train.csv"))
     train_df, test_df, _ = read_splits(Path("data/splits"), clients)
